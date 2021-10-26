@@ -4,6 +4,10 @@
 
 namespace my_ns {
 
+// #######
+// # foo #
+// #######
+
 struct foo 
 {
     int x;
@@ -38,6 +42,16 @@ static_assert(foo{2, 2.f} < foo{2, 3.f});
 }
 static_assert(my_ns::foo{2, 3.f} == my_ns::foo{2, 3.f});
 
+// namespace some_other_ns {
+// struct wtf;
+// bool operator==(const wtf&, const wtf&) { return true; }
+// static_assert(my_ns::foo{2, 3.f} == my_ns::foo{2, 3.f});
+// }
+
+// #######
+// # bar #
+// #######
+
 struct bar {};
 
 namespace vst {
@@ -54,6 +68,12 @@ struct trait<bar>
 static_assert(bar{} == bar{});
 // static_assert(bar{} < bar{});
 
+// #######
+// # baz #
+// #######
+
+namespace baz_ns {
+
 struct baz_pod {
     int x;
     float y;
@@ -67,6 +87,12 @@ static_assert(baz{1, 3.f} != baz{2, 3.f});
 static_assert(baz{2, 3.f} == baz{2, 3.f});
 static_assert(baz{1, 3.f} < baz{2, 3.f});
 static_assert(baz{2, 2.f} < baz{2, 3.f});
+
+}
+
+// ########
+// # pure #
+// ########
 
 struct pure_pod {
     int x;
@@ -122,9 +148,12 @@ int main()
 
     // std::unordered_set<my_ns::foo, vst::hash<my_ns::foo>> s_foo;
     // s_foo.insert(my_ns::foo{2, 2.f});
+    // s_foo.insert(my_ns::foo{2, 2.f});
+    // s_foo.insert(my_ns::foo{3, 2.f});
+    // assert(s_foo.size() == 2);
     
-    std::unordered_set<baz> s_baz;
-    s_baz.insert(baz{2, 2.f});
+    // std::unordered_set<baz_ns::baz> s_baz;
+    // s_baz.insert(baz_ns::baz{2, 2.f});
 
     // std::cout << foo{2, 4.f} << "\n";
 
@@ -132,7 +161,7 @@ int main()
     const pure_pod& pp = ppp;
     std::cout << boost::pfr::get<0>(pp)  << "\n";
     std::cout << boost::pfr::get<1>(pp)  << "\n";
-    std::cout << boost::pfr::tuple_size_v<baz_pod>  << "\n";
+    std::cout << boost::pfr::tuple_size_v<baz_ns::baz_pod>  << "\n";
     std::cout << (boost::pfr::structure_tie(pp) == boost::pfr::structure_tie(pp))  << "\n";
 
     pod_with_empty ee{{}, 3, 7.f};

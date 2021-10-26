@@ -93,6 +93,52 @@ struct helper
     }
 };
 
+// // comparable
+// template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
+// constexpr bool operator==(const T& lhs, const T& rhs)
+// {
+//     return vst::helper::tie(lhs) == vst::helper::tie(rhs);
+// }
+
+// template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
+// constexpr bool operator!=(const T& lhs, const T& rhs)
+// {
+//     return !(lhs == rhs);
+// }
+
+// // ordered
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator<(const T& lhs, const T& rhs)
+// {
+//     return vst::helper::tie(lhs) < vst::helper::tie(rhs);
+// }
+
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator<=(const T& lhs, const T& rhs)
+// {
+//     return lhs < rhs || lhs == rhs;
+// }
+
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator>(const T& lhs, const T& rhs)
+// {
+//     return !(lhs <= rhs);
+// }
+
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator>=(const T& lhs, const T& rhs)
+// {
+//     return !(lhs < rhs);
+// }
+
 } // namespace vst
 
 // comparable
@@ -140,6 +186,52 @@ constexpr bool operator>=(const T& lhs, const T& rhs)
 {
     return !(lhs < rhs);
 }
+
+// // comparable
+// template<typename T, std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T>, int> = 0>
+// constexpr bool operator==(const T& lhs, const T& rhs)
+// {
+//     return vst::helper::tie(lhs) == vst::helper::tie(rhs);
+// }
+
+// template<typename T, std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T>, int> = 0>
+// constexpr bool operator!=(const T& lhs, const T& rhs)
+// {
+//     return !(lhs == rhs);
+// }
+
+// // ordered
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator<(const T& lhs, const T& rhs)
+// {
+//     return vst::helper::tie(lhs) < vst::helper::tie(rhs);
+// }
+
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exist && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator<=(const T& lhs, const T& rhs)
+// {
+//     return lhs < rhs || lhs == rhs;
+// }
+
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator>(const T& lhs, const T& rhs)
+// {
+//     return !(lhs <= rhs);
+// }
+
+// template<
+//     typename T, 
+//     std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+// constexpr bool operator>=(const T& lhs, const T& rhs)
+// {
+//     return !(lhs < rhs);
+// }
 
 namespace vst 
 {
