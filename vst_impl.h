@@ -65,12 +65,11 @@ struct trait<type<T, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
 
 struct helper 
 {
-    // template<typename T, typename op>
-    // static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
+    template<typename T, typename op>
+    static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
 
-    // template<typename T, std::enable_if_t<has_get_fields<std::decay_t<T>>, int> = 0>
     template<typename T>
-    static constexpr decltype(auto) as_raw_values(T& obj)
+    static constexpr decltype(auto) tie(T& obj)
     {
         if constexpr (has_get_fields<std::decay_t<T>>) 
         {
@@ -92,22 +91,6 @@ struct helper
             return boost::pfr::structure_tie(obj);
         }
     }
-
-    // template<typename T, std::enable_if_t<!has_get_fields<std::decay_t<T>>, int> = 0>
-    // static constexpr decltype(auto) as_raw_values(T& obj)
-    // {
-    //     return boost::pfr::structure_tie(obj);
-    // }
-
-    // // TODO: fix constness
-    // template<typename T, typename... ops, std::enable_if_t<!has_get_fields<std::decay_t<T>>, int> = 0>
-    // static constexpr decltype(auto) as_raw_values(const type<T, ops...>& obj)
-    // {
-    //     return boost::pfr::structure_tie(static_cast<const T&>(obj));
-    // }
-
-    template<typename T, typename op>
-    static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
 };
 
 } // namespace vst
@@ -116,7 +99,7 @@ struct helper
 template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
 constexpr bool operator==(const T& lhs, const T& rhs)
 {
-    return vst::helper::as_raw_values(lhs) == vst::helper::as_raw_values(rhs);
+    return vst::helper::tie(lhs) == vst::helper::tie(rhs);
 }
 
 template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
@@ -131,7 +114,7 @@ template<
     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator<(const T& lhs, const T& rhs)
 {
-    return vst::helper::as_raw_values(lhs) < vst::helper::as_raw_values(rhs);
+    return vst::helper::tie(lhs) < vst::helper::tie(rhs);
 }
 
 template<
@@ -174,7 +157,7 @@ struct hash<T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashab
         std::apply(
             [&hash](const auto&... field){
                 (boost::hash_combine(hash, field), ...);
-            }, helper::as_raw_values(o));
+            }, helper::tie(o));
         return hash;
     }
 };
