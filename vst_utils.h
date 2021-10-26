@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VST_UTILS_H
+#define VST_UTILS_H
 
 #include "vst_defs.h"
 
@@ -19,7 +20,6 @@ constexpr bool has_get_fields_raw<
     std::void_t<decltype(T::get_fields())>>
 = true;
 
-
 // ##################
 // # has_get_fields #
 // ##################
@@ -33,7 +33,6 @@ constexpr bool has_get_fields<
     std::void_t<decltype(trait<T>::get_fields())>>
 = true;
 
-
 // ###############
 // # is_vst_type #
 // ###############
@@ -44,4 +43,22 @@ constexpr bool is_vst_type = false;
 template<typename T, typename... ops>
 constexpr bool is_vst_type<type<T, ops...>> = true;
 
+// ##############
+// # underlying #
+// ##############
+
+template<typename T>
+struct underlying;
+
+template<typename T, typename... ops>
+struct underlying<type<T, ops...>>
+{
+    using type = T;
+};
+
+template<typename T>
+using underlying_t = typename underlying<T>::type;
+
 }
+
+#endif

@@ -49,10 +49,6 @@ struct named_field_ptr
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
-// ################
-// # defining vst #
-// ################
-
 namespace vst {
 
 template<typename T, typename... ops>
@@ -66,25 +62,6 @@ struct trait<type<T, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
 : make_basic_trait<T, ops...>
 {
 };
-
-template<typename T>
-struct underlying;
-
-template<typename T, typename... ops>
-struct underlying<type<T, ops...>>
-{
-    using type = T;
-};
-
-template<typename T>
-using underlying_t = typename underlying<T>::type;
-
-struct xxx {};
-
-static_assert(!std::is_const_v<xxx>);
-static_assert( std::is_const_v<const xxx>);
-static_assert(!std::is_const_v<xxx&>);
-static_assert( std::is_const_v<std::remove_reference_t<const xxx&>>);
 
 struct helper 
 {
