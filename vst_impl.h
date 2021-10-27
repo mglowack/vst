@@ -56,40 +56,32 @@ namespace vst {
 // #########
 
 template<typename T>
-struct trait<type_impl<T>> : trait<type_impl<T, with_fields::inferred>>
+struct trait<type<T>> : trait<type<T, with_fields::inferred>>
 {
 };
 
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
-    type_impl<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def_v<maybe_field_def> && has_get_fields_raw<T>>>
-: make_trait<T, maybe_field_def, ops...>
-{
-};
-
-template<typename T, typename maybe_field_def, typename... ops>
-struct trait<
-    type_impl<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def_v<maybe_field_def> && !has_get_fields_raw<T>>>
-: make_basic_trait<T, maybe_field_def, ops...>
+    type<T, maybe_field_def, ops...>, 
+    std::enable_if_t<!is_fields_def_v<maybe_field_def>>>
+: trait<type<T, with_fields::inferred, maybe_field_def, ops...>>
 {
 };
 
 template<typename T, typename... ops>
-struct trait<type_impl<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
+struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
 : make_trait<T, ops...>
 {
 };
 
 template<typename T, typename... ops>
-struct trait<type_impl<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
+struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
 : make_basic_trait<T, ops...>
 {
 };
 
 template<typename T, auto (*get_fields_func)(), typename... ops>
-struct trait<type_impl<T, with_fields::from_func<get_fields_func>, ops...>>
+struct trait<type<T, with_fields::from_func<get_fields_func>, ops...>>
 : make_basic_trait<T, ops...>
 , with_fields::from_func<get_fields_func>
 {
@@ -348,9 +340,9 @@ namespace std
 {
 
 template<typename... args_t>
-struct hash<vst::type_impl<args_t...>> : vst::hash<vst::type_impl<args_t...>>
+struct hash<vst::type<args_t...>> : vst::hash<vst::type<args_t...>>
 {
-    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type_impl<args_t...>, vst::op::hashable>()>;
+    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type<args_t...>, vst::op::hashable>()>;
 };
 
 } // namespace std

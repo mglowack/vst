@@ -54,12 +54,7 @@ struct inferred {};
 } // namespace fields
 
 template<typename T, typename...>
-struct type_impl : public T
-{
-};
-
-template<typename T, typename... ops>
-struct type : type_impl<T, with_fields::inferred, ops...>
+struct type : public T
 {
 };
 
