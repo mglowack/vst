@@ -405,6 +405,12 @@ struct hash<T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashab
     }
 };
 
+template <typename T>
+std::size_t hash_value(const T& o)
+{
+    return hash<T>{}(o);
+}
+
 } // namespace vst
 
 namespace std

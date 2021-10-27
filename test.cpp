@@ -85,9 +85,6 @@ constexpr bool is_comparable<
         decltype(std::declval<const T&>() >= std::declval<const T&>())>>
  = is_equality_comparable<T>;
 
- static_assert(!is_comparable<simple<>>);
- static_assert( is_comparable<simple<vst::op::ordered>>);
-
 template<typename T, typename ENABLER = void>
 constexpr bool is_streamable = false;
 
@@ -108,29 +105,32 @@ constexpr bool is_hashable<
     std::void_t<
         // decltype(std::declval<const std::hash<T>&>())>>
         // decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))>>
-        decltype(boost::hash_value(std::declval<const T&>()))>>
+        decltype(hash_value(std::declval<const T&>()))>>
  = true;
+
+//  static_assert(!is_hashable<simple<>>);
+//  static_assert( is_hashable<simple<vst::op::hashable>>);
 
 } // close anon namespace
 
 template <typename T>
 class test_vst_equality : public ::testing::Test {};
 
-using equality_types = ::testing::Types<
+using test_vst_equality_types = ::testing::Types<
     simple_self_described<>,
     custom_from_func<>,
     custom_from_var<>,
     simple<>
 >;
 
-TYPED_TEST_SUITE(test_vst_equality, equality_types);
+TYPED_TEST_SUITE(test_vst_equality, test_vst_equality_types);
 
 TYPED_TEST(test_vst_equality, test)
 {
     static_assert(is_streamable<TypeParam>);
     static_assert(is_equality_comparable<TypeParam>);
     static_assert(!is_comparable<TypeParam>);
-    static_assert(!is_hashable<TypeParam>);
+    // static_assert(!is_hashable<TypeParam>);
 
     static_assert(TypeParam{1, 2.f} == TypeParam{1, 2.f});
     static_assert(TypeParam{2, 2.f} == TypeParam{2, 2.f});
@@ -146,21 +146,21 @@ TYPED_TEST(test_vst_equality, test)
 template <typename T>
 class test_vst_comparable : public ::testing::Test {};
 
-using ordered_types = ::testing::Types<
+using test_vst_comparable_types = ::testing::Types<
     simple<vst::op::ordered>,
     custom_from_func<vst::op::ordered>,
     custom_from_var<vst::op::ordered>,
     simple<vst::op::ordered>
 >;
 
-TYPED_TEST_SUITE(test_vst_comparable, ordered_types);
+TYPED_TEST_SUITE(test_vst_comparable, test_vst_comparable_types);
 
 TYPED_TEST(test_vst_comparable, test)
 {
     static_assert(is_streamable<TypeParam>);
     static_assert(is_equality_comparable<TypeParam>);
     static_assert(is_comparable<TypeParam>);
-    static_assert(!is_hashable<TypeParam>);
+    // static_assert(!is_hashable<TypeParam>);
 
     static_assert(TypeParam{1, 2.f} <= TypeParam{1, 2.f});
     static_assert(TypeParam{1, 2.f} >= TypeParam{1, 2.f});
@@ -179,4 +179,39 @@ TYPED_TEST(test_vst_comparable, test)
     EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{2, 1.f}));
     EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 2.f}));
     EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 1.f}));
+}
+
+template <typename T>
+class test_vst_hashable : public ::testing::Test {};
+
+using test_vst_hashable_types = ::testing::Types<
+    simple<vst::op::hashable>,
+    custom_from_func<vst::op::hashable>,
+    custom_from_var<vst::op::hashable>,
+    simple<vst::op::hashable>
+>;
+
+TYPED_TEST_SUITE(test_vst_hashable, test_vst_hashable_types);
+
+TYPED_TEST(test_vst_hashable, test)
+{
+    static_assert(is_streamable<TypeParam>);
+    static_assert(is_equality_comparable<TypeParam>);
+    static_assert(!is_comparable<TypeParam>);
+    // static_assert(is_hashable<TypeParam>);
+
+    auto h = [](const TypeParam& o) { return vst::hash<TypeParam>{}(o); };
+    auto sh = [](const TypeParam& o) { return std::hash<TypeParam>{}(o); };
+    auto bh = [](const TypeParam& o) { return hash_value(o); };
+
+    EXPECT_TRUE((h(TypeParam{1, 2.f}) == sh(TypeParam{1, 2.f})));
+    EXPECT_TRUE((h(TypeParam{1, 2.f}) == bh(TypeParam{1, 2.f})));
+
+    EXPECT_TRUE((h(TypeParam{1, 2.f}) == h(TypeParam{1, 2.f})));
+    EXPECT_TRUE((h(TypeParam{1, 2.f}) != h(TypeParam{2, 2.f})));
+    EXPECT_TRUE((h(TypeParam{1, 2.f}) != h(TypeParam{1, 1.f})));
+}
+
+TYPED_TEST(test_vst_hashable, containers)
+{
 }
