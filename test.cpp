@@ -85,6 +85,9 @@ constexpr bool is_comparable<
         decltype(std::declval<const T&>() >= std::declval<const T&>())>>
  = is_equality_comparable<T>;
 
+ static_assert(!is_comparable<simple<>>);
+ static_assert( is_comparable<simple<vst::op::ordered>>);
+
 template<typename T, typename ENABLER = void>
 constexpr bool is_streamable = false;
 
@@ -140,40 +143,40 @@ TYPED_TEST(test_vst_equality, test)
     EXPECT_TRUE((TypeParam{2, 2.f} != TypeParam{2, 1.f}));
 }
 
-// template <typename T>
-// class test_vst_comparable : public ::testing::Test {};
+template <typename T>
+class test_vst_comparable : public ::testing::Test {};
 
-// using ordered_types = ::testing::Types<
-//     simple<vst::op::ordered>,
-//     custom_from_func<vst::op::ordered>,
-//     custom_from_var<vst::op::ordered>,
-//     simple<vst::op::ordered>
-// >;
+using ordered_types = ::testing::Types<
+    simple<vst::op::ordered>,
+    custom_from_func<vst::op::ordered>,
+    custom_from_var<vst::op::ordered>,
+    simple<vst::op::ordered>
+>;
 
-// TYPED_TEST_SUITE(test_vst_comparable, equality_types);
+TYPED_TEST_SUITE(test_vst_comparable, ordered_types);
 
-// TYPED_TEST(test_vst_comparable, test)
-// {
-//     static_assert(is_streamable<TypeParam>);
-//     static_assert(is_equality_comparable<TypeParam>);
-//     static_assert(is_comparable<TypeParam>);
-//     static_assert(!is_hashable<TypeParam>);
+TYPED_TEST(test_vst_comparable, test)
+{
+    static_assert(is_streamable<TypeParam>);
+    static_assert(is_equality_comparable<TypeParam>);
+    static_assert(is_comparable<TypeParam>);
+    static_assert(!is_hashable<TypeParam>);
 
-//     static_assert(TypeParam{1, 2.f} <= TypeParam{1, 2.f});
-//     static_assert(TypeParam{1, 2.f} >= TypeParam{1, 2.f});
-//     static_assert(TypeParam{2, 2.f} < TypeParam{3, 2.f});
-//     static_assert(TypeParam{2, 2.f} < TypeParam{2, 3.f});
-//     static_assert(TypeParam{2, 2.f} < TypeParam{3, 3.f});
-//     static_assert(TypeParam{2, 2.f} > TypeParam{2, 1.f});
-//     static_assert(TypeParam{2, 2.f} > TypeParam{1, 2.f});
-//     static_assert(TypeParam{2, 2.f} > TypeParam{1, 1.f});
+    static_assert(TypeParam{1, 2.f} <= TypeParam{1, 2.f});
+    static_assert(TypeParam{1, 2.f} >= TypeParam{1, 2.f});
+    static_assert(TypeParam{2, 2.f} < TypeParam{3, 2.f});
+    static_assert(TypeParam{2, 2.f} < TypeParam{2, 3.f});
+    static_assert(TypeParam{2, 2.f} < TypeParam{3, 3.f});
+    static_assert(TypeParam{2, 2.f} > TypeParam{2, 1.f});
+    static_assert(TypeParam{2, 2.f} > TypeParam{1, 2.f});
+    static_assert(TypeParam{2, 2.f} > TypeParam{1, 1.f});
     
-//     EXPECT_TRUE(TypeParam{1, 2.f} <= TypeParam{1, 2.f});
-//     EXPECT_TRUE(TypeParam{1, 2.f} >= TypeParam{1, 2.f});
-//     EXPECT_TRUE(TypeParam{2, 2.f} < TypeParam{3, 2.f});
-//     EXPECT_TRUE(TypeParam{2, 2.f} < TypeParam{2, 3.f});
-//     EXPECT_TRUE(TypeParam{2, 2.f} < TypeParam{3, 3.f});
-//     EXPECT_TRUE(TypeParam{2, 2.f} > TypeParam{2, 1.f});
-//     EXPECT_TRUE(TypeParam{2, 2.f} > TypeParam{1, 2.f});
-//     EXPECT_TRUE(TypeParam{2, 2.f} > TypeParam{1, 1.f});
-// }
+    EXPECT_TRUE((TypeParam{1, 2.f} <= TypeParam{1, 2.f}));
+    EXPECT_TRUE((TypeParam{1, 2.f} >= TypeParam{1, 2.f}));
+    EXPECT_TRUE((TypeParam{2, 2.f} < TypeParam{3, 2.f}));
+    EXPECT_TRUE((TypeParam{2, 2.f} < TypeParam{2, 3.f}));
+    EXPECT_TRUE((TypeParam{2, 2.f} < TypeParam{3, 3.f}));
+    EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{2, 1.f}));
+    EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 2.f}));
+    EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 1.f}));
+}
