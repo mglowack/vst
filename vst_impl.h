@@ -160,29 +160,13 @@ struct helper
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
         {
-            // return from_fields_tie(obj, trait_t::get_fields());
-            return std::apply(
-                [&obj](const auto&... f) { 
-                    return std::tie((obj.*f.p)...); 
-                }, 
-                trait_t::get_fields());
+            return from_fields_tie(obj, trait_t::get_fields());
         }
         else
         {
             // try boost::pfr
             return boost::pfr::structure_tie(as_aggregate(obj));
         }
-        //         if constexpr(is_vst_type<std::decay_t<T>>)
-        // {
-        //     using U = underlying_t<std::decay_t<T>>;
-        //     using X = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>, const U, U>;
-        //     return boost::pfr::structure_tie(static_cast<X&>(obj));
-        //     // return boost::pfr::structure_tie(obj);
-        // }
-        // else
-        // {
-        //     return boost::pfr::structure_tie(obj);
-        // }
 
     }
 };
