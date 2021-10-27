@@ -78,7 +78,7 @@ std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
 template<typename T, typename ENABLER = void>
 struct wrapped_value
 {
-    T& value;
+    const T& value;
 };
 
 // defaults
@@ -105,6 +105,12 @@ std::size_t hash_value(const wrapped_value<T>& v)
 {
     using boost::hash_value;
     return hash_value(v.value);
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const wrapped_value<T>& rhs)
+{
+    return os << rhs.value;
 }
 
 // overrides - const char*
@@ -179,8 +185,8 @@ struct helper
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        return raw_tie(obj);
-        // return wrapped_tie(obj);
+        // return raw_tie(obj);
+        return wrapped_tie(obj);
     }
 
     template<typename T>
@@ -228,14 +234,14 @@ private:
     }
 
     template<typename T>
-    static constexpr wrapped_value<T> wrap(T& field)
+    static constexpr wrapped_value<T> wrap(const T& field)
     {
         // return wrapped_value<std::remove_reference_t<T>>{field};
         return wrapped_value<T>{field};
     }
 
     template<typename... Ts>
-    static constexpr std::tuple<wrapped_value<Ts>...> wrap(std::tuple<Ts&...> fields)
+    static constexpr auto wrap(std::tuple<Ts&...> fields)
     {
         return std::apply(
             [](auto&... f) { 
@@ -244,11 +250,11 @@ private:
             fields);
     }
     
-    static_assert(std::is_same_v<wrapped_value<int>, decltype(wrap(std::declval<int&>()))>);
-    static_assert(std::is_same_v<wrapped_value<const int>, decltype(wrap(std::declval<const int&>()))>);
+    // static_assert(std::is_same_v<wrapped_value<int>, decltype(wrap(std::declval<int&>()))>);
+    // static_assert(std::is_same_v<wrapped_value<const int>, decltype(wrap(std::declval<const int&>()))>);
     
-    static_assert(std::is_same_v<std::tuple<wrapped_value<int>>, decltype(wrap(std::declval<std::tuple<int&>>()))>);
-    static_assert(std::is_same_v<std::tuple<wrapped_value<const int>>, decltype(wrap(std::declval<std::tuple<const int&>>()))>);
+    // static_assert(std::is_same_v<std::tuple<wrapped_value<int>>, decltype(wrap(std::declval<std::tuple<int&>>()))>);
+    // static_assert(std::is_same_v<std::tuple<wrapped_value<const int>>, decltype(wrap(std::declval<std::tuple<const int&>>()))>);
 };
 
 
