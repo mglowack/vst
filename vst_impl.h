@@ -301,6 +301,80 @@ constexpr bool operator>=(const T& lhs, const T& rhs)
     return !(lhs < rhs);
 }
 
+// TODO MG: move to utils somehwere
+template<typename = void>
+struct plus_assign
+{
+    template<typename T>
+    [[maybe_unused]] T& operator()(T& lhs, const T& rhs)
+    {
+        return lhs += rhs;
+    }
+};
+
+template<typename = void>
+struct minus_assign
+{
+    template<typename T>
+    [[maybe_unused]] T& operator()(T& lhs, const T& rhs)
+    {
+        return lhs -= rhs;
+    }
+};
+
+template <typename op_t, typename vst_t>
+constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
+{
+    apply_with_index([rhs_tie = vst::helper::raw_tie(rhs)](auto&&... a) {
+        (op_t{}(
+            a.value,
+            std::get<a.index>(rhs_tie)), ...);
+    }, vst::helper::raw_tie(lhs));
+    // TODO: use wrapped version to allow customizing operators (need to solve constness for wrapped type)
+    return lhs;
+}
+
+template <typename op_t, typename vst_t>
+constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
+{
+    return apply_with_index(
+        [lhs_tie = vst::helper::raw_tie(lhs), rhs_tie = vst::helper::raw_tie(rhs)]
+        (auto&&... a) {
+        return vst_t{op_t{}(
+            std::get<a.index>(lhs_tie),
+            std::get<a.index>(rhs_tie))...};
+    }, vst::helper::raw_tie(lhs));
+}
+
+template<
+    typename T, 
+    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+constexpr T operator+(const T& lhs, const T& rhs)
+{
+    return binary_op<std::plus<>>(lhs, rhs);
+}
+template<
+    typename T, 
+    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+constexpr T operator-(const T& lhs, const T& rhs)
+{
+    return binary_op<std::minus<>>(lhs, rhs);
+}
+template<
+    typename T, 
+    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+constexpr T& operator+=(T& lhs, const T& rhs)
+{
+    return binary_assign_op<plus_assign<>>(lhs, rhs);
+}
+template<
+    typename T, 
+    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+constexpr T& operator-=(T& lhs, const T& rhs)
+{
+    return binary_assign_op<minus_assign<>>(lhs, rhs);
+}
+
 // stream
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
 std::ostream& operator<<(std::ostream& os, const T& rhs)

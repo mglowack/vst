@@ -75,6 +75,33 @@ template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
 template<>            constexpr bool is_fields_def<with_fields::empty> = true;
 template<>            constexpr bool is_fields_def<with_fields::inferred> = true;
 
+// ####################
+// # apply_with_index #
+// ####################
+
+template <std::size_t I, typename T>
+struct value_with_index
+{
+    static constexpr std::size_t index = I;
+    T& value;
+};
+
+template<typename F, typename Tuple, std::size_t... I>
+constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
+{
+    return std::forward<F>(f)(
+        value_with_index<I, decltype(std::get<I>(tuple))>{std::get<I>(tuple)}...);
+}
+
+template<typename F, typename Tuple>
+constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
+{
+    return apply_with_index_impl(
+        std::forward<F>(f), 
+        std::forward<Tuple>(tuple), 
+        std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
+}
+
 }
 
 #endif

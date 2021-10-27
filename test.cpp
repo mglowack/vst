@@ -498,5 +498,6 @@ TEST(test_vst, built_in_comparison_for_const_char)
 // TODO MG:
 //  * addable
 //  * named_type
+//  * named_type automatic comparisons to underlying
 //  * specifying names + tests for streaming
 //  * solve hash detection and other TODOs

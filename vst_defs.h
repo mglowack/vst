@@ -10,6 +10,7 @@ namespace vst {
 namespace op {
     struct ordered;
     struct hashable;
+    struct addable;
 }
 
 namespace impl {
