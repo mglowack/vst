@@ -231,11 +231,32 @@ TYPED_TEST(test_vst_hashable, unordered_set)
     c.insert(TypeParam{1, 3.f});
     
     // THEN
-    // EXPECT_THAT(c, UnorderedElementsAre(
-    //     TypeParam{1, 1.f}, 
-    //     TypeParam{2, 2.f}, 
-    //     TypeParam{2, 1.f}, 
-    //     TypeParam{1, 3.f}));
+    EXPECT_THAT(c, UnorderedElementsAre(
+        TypeParam{1, 1.f}, 
+        TypeParam{2, 2.f}, 
+        TypeParam{2, 1.f}, 
+        TypeParam{1, 3.f}));
+}
+
+TYPED_TEST(test_vst_hashable, unordered_map)
+{
+    // GIVEN
+    std::unordered_map<TypeParam, int> c;
+
+    // WHEN
+    c.insert(std::make_pair(TypeParam{1, 1.f}, 1));
+    c.insert(std::make_pair(TypeParam{1, 1.f}, 2));
+    c.insert(std::make_pair(TypeParam{2, 2.f}, 3));
+    c.insert(std::make_pair(TypeParam{2, 1.f}, 4));
+    c.insert(std::make_pair(TypeParam{2, 1.f}, 5));
+    c.insert(std::make_pair(TypeParam{1, 3.f}, 6));
+    
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        Pair(TypeParam{1, 1.f}, 1), 
+        Pair(TypeParam{2, 2.f}, 3),
+        Pair(TypeParam{2, 1.f}, 4), 
+        Pair(TypeParam{1, 3.f}, 6)));
 }
 
 TYPED_TEST(test_vst_hashable, containers)
