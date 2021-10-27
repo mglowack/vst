@@ -461,7 +461,7 @@ TEST(test_vst, custom_comparison_for_string_int)
     };
     using data = vst::type<pod, vst::op::ordered>;
 
-    ASSERT_THAT((std::string{"10"}), Lt(std::string{"4"}));
+    ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
     EXPECT_THAT((data{4, "10"}), Gt(data{4, "4"}));
 }
 
