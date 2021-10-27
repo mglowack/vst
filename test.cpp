@@ -117,241 +117,263 @@ constexpr bool is_hashable<
 //  static_assert(!is_hashable<simple<>>);
 //  static_assert( is_hashable<simple<vst::op::hashable>>);
 
+// template<typename T>
+// struct holder
+// {
+//     using type = T;
+// };
+
+// template<template<typename...> typename template_t, typename... args_t>
+// struct holder<template_t<args_t...>>
+// {
+//     using type = template_t;
+// };
+
+template<typename... args_t>
+struct example {};
+
+template<typename T, typename... extra_args_t>
+struct reconfigure;
+
+template<template<typename...> typename template_t, typename... args_t, typename... extra_args_t>
+struct reconfigure<template_t<args_t...>, extra_args_t...>
+{
+    using type = template_t<args_t..., extra_args_t...>;
+};
+
+static_assert(std::is_same_v<example<int, float>, typename reconfigure<example<int>, float>::type>);
+static_assert(std::is_same_v<example<float>, typename reconfigure<example<>, float>::type>);
+static_assert(std::is_same_v<simple<float>, typename reconfigure<simple<>, float>::type>);
+
 } // close anon namespace
 
 template <typename T>
-class test_vst_equality : public ::testing::Test {};
+class test_vst : public ::testing::Test {};
 
-using test_vst_equality_types = ::testing::Types<
+using all_types = ::testing::Types<
     simple_self_described<>,
     custom_from_func<>,
     custom_from_var<>,
     simple<>
 >;
 
-TYPED_TEST_SUITE(test_vst_equality, test_vst_equality_types);
+TYPED_TEST_SUITE(test_vst, all_types);
 
-TYPED_TEST(test_vst_equality, test)
+TYPED_TEST(test_vst, comparable)
 {
-    static_assert(is_streamable<TypeParam>);
-    static_assert(is_equality_comparable<TypeParam>);
-    static_assert(!is_comparable<TypeParam>);
-    // static_assert(!is_hashable<TypeParam>);
+    using VST = typename reconfigure<TypeParam>::type;
 
-    static_assert(TypeParam{1, 2.f} == TypeParam{1, 2.f});
-    static_assert(TypeParam{2, 2.f} == TypeParam{2, 2.f});
-    static_assert(TypeParam{2, 2.f} != TypeParam{3, 2.f});
-    static_assert(TypeParam{2, 2.f} != TypeParam{2, 1.f});
+    static_assert(is_streamable<VST>);
+    static_assert(is_equality_comparable<VST>);
+    static_assert(!is_comparable<VST>);
+    // static_assert(!is_hashable<VST>);
 
-    EXPECT_TRUE((TypeParam{1, 2.f} == TypeParam{1, 2.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} == TypeParam{2, 2.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} != TypeParam{3, 2.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} != TypeParam{2, 1.f}));
+    static_assert(VST{1, 2.f} == VST{1, 2.f});
+    static_assert(VST{2, 2.f} == VST{2, 2.f});
+    static_assert(VST{2, 2.f} != VST{3, 2.f});
+    static_assert(VST{2, 2.f} != VST{2, 1.f});
+
+    EXPECT_TRUE((VST{1, 2.f} == VST{1, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} == VST{2, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} != VST{3, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} != VST{2, 1.f}));
 }
 
-template <typename T>
-class test_vst_comparable : public ::testing::Test {};
-
-using test_vst_comparable_types = ::testing::Types<
-    simple<vst::op::ordered>,
-    custom_from_func<vst::op::ordered>,
-    custom_from_var<vst::op::ordered>,
-    simple<vst::op::ordered>
->;
-
-TYPED_TEST_SUITE(test_vst_comparable, test_vst_comparable_types);
-
-TYPED_TEST(test_vst_comparable, test)
+TYPED_TEST(test_vst, ordered)
 {
-    static_assert(is_streamable<TypeParam>);
-    static_assert(is_equality_comparable<TypeParam>);
-    static_assert(is_comparable<TypeParam>);
-    // static_assert(!is_hashable<TypeParam>);
+    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
 
-    static_assert(TypeParam{1, 2.f} <= TypeParam{1, 2.f});
-    static_assert(TypeParam{1, 2.f} >= TypeParam{1, 2.f});
-    static_assert(TypeParam{2, 2.f} < TypeParam{3, 2.f});
-    static_assert(TypeParam{2, 2.f} < TypeParam{2, 3.f});
-    static_assert(TypeParam{2, 2.f} < TypeParam{3, 3.f});
-    static_assert(TypeParam{2, 2.f} > TypeParam{2, 1.f});
-    static_assert(TypeParam{2, 2.f} > TypeParam{1, 2.f});
-    static_assert(TypeParam{2, 2.f} > TypeParam{1, 1.f});
+    static_assert(is_streamable<VST>);
+    static_assert(is_equality_comparable<VST>);
+    static_assert(is_comparable<VST>);
+    // static_assert(!is_hashable<VST>);
+
+    static_assert(VST{1, 2.f} <= VST{1, 2.f});
+    static_assert(VST{1, 2.f} >= VST{1, 2.f});
+    static_assert(VST{2, 2.f} < VST{3, 2.f});
+    static_assert(VST{2, 2.f} < VST{2, 3.f});
+    static_assert(VST{2, 2.f} < VST{3, 3.f});
+    static_assert(VST{2, 2.f} > VST{2, 1.f});
+    static_assert(VST{2, 2.f} > VST{1, 2.f});
+    static_assert(VST{2, 2.f} > VST{1, 1.f});
     
-    EXPECT_TRUE((TypeParam{1, 2.f} <= TypeParam{1, 2.f}));
-    EXPECT_TRUE((TypeParam{1, 2.f} >= TypeParam{1, 2.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} < TypeParam{3, 2.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} < TypeParam{2, 3.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} < TypeParam{3, 3.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{2, 1.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 2.f}));
-    EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 1.f}));
+    EXPECT_TRUE((VST{1, 2.f} <= VST{1, 2.f}));
+    EXPECT_TRUE((VST{1, 2.f} >= VST{1, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} < VST{3, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} < VST{2, 3.f}));
+    EXPECT_TRUE((VST{2, 2.f} < VST{3, 3.f}));
+    EXPECT_TRUE((VST{2, 2.f} > VST{2, 1.f}));
+    EXPECT_TRUE((VST{2, 2.f} > VST{1, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} > VST{1, 1.f}));
 }
 
-TYPED_TEST(test_vst_comparable, set)
+TYPED_TEST(test_vst, set)
 {
+    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+    
     // GIVEN
-    std::set<TypeParam> c;
+    std::set<VST> c;
 
     // WHEN
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{2, 2.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{1, 3.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
     // THEN
     EXPECT_THAT(c, ElementsAre(
-        TypeParam{1, 1.f}, 
-        TypeParam{1, 3.f}, 
-        TypeParam{2, 1.f}, 
-        TypeParam{2, 2.f}));
+        VST{1, 1.f}, 
+        VST{1, 3.f}, 
+        VST{2, 1.f}, 
+        VST{2, 2.f}));
 }
 
-TYPED_TEST(test_vst_comparable, map)
+TYPED_TEST(test_vst, map)
 {
+    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+
     // GIVEN
-    std::map<TypeParam, int> c;
+    std::map<VST, int> c;
 
     // WHEN
-    c.insert(std::make_pair(TypeParam{1, 1.f}, 1));
-    c.insert(std::make_pair(TypeParam{1, 1.f}, 2));
-    c.insert(std::make_pair(TypeParam{2, 2.f}, 3));
-    c.insert(std::make_pair(TypeParam{2, 1.f}, 4));
-    c.insert(std::make_pair(TypeParam{2, 1.f}, 5));
-    c.insert(std::make_pair(TypeParam{1, 3.f}, 6));
+    c.insert(std::make_pair(VST{1, 1.f}, 1));
+    c.insert(std::make_pair(VST{1, 1.f}, 2));
+    c.insert(std::make_pair(VST{2, 2.f}, 3));
+    c.insert(std::make_pair(VST{2, 1.f}, 4));
+    c.insert(std::make_pair(VST{2, 1.f}, 5));
+    c.insert(std::make_pair(VST{1, 3.f}, 6));
     
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        Pair(TypeParam{1, 1.f}, 1), 
-        Pair(TypeParam{1, 3.f}, 6),
-        Pair(TypeParam{2, 1.f}, 4), 
-        Pair(TypeParam{2, 2.f}, 3)));
+        Pair(VST{1, 1.f}, 1), 
+        Pair(VST{1, 3.f}, 6),
+        Pair(VST{2, 1.f}, 4), 
+        Pair(VST{2, 2.f}, 3)));
 }
 
-TYPED_TEST(test_vst_comparable, boost)
+TYPED_TEST(test_vst, boost_ordered)
 {
+    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+
     // GIVEN
     namespace bmi = boost::multi_index;
 
     using index_t = boost::multi_index_container<
-        TypeParam,
-        bmi::indexed_by<bmi::ordered_unique<bmi::identity<TypeParam>>>>;
+        VST,
+        bmi::indexed_by<bmi::ordered_unique<bmi::identity<VST>>>>;
 
     index_t c;
 
     // WHEN
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{2, 2.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{1, 3.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
     // THEN
     EXPECT_THAT(c, ElementsAre(
-        TypeParam{1, 1.f}, 
-        TypeParam{1, 3.f}, 
-        TypeParam{2, 1.f}, 
-        TypeParam{2, 2.f}));
+        VST{1, 1.f}, 
+        VST{1, 3.f}, 
+        VST{2, 1.f}, 
+        VST{2, 2.f}));
 }
 
-template <typename T>
-class test_vst_hashable : public ::testing::Test {};
-
-using test_vst_hashable_types = ::testing::Types<
-    simple<vst::op::hashable>,
-    custom_from_func<vst::op::hashable>,
-    custom_from_var<vst::op::hashable>,
-    simple<vst::op::hashable>
->;
-
-TYPED_TEST_SUITE(test_vst_hashable, test_vst_hashable_types);
-
-TYPED_TEST(test_vst_hashable, test)
+TYPED_TEST(test_vst, hashable)
 {
-    static_assert(is_streamable<TypeParam>);
-    static_assert(is_equality_comparable<TypeParam>);
-    static_assert(!is_comparable<TypeParam>);
-    // static_assert(is_hashable<TypeParam>);
+    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
 
-    auto h = [](const TypeParam& o) { return vst::hash<TypeParam>{}(o); };
-    auto sh = [](const TypeParam& o) { return std::hash<TypeParam>{}(o); };
-    auto bh = [](const TypeParam& o) { return hash_value(o); };
+    static_assert(is_streamable<VST>);
+    static_assert(is_equality_comparable<VST>);
+    static_assert(!is_comparable<VST>);
+    // static_assert(is_hashable<VST>);
 
-    EXPECT_TRUE((h(TypeParam{1, 2.f}) == sh(TypeParam{1, 2.f})));
-    EXPECT_TRUE((h(TypeParam{1, 2.f}) == bh(TypeParam{1, 2.f})));
+    auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
+    auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
+    auto bh = [](const VST& o) { return hash_value(o); };
 
-    EXPECT_TRUE((h(TypeParam{1, 2.f}) == h(TypeParam{1, 2.f})));
-    EXPECT_TRUE((h(TypeParam{1, 2.f}) != h(TypeParam{2, 2.f})));
-    EXPECT_TRUE((h(TypeParam{1, 2.f}) != h(TypeParam{1, 1.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) == sh(VST{1, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) == bh(VST{1, 2.f})));
+
+    EXPECT_TRUE((h(VST{1, 2.f}) == h(VST{1, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{2, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{1, 1.f})));
 }
 
-TYPED_TEST(test_vst_hashable, unordered_set)
+TYPED_TEST(test_vst, unordered_set)
 {
+    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+
     // GIVEN
-    std::unordered_set<TypeParam> c;
+    std::unordered_set<VST> c;
 
     // WHEN
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{2, 2.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{1, 3.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        TypeParam{1, 1.f}, 
-        TypeParam{2, 2.f}, 
-        TypeParam{2, 1.f}, 
-        TypeParam{1, 3.f}));
+        VST{1, 1.f}, 
+        VST{2, 2.f}, 
+        VST{2, 1.f}, 
+        VST{1, 3.f}));
 }
 
-TYPED_TEST(test_vst_hashable, unordered_map)
+TYPED_TEST(test_vst, unordered_map)
 {
+    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+    
     // GIVEN
-    std::unordered_map<TypeParam, int> c;
+    std::unordered_map<VST, int> c;
 
     // WHEN
-    c.insert(std::make_pair(TypeParam{1, 1.f}, 1));
-    c.insert(std::make_pair(TypeParam{1, 1.f}, 2));
-    c.insert(std::make_pair(TypeParam{2, 2.f}, 3));
-    c.insert(std::make_pair(TypeParam{2, 1.f}, 4));
-    c.insert(std::make_pair(TypeParam{2, 1.f}, 5));
-    c.insert(std::make_pair(TypeParam{1, 3.f}, 6));
+    c.insert(std::make_pair(VST{1, 1.f}, 1));
+    c.insert(std::make_pair(VST{1, 1.f}, 2));
+    c.insert(std::make_pair(VST{2, 2.f}, 3));
+    c.insert(std::make_pair(VST{2, 1.f}, 4));
+    c.insert(std::make_pair(VST{2, 1.f}, 5));
+    c.insert(std::make_pair(VST{1, 3.f}, 6));
     
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        Pair(TypeParam{1, 1.f}, 1), 
-        Pair(TypeParam{2, 2.f}, 3),
-        Pair(TypeParam{2, 1.f}, 4), 
-        Pair(TypeParam{1, 3.f}, 6)));
+        Pair(VST{1, 1.f}, 1), 
+        Pair(VST{2, 2.f}, 3),
+        Pair(VST{2, 1.f}, 4), 
+        Pair(VST{1, 3.f}, 6)));
 }
 
-TYPED_TEST(test_vst_hashable, boost)
+TYPED_TEST(test_vst, boost_hashed)
 {
+    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+    
     // GIVEN
     namespace bmi = boost::multi_index;
 
     using index_t = boost::multi_index_container<
-        TypeParam,
-        bmi::indexed_by<bmi::hashed_unique<bmi::identity<TypeParam>>>>;
+        VST,
+        bmi::indexed_by<bmi::hashed_unique<bmi::identity<VST>>>>;
 
     index_t c;
 
     // WHEN
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{1, 1.f});
-    c.insert(TypeParam{2, 2.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{2, 1.f});
-    c.insert(TypeParam{1, 3.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        TypeParam{1, 1.f}, 
-        TypeParam{2, 2.f}, 
-        TypeParam{2, 1.f}, 
-        TypeParam{1, 3.f}));
+        VST{1, 1.f}, 
+        VST{2, 2.f}, 
+        VST{2, 1.f}, 
+        VST{1, 3.f}));
 }
