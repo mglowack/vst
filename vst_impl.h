@@ -18,7 +18,7 @@
 #include <boost/pfr.hpp>
 
 struct non_matchable {};
-void show_type(non_matchable) {}
+inline void show_type(non_matchable) {}
 
 // #############
 // # field_ptr #
@@ -114,11 +114,13 @@ std::ostream& operator<<(std::ostream& os, const wrapped_value<T>& rhs)
 }
 
 // overrides - const char*
+inline
 bool operator==(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
 {
     return strcmp(lhs.value, rhs.value) == 0;
 }
 
+inline
 bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
 {
     return strcmp(lhs.value, rhs.value) < 0;
