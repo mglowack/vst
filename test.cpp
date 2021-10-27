@@ -3,6 +3,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+// #include <boost/multi_index_container.hpp>
+// #include <boost/multi_index/indexed_by.hpp>
+// #include <boost/multi_index/hashed_index.hpp>
+// #include <boost/multi_index/member.hpp>
+
 using namespace ::testing;
 
 // TODO MG: test ADL?
@@ -212,6 +217,38 @@ TYPED_TEST(test_vst_hashable, test)
     EXPECT_TRUE((h(TypeParam{1, 2.f}) != h(TypeParam{1, 1.f})));
 }
 
+TYPED_TEST(test_vst_hashable, unordered_set)
+{
+    // GIVEN
+    std::unordered_set<TypeParam> c;
+
+    // WHEN
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{2, 2.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{1, 3.f});
+    
+    // THEN
+    // EXPECT_THAT(c, UnorderedElementsAre(
+    //     TypeParam{1, 1.f}, 
+    //     TypeParam{2, 2.f}, 
+    //     TypeParam{2, 1.f}, 
+    //     TypeParam{1, 3.f}));
+}
+
 TYPED_TEST(test_vst_hashable, containers)
 {
+    // namespace bmi = boost::multi_index;
+
+    // using index_t = boost::multi_index_container<
+    //     TypeParam,
+    //     bmi::indexed_by<bmi::hashed_unique<bmi::identity<TypeParam>>>>;
+
+    // std::unordered_map<TypeParam, int> map;
+    // std::unordered_set<TypeParam> set;
+    // index_t bmap;
+
+    
 }
