@@ -68,10 +68,10 @@ using custom_from_var       = vst::type<simple_pod,
 // #########
 
 template<typename T, typename ENABLER = void>
-constexpr bool is_equality_comparable = false;
+constexpr bool is_comparable = false;
 
 template<typename T>
-constexpr bool is_equality_comparable<
+constexpr bool is_comparable<
     T, 
     std::void_t<
         decltype(std::declval<const T&>() == std::declval<const T&>()),
@@ -79,17 +79,17 @@ constexpr bool is_equality_comparable<
  = true;
 
 template<typename T, typename ENABLER = void>
-constexpr bool is_comparable = false;
+constexpr bool is_ordered = false;
 
 template<typename T>
-constexpr bool is_comparable<
+constexpr bool is_ordered<
     T, 
     std::void_t<
         decltype(std::declval<const T&>() < std::declval<const T&>()),
         decltype(std::declval<const T&>() > std::declval<const T&>()),
         decltype(std::declval<const T&>() <= std::declval<const T&>()),
         decltype(std::declval<const T&>() >= std::declval<const T&>())>>
- = is_equality_comparable<T>;
+ = is_comparable<T>;
 
 template<typename T, typename ENABLER = void>
 constexpr bool is_streamable = false;
@@ -145,8 +145,8 @@ TYPED_TEST(test_vst, comparable)
     using VST = TypeParam;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_equality_comparable<VST>);
-    static_assert(!is_comparable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(!is_ordered<VST>);
     // static_assert(!is_hashable<VST>);
 
     static_assert(VST{1, 2.f} == VST{1, 2.f});
@@ -165,8 +165,8 @@ TYPED_TEST(test_vst, ordered)
     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_equality_comparable<VST>);
     static_assert(is_comparable<VST>);
+    static_assert(is_ordered<VST>);
     // static_assert(!is_hashable<VST>);
 
     static_assert(VST{1, 2.f} <= VST{1, 2.f});
@@ -268,8 +268,8 @@ TYPED_TEST(test_vst, hashable)
     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_equality_comparable<VST>);
-    static_assert(!is_comparable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(!is_ordered<VST>);
     // static_assert(is_hashable<VST>);
 
     auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
