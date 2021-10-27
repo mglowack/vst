@@ -68,24 +68,24 @@ struct trait<
 {
 };
 
-template<typename T, typename maybe_field_def, typename... ops>
-struct trait<
-    type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<is_fields_def_v<maybe_field_def> && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
-: make_basic_trait<T, ops...>
-, maybe_field_def
-{
-};
-
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
-: make_trait<T, ops...>
+: trait<type<T, with_fields::from<T>, ops...>>
 {
 };
 
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
 : make_basic_trait<T, ops...>
+{
+};
+
+template<typename T, typename maybe_field_def, typename... ops>
+struct trait<
+    type<T, maybe_field_def, ops...>, 
+    std::enable_if_t<is_fields_def_v<maybe_field_def> && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
+: make_basic_trait<T, ops...>
+, maybe_field_def
 {
 };
 
