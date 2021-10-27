@@ -46,13 +46,40 @@ struct underlying<type<T, ops...>>
 template<typename T>
 using underlying_t = typename underlying<T>::type;
 
-}
+// namespace std {
+// template<typename T>
+// struct type_identity
+// {
+//     using type = T;
+// };
+// }
+
+// template<typename T>
+// struct aggregate : std::type_identity<T> {};
+
+// template<typename T, typename... ops>
+// struct aggregate<type<T, ops...>> : std::type_identity<T> {};
+
+// template<typename T>
+// using aggregate_t = typename aggregate<T>::type;
+
+// // ###################
+// // # propagate_const #
+// // ###################
+
+// template<typename T, typename U>
+// struct propagate_const : std::type_identity<U> {};
+
+// template<typename T, typename U>
+// struct propagate_const<const T, U> : std::type_identity<const U> {};
+
+// template<typename T, typename U>
+// using propagate_const_t = typename propagate_const<T, U>::type;
 
 // #################
 // # is_fields_def #
 // #################
 
-namespace vst {
 template<typename T>
 struct is_fields_def : std::false_type {};
 

@@ -142,11 +142,12 @@ struct helper
         }
 
     }
-    
+
 private:
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
+        // return static_cast<propagate_const_t<std::remove_reference_t<T>, aggregate_t<std::decay_t<T>>>&>(obj);
         if constexpr(is_vst_type<std::decay_t<T>>)
         {
             using U = underlying_t<std::decay_t<T>>;
