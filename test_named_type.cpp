@@ -23,3 +23,6 @@ TEST(test_named_type, basic)
     EXPECT_TRUE((price{4} + price{1} == price{5}));
     EXPECT_TRUE((price{4} - price{1} == price{3}));
 }
+
+// TODO MG:
+//  * automatic comparisons to underlying

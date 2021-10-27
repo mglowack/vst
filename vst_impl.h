@@ -33,7 +33,7 @@ struct field_ptr
     : p(field_ptr) {}
 };
 
-#define MEMBER(obj, x) field_ptr{&obj::x}
+// #define MEMBER(obj, x) field_ptr{&obj::x}
 
 // ###################
 // # named_field_ptr #
@@ -49,7 +49,7 @@ struct named_field_ptr
     : name(name), field_ptr(field_ptr) {}
 };
 
-// #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
+#define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
 // #############
 // # named_var #
@@ -205,6 +205,21 @@ struct helper
         }
     }
 
+    template<typename T>
+    static constexpr auto named_tie(T& obj)
+    {
+        using trait_t = trait<std::decay_t<T>>;
+        if constexpr (has_get_fields<trait_t>) 
+        {
+            return from_fields_named_tie(obj, trait_t::get_fields());
+        }
+        else
+        {
+            // try boost::pfr
+            return boost::pfr::structure_tie(as_aggregate(obj));
+        }
+    }
+
 private:
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
@@ -234,6 +249,17 @@ private:
             fields);
     }
 
+    template<typename T, typename... field_ptrs_t>
+    static constexpr auto from_fields_named_tie(
+        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
+            }, 
+            fields);
+    }
+
     template<typename... Ts>
     static constexpr auto wrap(std::tuple<Ts&...> fields)
     {
@@ -244,8 +270,6 @@ private:
             fields);
     }
 };
-
-
 
 } // namespace vst
 
@@ -385,7 +409,7 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
     std::apply(
         [&os, &rhs](const auto&... field){
             ((os << " " << field), ...);
-        }, vst::helper::tie(rhs));
+        }, vst::helper::named_tie(rhs));
     os << " ]";
     return os;
 }

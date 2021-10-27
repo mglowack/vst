@@ -532,8 +532,6 @@ TEST(test_vst, built_in_comparison_for_const_char)
 }
 
 // TODO MG:
-//  * named_type
-//  * named_type automatic comparisons to underlying
 //  * specifying names + tests for streaming
 //  * tests for composition with std containers, optionals, variants etc
 //  * add static asserts to help with debugging compiler errors
