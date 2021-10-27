@@ -168,21 +168,21 @@ struct helper
                 trait_t::get_fields());
         }
         else
+        {
+            // try boost::pfr
+            return boost::pfr::structure_tie(as_aggregate(obj));
+        }
+        //         if constexpr(is_vst_type<std::decay_t<T>>)
         // {
-        //     // try boost::pfr
-        //     return boost::pfr::structure_tie(as_aggregate(obj));
+        //     using U = underlying_t<std::decay_t<T>>;
+        //     using X = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>, const U, U>;
+        //     return boost::pfr::structure_tie(static_cast<X&>(obj));
+        //     // return boost::pfr::structure_tie(obj);
         // }
-                if constexpr(is_vst_type<std::decay_t<T>>)
-        {
-            using U = underlying_t<std::decay_t<T>>;
-            using X = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>, const U, U>;
-            return boost::pfr::structure_tie(static_cast<X&>(obj));
-            // return boost::pfr::structure_tie(obj);
-        }
-        else
-        {
-            return boost::pfr::structure_tie(obj);
-        }
+        // else
+        // {
+        //     return boost::pfr::structure_tie(obj);
+        // }
 
     }
 };
