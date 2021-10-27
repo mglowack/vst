@@ -43,12 +43,12 @@ struct simple_self_described_pod {
 // # vsts #
 // ########
 
-using simple                    = vst::type<simple_pod>;
-// using simple_self_described = vst::type<simple_self_described_pod>;
-// using custom_from_func          = vst::type<simple_pod, 
-//                                             vst::with_fields::from_func<get_simple_pod_fields>>;
-// using custom_from_var           = vst::type<simple_pod
-//                                             vst::with_fields::from_func<&k_simple_pod_fields>>;
+using simple                = vst::type<simple_pod>;
+using simple_self_described = vst::type<simple_self_described_pod>;
+using custom_from_func      = vst::type<simple_pod, 
+                                        vst::with_fields::from_func<get_simple_pod_fields>>;
+// using custom_from_var       = vst::type<simple_pod
+//                                         vst::with_fields::from_func<&k_simple_pod_fields>>;
 
 } // close anon namespace
 
@@ -56,10 +56,10 @@ template <typename T>
 class test_vst_equality : public ::testing::Test {};
 
 using equality_types = ::testing::Types<
+    simple_self_described,
+    // custom_from_func,
+    // custom_from_var,
     simple
-    // simple_self_described,
-    // simple_from_func,
-    // simple_from_var,
 >;
 
 TYPED_TEST_SUITE(test_vst_equality, equality_types);
