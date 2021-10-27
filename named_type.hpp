@@ -13,8 +13,6 @@ struct named_type_pod
     using self = named_type_pod<underlying_t, tag_t>;
     underlying_t value;
 
-    // TODO MG: allow customizing default value or remove ? needed for binary assign operators
-    // named_type_pod() = default;// : value({}) {}
     explicit constexpr named_type_pod(underlying_t value) : value(value) {}
 
     explicit constexpr operator const underlying_t&() const { return value; }

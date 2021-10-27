@@ -192,7 +192,6 @@ struct trait<
 // # helper #
 // ##########
 
-// TODO MG: move into trait?
 struct helper 
 {
     template<typename T, typename op>
@@ -307,8 +306,6 @@ private:
 
 namespace vst::impl {
 
-// TODO MG: drop is vst check?
-
 // comparable
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
 constexpr bool operator==(const T& lhs, const T& rhs)
@@ -355,7 +352,6 @@ constexpr bool operator>=(const T& lhs, const T& rhs)
     return !(lhs < rhs);
 }
 
-// TODO MG: move to utils somehwere
 template<typename = void>
 struct plus_assign
 {
@@ -384,7 +380,6 @@ constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
             a.value,
             std::get<a.index>(rhs_tie)), ...);
     }, vst::helper::raw_tie(lhs));
-    // TODO: use wrapped version to allow customizing operators (need to solve constness for wrapped type)
     return lhs;
 }
 

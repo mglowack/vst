@@ -13,7 +13,6 @@
 
 using namespace ::testing;
 
-// TODO MG: test ADL?
 namespace {
 
 // ##############
@@ -122,7 +121,6 @@ constexpr bool is_streamable<
 template<typename T, typename ENABLER = void>
 constexpr bool is_hashable = false;
 
-// TODO MG: test for std::hash somehow?
 template<typename T>
 constexpr bool is_hashable<
     T, 
@@ -561,4 +559,12 @@ TEST(test_vst, built_in_comparison_for_const_char)
 // TODO MG:
 //  * tests for composition with std containers, optionals, variants etc
 //  * add static asserts to help with debugging compiler errors
-//  * solve hash detection and other TODOs
+//  * test ADL?
+//  * solve std::hash detection and other TODOs
+//
+// TODO MG cleanup:
+//  * move helper to trait?
+//  * move operators to utils
+//  * move var classes to right namespace
+//  * drop the VST check on operators
+//  * use wrapped version on modyfying operators to allow customizing (maybe not possible)
