@@ -102,26 +102,6 @@ struct trait<
 // # helper #
 // ##########
 
-// template<typename T>
-// struct cast_to_underlying
-// {
-//     using underlying = underlying_t<std::decay_t<T>>;
-//     using type = std::conditional_t<
-//         std::is_const_v<std::remove_reference_t<T>>,
-//         const underlying,
-//         underlying>;
-// };
-
-// template<typename T, typename... ops>
-// struct cast_to_underlying<type<T, ops...>>
-// {
-//     using underlying = underlying_t<std::decay_t<T>>;
-//     using type = std::conditional_t<
-//         std::is_const_v<std::remove_reference_t<T>>,
-//         const underlying,
-//         underlying>;
-// };
-
 struct helper 
 {
     template<typename T, typename op>
