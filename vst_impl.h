@@ -69,13 +69,13 @@ struct trait<
 };
 
 template<typename T, typename... ops>
-struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
+struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields<T>>>
 : trait<type<T, with_fields::from<T>, ops...>>
 {
 };
 
 template<typename T, typename... ops>
-struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
+struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields<T>>>
 : make_basic_trait<T, ops...>
 {
 };
@@ -129,7 +129,7 @@ struct helper
     static constexpr decltype(auto) tie(T& obj)
     {
         using trait_t = trait<std::decay_t<T>>;
-        if constexpr (has_get_fields_raw<trait_t>) 
+        if constexpr (has_get_fields<trait_t>) 
         {
             return std::apply(
                 [&obj](const auto&... f) { 

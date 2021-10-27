@@ -94,7 +94,7 @@ struct baz_pod {
     static constexpr auto get_fields() { return std::tuple{field_ptr{&baz_pod::x}, field_ptr{&baz_pod::y}}; }
 };
 using baz = vst::type<baz_pod, vst::op::ordered, vst::op::hashable>;
-static_assert(vst::has_get_fields_raw<baz_pod>);
+static_assert(vst::has_get_fields<baz_pod>);
 
 static_assert(baz{1, 3.f} != baz{2, 3.f});
 static_assert(baz{2, 3.f} == baz{2, 3.f});
@@ -110,7 +110,7 @@ static_assert(baz{2, 2.f} < baz{2, 3.f});
 struct empty_inferred_pod {};
 using empty_inferred = vst::type<empty_inferred_pod, vst::op::ordered>;
 
-static_assert(!vst::has_get_fields_raw<empty_inferred_pod>);
+static_assert(!vst::has_get_fields<empty_inferred_pod>);
 static_assert(vst::is_vst_type<empty_inferred>);
 static_assert(vst::trait<empty_inferred>::exists);
 
@@ -124,7 +124,7 @@ static_assert(empty_inferred{} <= empty_inferred{});
 struct empty_explicit_pod {};
 using empty_explicit = vst::type<empty_explicit_pod, vst::with_fields::empty, vst::op::ordered>;
 
-static_assert(!vst::has_get_fields_raw<empty_explicit_pod>);
+static_assert(!vst::has_get_fields<empty_explicit_pod>);
 static_assert(vst::is_vst_type<empty_explicit>);
 static_assert(vst::trait<empty_explicit>::exists);
 
@@ -154,7 +154,7 @@ struct simple_pod {
 };
 using simple = vst::type<simple_pod>;
 
-static_assert(!vst::has_get_fields_raw<simple_pod>);
+static_assert(!vst::has_get_fields<simple_pod>);
 static_assert(vst::is_vst_type<simple>);
 static_assert(vst::trait<simple>::exists);
 
@@ -170,7 +170,7 @@ struct pure_pod {
     float y;
 };
 
-static_assert(!vst::has_get_fields_raw<pure_pod>);
+static_assert(!vst::has_get_fields<pure_pod>);
 
 // namespace vst {
 
