@@ -68,26 +68,12 @@ using propagate_const_t = typename propagate_const<T, U>::type;
 // # is_fields_def #
 // #################
 
-template<typename T>
-struct is_fields_def : std::false_type {};
-
-template<typename T>
-constexpr bool is_fields_def_v = is_fields_def<T>::value;
-
-template<auto (*f)()>
-struct is_fields_def<with_fields::from_func<f>> : std::true_type {};
-
-template<auto v>
-struct is_fields_def<with_fields::from_var<v>> : std::true_type {};
-
-template<typename T>
-struct is_fields_def<with_fields::from<T>> : std::true_type {};
-
-template<>
-struct is_fields_def<with_fields::empty> : std::true_type {};
-
-template<>
-struct is_fields_def<with_fields::inferred> : std::true_type {};
+template<typename T>  constexpr bool is_fields_def = false;
+template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = true;
+template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
+template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
+template<>            constexpr bool is_fields_def<with_fields::empty> = true;
+template<>            constexpr bool is_fields_def<with_fields::inferred> = true;
 
 }
 

@@ -132,7 +132,7 @@ struct trait<type<T>> : trait<type<T, with_fields::inferred>>
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
     type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def_v<maybe_field_def>>>
+    std::enable_if_t<!is_fields_def<maybe_field_def>>>
 : trait<type<T, with_fields::inferred, maybe_field_def, ops...>>
 {
 };
@@ -153,7 +153,7 @@ template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
     type<T, maybe_field_def, ops...>, 
     std::enable_if_t<
-        is_fields_def_v<maybe_field_def> 
+        is_fields_def<maybe_field_def> 
         && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
 : make_basic_trait<T, ops...>
 , maybe_field_def
@@ -180,6 +180,7 @@ struct helper
     static constexpr auto tie(T& obj)
     {
         return raw_tie(obj);
+        // return wrapped_tie(obj);
     }
 
     template<typename T>
