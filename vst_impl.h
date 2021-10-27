@@ -33,6 +33,8 @@ struct field_ptr
     : p(field_ptr) {}
 };
 
+#define MEMBER(obj, x) field_ptr{&obj::x}
+
 // ###################
 // # named_field_ptr #
 // ###################
@@ -47,7 +49,7 @@ struct named_field_ptr
     : name(name), field_ptr(field_ptr) {}
 };
 
-#define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
+// #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
 // #############
 // # named_var #

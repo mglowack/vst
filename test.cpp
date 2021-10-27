@@ -79,6 +79,26 @@ constexpr bool is_comparable<
         decltype(std::declval<const T&>() >= std::declval<const T&>())>>
  = is_equality_comparable<T>;
 
+template<typename T, typename ENABLER = void>
+constexpr bool is_streamable = false;
+
+template<typename T>
+constexpr bool is_streamable<
+    T, 
+    std::void_t<
+        decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>
+ = true;
+
+template<typename T, typename ENABLER = void>
+constexpr bool is_hashable = false;
+
+template<typename T>
+constexpr bool is_hashable<
+    T, 
+    std::void_t<
+        decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))>>
+ = true;
+
 } // close anon namespace
 
 template <typename T>
