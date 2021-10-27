@@ -12,7 +12,7 @@ namespace op {
     struct hashable;
 }
 
-template<typename T, typename... ops>
+template<typename T, typename...>
 struct type : public T
 {
 };

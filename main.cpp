@@ -8,31 +8,36 @@ namespace my_ns {
 // # foo #
 // #######
 
-struct foo 
+struct foo_pod 
 {
     int x;
     float y;
 
-    // static constexpr auto get_fields() { return std::tuple{field_ptr{&foo::x}}; }
+    static constexpr auto get_fields() { return std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}}; }
 };
 
-constexpr static auto foo_fields = std::tuple{field_ptr{&foo::x}, field_ptr{&foo::y}};
-static constexpr auto get_foo_fields() { return std::tuple{field_ptr{&foo::x}, field_ptr{&foo::y}}; }
+constexpr static auto foo_fields = std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}};
+static constexpr auto get_foo_fields() { return std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}}; }
+
+using foo = vst::type<
+    foo_pod, 
+    // vst::with_fields::from_func<get_foo_fields>, 
+    vst::op::ordered, vst::op::hashable>;
 
 } // my_ns
 
-namespace vst {
+// namespace vst {
 
-template<>
-struct trait<my_ns::foo> 
-: make_basic_trait<op::ordered, op::hashable>
-// , with_fields::from<foo>
-// , with_fields::from_func<get_foo_fields>
-, with_fields::from_var<&my_ns::foo_fields>
-{
-};
+// template<>
+// struct trait<my_ns::foo> 
+// : make_basic_trait<op::ordered, op::hashable>
+// // , with_fields::from<foo>
+// // , with_fields::from_func<get_foo_fields>
+// , with_fields::from_var<&my_ns::foo_fields>
+// {
+// };
 
-} // namespace vst
+// } // namespace vst
 
 namespace my_ns {
 static_assert(foo{1, 3.f} != foo{2, 3.f});
@@ -42,31 +47,31 @@ static_assert(foo{2, 2.f} < foo{2, 3.f});
 }
 static_assert(my_ns::foo{2, 3.f} == my_ns::foo{2, 3.f});
 
-// namespace some_other_ns {
-// struct wtf;
-// bool operator==(const wtf&, const wtf&) { return true; }
-// static_assert(my_ns::foo{2, 3.f} == my_ns::foo{2, 3.f});
-// }
+namespace some_other_ns {
+struct wtf;
+bool operator==(const wtf&, const wtf&) { return true; }
+static_assert(my_ns::foo{2, 3.f} == my_ns::foo{2, 3.f});
+}
 
 // #######
 // # bar #
 // #######
 
-struct bar {};
+// struct bar {};
 
-namespace vst {
+// namespace vst {
 
-template<>
-struct trait<bar> 
-: make_basic_trait<>
-, with_fields::empty
-{
-};
+// template<>
+// struct trait<bar> 
+// : make_basic_trait<>
+// , with_fields::empty
+// {
+// };
 
-} // namespace vst
+// } // namespace vst
 
-static_assert(bar{} == bar{});
-// static_assert(bar{} < bar{});
+// static_assert(bar{} == bar{});
+// // static_assert(bar{} < bar{});
 
 // #######
 // # baz #
@@ -101,22 +106,22 @@ struct pure_pod {
 
 static_assert(!vst::has_get_fields_raw<pure_pod>);
 
-namespace vst {
+// namespace vst {
 
-template<>
-struct trait<pure_pod> 
-: make_basic_trait<vst::op::ordered>
-// , with_fields::inferred
-{
-};
+// template<>
+// struct trait<pure_pod> 
+// : make_basic_trait<vst::op::ordered>
+// // , with_fields::inferred
+// {
+// };
 
-} // namespace vst
+// } // namespace vst
 
-static_assert(pure_pod{1, 3.f} != pure_pod{2, 3.f});
-static_assert(pure_pod{2, 3.f} == pure_pod{2, 3.f});
-static_assert(pure_pod{1, 3.f} < pure_pod{2, 3.f});
-static_assert(pure_pod{2, 2.f} < pure_pod{2, 3.f});
-static_assert(pure_pod{2, 4.f} > pure_pod{2, 3.f});
+// static_assert(pure_pod{1, 3.f} != pure_pod{2, 3.f});
+// static_assert(pure_pod{2, 3.f} == pure_pod{2, 3.f});
+// static_assert(pure_pod{1, 3.f} < pure_pod{2, 3.f});
+// static_assert(pure_pod{2, 2.f} < pure_pod{2, 3.f});
+// static_assert(pure_pod{2, 4.f} > pure_pod{2, 3.f});
 
 static_assert(std::is_same_v<
     std::tuple<int&, float&>, 
