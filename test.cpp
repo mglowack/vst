@@ -3,10 +3,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-// #include <boost/multi_index_container.hpp>
-// #include <boost/multi_index/indexed_by.hpp>
-// #include <boost/multi_index/hashed_index.hpp>
-// #include <boost/multi_index/member.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/indexed_by.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/member.hpp>
 
 using namespace ::testing;
 
@@ -186,6 +187,75 @@ TYPED_TEST(test_vst_comparable, test)
     EXPECT_TRUE((TypeParam{2, 2.f} > TypeParam{1, 1.f}));
 }
 
+TYPED_TEST(test_vst_comparable, set)
+{
+    // GIVEN
+    std::set<TypeParam> c;
+
+    // WHEN
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{2, 2.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{1, 3.f});
+    
+    // THEN
+    EXPECT_THAT(c, ElementsAre(
+        TypeParam{1, 1.f}, 
+        TypeParam{1, 3.f}, 
+        TypeParam{2, 1.f}, 
+        TypeParam{2, 2.f}));
+}
+
+TYPED_TEST(test_vst_comparable, map)
+{
+    // GIVEN
+    std::map<TypeParam, int> c;
+
+    // WHEN
+    c.insert(std::make_pair(TypeParam{1, 1.f}, 1));
+    c.insert(std::make_pair(TypeParam{1, 1.f}, 2));
+    c.insert(std::make_pair(TypeParam{2, 2.f}, 3));
+    c.insert(std::make_pair(TypeParam{2, 1.f}, 4));
+    c.insert(std::make_pair(TypeParam{2, 1.f}, 5));
+    c.insert(std::make_pair(TypeParam{1, 3.f}, 6));
+    
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        Pair(TypeParam{1, 1.f}, 1), 
+        Pair(TypeParam{1, 3.f}, 6),
+        Pair(TypeParam{2, 1.f}, 4), 
+        Pair(TypeParam{2, 2.f}, 3)));
+}
+
+TYPED_TEST(test_vst_comparable, boost)
+{
+    // GIVEN
+    namespace bmi = boost::multi_index;
+
+    using index_t = boost::multi_index_container<
+        TypeParam,
+        bmi::indexed_by<bmi::ordered_unique<bmi::identity<TypeParam>>>>;
+
+    index_t c;
+
+    // WHEN
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{2, 2.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{1, 3.f});
+    
+    // THEN
+    EXPECT_THAT(c, ElementsAre(
+        TypeParam{1, 1.f}, 
+        TypeParam{1, 3.f}, 
+        TypeParam{2, 1.f}, 
+        TypeParam{2, 2.f}));
+}
+
 template <typename T>
 class test_vst_hashable : public ::testing::Test {};
 
@@ -259,17 +329,29 @@ TYPED_TEST(test_vst_hashable, unordered_map)
         Pair(TypeParam{1, 3.f}, 6)));
 }
 
-TYPED_TEST(test_vst_hashable, containers)
+TYPED_TEST(test_vst_hashable, boost)
 {
-    // namespace bmi = boost::multi_index;
+    // GIVEN
+    namespace bmi = boost::multi_index;
 
-    // using index_t = boost::multi_index_container<
-    //     TypeParam,
-    //     bmi::indexed_by<bmi::hashed_unique<bmi::identity<TypeParam>>>>;
+    using index_t = boost::multi_index_container<
+        TypeParam,
+        bmi::indexed_by<bmi::hashed_unique<bmi::identity<TypeParam>>>>;
 
-    // std::unordered_map<TypeParam, int> map;
-    // std::unordered_set<TypeParam> set;
-    // index_t bmap;
+    index_t c;
 
+    // WHEN
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{1, 1.f});
+    c.insert(TypeParam{2, 2.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{2, 1.f});
+    c.insert(TypeParam{1, 3.f});
     
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        TypeParam{1, 1.f}, 
+        TypeParam{2, 2.f}, 
+        TypeParam{2, 1.f}, 
+        TypeParam{1, 3.f}));
 }
