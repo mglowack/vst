@@ -49,6 +49,26 @@ struct named_field_ptr
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
+// #############
+// # named_var #
+// #############
+
+template<typename T>
+struct named_var
+{
+    const char* name;
+    const T& value;
+
+    constexpr explicit named_var(const char* name, const T& value) 
+    : name(name), value(value) {}
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
+{
+    return os << rhs.name << "=" << rhs.value;
+}
+
 namespace vst {
 
 // #########
@@ -142,6 +162,17 @@ private:
             }, 
             fields);
     }
+
+    template<typename T, typename... field_ptrs_t>
+    static constexpr decltype(auto) from_fields_tie(
+        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tie((obj.*f.field_ptr)...); 
+            }, 
+            fields);
+    }
 };
 
 
@@ -195,6 +226,19 @@ template<
 constexpr bool operator>=(const T& lhs, const T& rhs)
 {
     return !(lhs < rhs);
+}
+
+// stream
+template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
+std::ostream& operator<<(std::ostream& os, const T& rhs)
+{
+    os << "[";
+    std::apply(
+        [&os, &rhs](const auto&... field){
+            ((os << " " << field), ...);
+        }, vst::helper::tie(rhs));
+    os << " ]";
+    return os;
 }
 
 } // namespace vst

@@ -13,11 +13,6 @@ struct simple_pod {
 };
 using simple = vst::type<simple_pod>;
 
-std::ostream& operator<<(std::ostream& os, const simple&)
-{
-    return os;
-}
-
 static_assert(simple{2, 2.f} == simple{2, 2.f});
 static_assert(simple{2, 2.f} != simple{3, 2.f});
 static_assert(simple{2, 2.f} != simple{2, 1.f});
