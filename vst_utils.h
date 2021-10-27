@@ -43,6 +43,9 @@ constexpr bool is_vst_type = false;
 template<typename T, typename... ops>
 constexpr bool is_vst_type<type<T, ops...>> = true;
 
+template<typename T, typename... ops>
+constexpr bool is_vst_type<type_impl<T, ops...>> = true;
+
 // ##############
 // # underlying #
 // ##############
@@ -52,6 +55,12 @@ struct underlying;
 
 template<typename T, typename... ops>
 struct underlying<type<T, ops...>>
+{
+    using type = T;
+};
+
+template<typename T, typename... ops>
+struct underlying<type_impl<T, ops...>>
 {
     using type = T;
 };

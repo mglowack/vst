@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TYPE_LIST_H
+#define TYPE_LIST_H
 
 #include <type_traits>
 
@@ -22,3 +23,5 @@ struct type_list_contains<type_list<item_t, the_rest_t...>, item_t> : std::true_
 
 template<typename list_t, typename item_t>
 constexpr bool type_list_contains_v = type_list_contains<list_t, item_t>::value;
+
+#endif

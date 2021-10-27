@@ -12,14 +12,6 @@ namespace op {
     struct hashable;
 }
 
-template<typename T, typename...>
-struct type : public T
-{
-};
-
-template<typename T, typename ENABLER = void>
-struct trait;
-
 namespace with_fields {
 
 template<auto (*get_fields_func)()>
@@ -57,7 +49,22 @@ struct empty
     }
 };
 
+struct inferred {};
+
 } // namespace fields
+
+template<typename T, typename fields_def, typename... ops>
+struct type_impl : public T
+{
+};
+
+template<typename T, typename... ops>
+struct type : type_impl<T, with_fields::inferred, ops...>
+{
+};
+
+template<typename T, typename ENABLER = void>
+struct trait;
 
 template<typename... ops>
 struct make_basic_trait

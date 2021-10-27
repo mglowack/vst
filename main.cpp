@@ -19,9 +19,9 @@ struct foo_pod
 constexpr static auto foo_fields = std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}};
 static constexpr auto get_foo_fields() { return std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}}; }
 
-using foo = vst::type<
+using foo = vst::type_impl<
     foo_pod, 
-    // vst::with_fields::from_func<get_foo_fields>, 
+    vst::with_fields::from_func<get_foo_fields>, 
     vst::op::ordered, vst::op::hashable>;
 
 } // my_ns
@@ -85,7 +85,7 @@ struct baz_pod {
 
     static constexpr auto get_fields() { return std::tuple{field_ptr{&baz_pod::x}, field_ptr{&baz_pod::y}}; }
 };
-using baz = vst::type<baz_pod, vst::op::ordered, vst::op::hashable>;
+using baz = vst::type_impl<baz_pod, vst::with_fields::inferred, vst::op::ordered, vst::op::hashable>;
 static_assert(vst::has_get_fields_raw<baz_pod>);
 
 static_assert(baz{1, 3.f} != baz{2, 3.f});
@@ -131,7 +131,7 @@ static_assert(std::is_same_v<
     std::tuple<const int&, const float&>, 
     decltype(boost::pfr::structure_tie(std::declval<const pure_pod&>()))>);
 
-using pure = vst::type<pure_pod, vst::op::ordered>;
+using pure = vst::type_impl<pure_pod, vst::with_fields::inferred, vst::op::ordered>;
 
 static_assert(pure{1, 3.f} != pure{2, 3.f});
 static_assert(pure{2, 3.f} == pure{2, 3.f});
@@ -151,14 +151,18 @@ int main()
     // using namespace my_ns;
     assert((my_ns::foo{2, 2.f} == my_ns::foo{2, 2.f}));
 
-    // std::unordered_set<my_ns::foo, vst::hash<my_ns::foo>> s_foo;
-    // s_foo.insert(my_ns::foo{2, 2.f});
-    // s_foo.insert(my_ns::foo{2, 2.f});
-    // s_foo.insert(my_ns::foo{3, 2.f});
-    // assert(s_foo.size() == 2);
+    std::unordered_set<my_ns::foo, vst::hash<my_ns::foo>> s_foo;
+    s_foo.insert(my_ns::foo{2, 2.f});
+    s_foo.insert(my_ns::foo{2, 2.f});
+    s_foo.insert(my_ns::foo{3, 2.f});
+    assert(s_foo.size() == 2);
     
-    // std::unordered_set<baz_ns::baz> s_baz;
-    // s_baz.insert(baz_ns::baz{2, 2.f});
+    std::unordered_set<baz_ns::baz> s_baz;
+    s_baz.insert(baz_ns::baz{2, 2.f});
+    s_baz.insert(baz_ns::baz{2, 2.f});
+    s_baz.insert(baz_ns::baz{2, 1.f});
+    s_baz.insert(baz_ns::baz{3, 2.f});
+    assert(s_baz.size() == 3);
 
     // std::cout << foo{2, 4.f} << "\n";
 

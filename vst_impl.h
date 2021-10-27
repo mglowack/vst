@@ -51,24 +51,32 @@ struct named_field_ptr
 
 namespace vst {
 
+// #########
+// # trait #
+// #########
+
 template<typename T, typename... ops>
-struct trait<type<T, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
+struct trait<type_impl<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
 : make_trait<T, ops...>
 {
 };
 
 template<typename T, typename... ops>
-struct trait<type<T, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
+struct trait<type_impl<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields_raw<T>>>
 : make_basic_trait<T, ops...>
 {
 };
 
-// template<typename T, auto (*get_fields_func)(), typename... ops>
-// struct trait<type<T, with_fields::from_func<get_fields_func>, ops...>>
-// : make_basic_trait<T, ops...>
-// , with_fields::from_func<get_fields_func>
-// {
-// };
+template<typename T, auto (*get_fields_func)(), typename... ops>
+struct trait<type_impl<T, with_fields::from_func<get_fields_func>, ops...>>
+: make_basic_trait<T, ops...>
+, with_fields::from_func<get_fields_func>
+{
+};
+
+// ##########
+// # helper #
+// ##########
 
 struct helper 
 {
@@ -99,6 +107,11 @@ struct helper
         }
     }
 };
+
+
+// #############
+// # operators #
+// #############
 
 // comparable
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
@@ -314,9 +327,9 @@ namespace std
 {
 
 template<typename... args_t>
-struct hash<vst::type<args_t...>> : vst::hash<vst::type<args_t...>>
+struct hash<vst::type_impl<args_t...>> : vst::hash<vst::type_impl<args_t...>>
 {
-    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type<args_t...>, vst::op::hashable>()>;
+    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type_impl<args_t...>, vst::op::hashable>()>;
 };
 
 } // namespace std
