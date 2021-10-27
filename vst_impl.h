@@ -171,19 +171,19 @@ struct helper
     static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
 
     template<typename T>
-    static constexpr decltype(auto) wrapped_tie(T& obj)
+    static constexpr auto wrapped_tie(T& obj)
     {
         return wrap(raw_tie(obj));
     }
 
     template<typename T>
-    static constexpr decltype(auto) tie(T& obj)
+    static constexpr auto tie(T& obj)
     {
         return raw_tie(obj);
     }
 
     template<typename T>
-    static constexpr decltype(auto) raw_tie(T& obj)
+    static constexpr auto raw_tie(T& obj)
     {
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
@@ -207,7 +207,7 @@ private:
     }
 
     template<typename T, typename... field_ptrs_t>
-    static constexpr decltype(auto) from_fields_tie(
+    static constexpr auto from_fields_tie(
         T& obj, const std::tuple<field_ptr<field_ptrs_t>...>& fields)
     {
         return std::apply(
@@ -218,7 +218,7 @@ private:
     }
 
     template<typename T, typename... field_ptrs_t>
-    static constexpr decltype(auto) from_fields_tie(
+    static constexpr auto from_fields_tie(
         T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
     {
         return std::apply(
