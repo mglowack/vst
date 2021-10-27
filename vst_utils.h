@@ -68,6 +68,35 @@ struct underlying<type_impl<T, ops...>>
 template<typename T>
 using underlying_t = typename underlying<T>::type;
 
+
+}
+
+// #################
+// # is_fields_def #
+// #################
+
+namespace vst {
+template<typename T>
+struct is_fields_def : std::false_type {};
+
+template<typename T>
+constexpr bool is_fields_def_v = is_fields_def<T>::value;
+
+template<auto (*f)()>
+struct is_fields_def<with_fields::from_func<f>> : std::true_type {};
+
+template<auto v>
+struct is_fields_def<with_fields::from_var<v>> : std::true_type {};
+
+template<typename T>
+struct is_fields_def<with_fields::from<T>> : std::true_type {};
+
+template<>
+struct is_fields_def<with_fields::empty> : std::true_type {};
+
+template<>
+struct is_fields_def<with_fields::inferred> : std::true_type {};
+
 }
 
 #endif

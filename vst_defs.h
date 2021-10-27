@@ -53,7 +53,7 @@ struct inferred {};
 
 } // namespace fields
 
-template<typename T, typename fields_def, typename... ops>
+template<typename T, typename...>
 struct type_impl : public T
 {
 };

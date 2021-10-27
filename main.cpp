@@ -13,7 +13,7 @@ struct foo_pod
     int x;
     float y;
 
-    static constexpr auto get_fields() { return std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}}; }
+    // static constexpr auto get_fields() { return std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}}; }
 };
 
 constexpr static auto foo_fields = std::tuple{field_ptr{&foo_pod::x}, field_ptr{&foo_pod::y}};
@@ -53,6 +53,14 @@ bool operator==(const wtf&, const wtf&) { return true; }
 static_assert(my_ns::foo{2, 3.f} == my_ns::foo{2, 3.f});
 }
 
+static_assert(!vst::is_fields_def_v<vst::op::hashable>);
+static_assert(!vst::is_fields_def_v<vst::op::ordered>);
+// static_assert( vst::is_fields_def_v<vst::with_fields::from<my_ns::foo_pod>>);
+static_assert( vst::is_fields_def_v<vst::with_fields::from_var<&my_ns::foo_fields>>);
+static_assert( vst::is_fields_def_v<vst::with_fields::from_func<my_ns::get_foo_fields>>);
+static_assert( vst::is_fields_def_v<vst::with_fields::empty>);
+static_assert( vst::is_fields_def_v<vst::with_fields::inferred>);
+
 // #######
 // # bar #
 // #######
@@ -85,7 +93,7 @@ struct baz_pod {
 
     static constexpr auto get_fields() { return std::tuple{field_ptr{&baz_pod::x}, field_ptr{&baz_pod::y}}; }
 };
-using baz = vst::type_impl<baz_pod, vst::with_fields::inferred, vst::op::ordered, vst::op::hashable>;
+using baz = vst::type_impl<baz_pod, vst::op::ordered, vst::op::hashable>;
 static_assert(vst::has_get_fields_raw<baz_pod>);
 
 static_assert(baz{1, 3.f} != baz{2, 3.f});
@@ -94,6 +102,22 @@ static_assert(baz{1, 3.f} < baz{2, 3.f});
 static_assert(baz{2, 2.f} < baz{2, 3.f});
 
 }
+
+// ##########
+// # simple #
+// ##########
+
+struct simple_pod {
+    int x;
+};
+using simple = vst::type_impl<simple_pod>;
+
+static_assert(!vst::has_get_fields_raw<simple_pod>);
+static_assert(vst::is_vst_type<simple>);
+static_assert(vst::trait<simple>::exists);
+
+static_assert(simple{2} == simple{2});
+static_assert(simple{2} != simple{3});
 
 // ########
 // # pure #
@@ -131,7 +155,7 @@ static_assert(std::is_same_v<
     std::tuple<const int&, const float&>, 
     decltype(boost::pfr::structure_tie(std::declval<const pure_pod&>()))>);
 
-using pure = vst::type_impl<pure_pod, vst::with_fields::inferred, vst::op::ordered>;
+using pure = vst::type_impl<pure_pod, vst::op::ordered>;
 
 static_assert(pure{1, 3.f} != pure{2, 3.f});
 static_assert(pure{2, 3.f} == pure{2, 3.f});

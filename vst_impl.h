@@ -55,6 +55,27 @@ namespace vst {
 // # trait #
 // #########
 
+template<typename T>
+struct trait<type_impl<T>> : trait<type_impl<T, with_fields::inferred>>
+{
+};
+
+template<typename T, typename maybe_field_def, typename... ops>
+struct trait<
+    type_impl<T, maybe_field_def, ops...>, 
+    std::enable_if_t<!is_fields_def_v<maybe_field_def> && has_get_fields_raw<T>>>
+: make_trait<T, maybe_field_def, ops...>
+{
+};
+
+template<typename T, typename maybe_field_def, typename... ops>
+struct trait<
+    type_impl<T, maybe_field_def, ops...>, 
+    std::enable_if_t<!is_fields_def_v<maybe_field_def> && !has_get_fields_raw<T>>>
+: make_basic_trait<T, maybe_field_def, ops...>
+{
+};
+
 template<typename T, typename... ops>
 struct trait<type_impl<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
 : make_trait<T, ops...>
