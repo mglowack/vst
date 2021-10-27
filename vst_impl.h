@@ -78,7 +78,7 @@ std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
 template<typename T, typename ENABLER = void>
 struct wrapped_value
 {
-    const T& value;
+    T& value;
 };
 
 // defaults
@@ -171,7 +171,19 @@ struct helper
     static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
 
     template<typename T>
+    static constexpr decltype(auto) wrapped_tie(T& obj)
+    {
+        return wrap(raw_tie(obj));
+    }
+
+    template<typename T>
     static constexpr decltype(auto) tie(T& obj)
+    {
+        return raw_tie(obj);
+    }
+
+    template<typename T>
+    static constexpr decltype(auto) raw_tie(T& obj)
     {
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
@@ -183,7 +195,6 @@ struct helper
             // try boost::pfr
             return boost::pfr::structure_tie(as_aggregate(obj));
         }
-
     }
 
 private:
@@ -216,7 +227,31 @@ private:
             }, 
             fields);
     }
+
+    template<typename T>
+    static constexpr wrapped_value<T> wrap(T& field)
+    {
+        // return wrapped_value<std::remove_reference_t<T>>{field};
+        return wrapped_value<T>{field};
+    }
+
+    template<typename... Ts>
+    static constexpr std::tuple<wrapped_value<Ts>...> wrap(std::tuple<Ts&...> fields)
+    {
+        return std::apply(
+            [](auto&... f) { 
+                return std::tuple(wrap(f)...); 
+            }, 
+            fields);
+    }
+    
+    static_assert(std::is_same_v<wrapped_value<int>, decltype(wrap(std::declval<int&>()))>);
+    static_assert(std::is_same_v<wrapped_value<const int>, decltype(wrap(std::declval<const int&>()))>);
+    
+    static_assert(std::is_same_v<std::tuple<wrapped_value<int>>, decltype(wrap(std::declval<std::tuple<int&>>()))>);
+    static_assert(std::is_same_v<std::tuple<wrapped_value<const int>>, decltype(wrap(std::declval<std::tuple<const int&>>()))>);
 };
+
 
 
 } // namespace vst
