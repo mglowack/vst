@@ -137,9 +137,9 @@ template<typename T, typename... extra_args_t>
 struct append_template_args;
 
 template<typename T, typename... args_t, typename... extra_args_t>
-struct append_template_args<vst::type_impl<T, type_list<args_t...>>, extra_args_t...>
+struct append_template_args<vst::impl::type<T, type_list<args_t...>>, extra_args_t...>
 {
-    using type = vst::type_impl<T, type_list<args_t..., extra_args_t...>>;
+    using type = vst::impl::type<T, type_list<args_t..., extra_args_t...>>;
 };
 
 } // close anon namespace
@@ -401,30 +401,24 @@ TEST(test_vst, manual_override)
 // #######################
 // # custom constructors #
 // #######################
-namespace {
-
-struct custom_ctor_pod {
-    int x, y;
-
-    // NOTE: default ctor *not required*
-    explicit custom_ctor_pod(int z) : x(z), y(z) {}
-};
-using custom_ctor = vst::type<custom_ctor_pod>;
-
-} // close anon namespace
-
 TEST(test_vst, custom_ctor)
 {
+    struct custom_ctor_pod {
+        int x, y;
+
+        // NOTE: default ctor *not required*
+        explicit custom_ctor_pod(int z) : x(z), y(2*z) {}
+    };
+    using custom_ctor = vst::type<custom_ctor_pod>;
+
     custom_ctor obj(5);
 
     EXPECT_THAT(obj.x, Eq(5));
-    EXPECT_THAT(obj.y, Eq(5));
+    EXPECT_THAT(obj.y, Eq(10));
 }
 
 // TODO MG:
 //  * addable
-//  * manual operators
-//  * custom ctors
 //  * customized operators for specific types via wrapping
 //  * named_type
 //  * specifying names + tests for streaming

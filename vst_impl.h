@@ -172,9 +172,13 @@ private:
 };
 
 
+} // namespace vst
+
 // #############
 // # operators #
 // #############
+
+namespace vst::impl {
 
 // TODO MG: drop is vst check?
 
@@ -237,12 +241,12 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
     return os;
 }
 
-} // namespace vst
-
-namespace vst 
-{
+} // namespace vst::impl
 
 // hashable
+namespace vst
+{
+
 template<typename T, typename ENABLER = void>
 struct hash;
 
@@ -260,21 +264,25 @@ struct hash<T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashab
     }
 };
 
+} // namespace vst
+
+namespace vst::impl {
+
 template <typename T>
 std::size_t hash_value(const T& o)
 {
     return hash<T>{}(o);
 }
 
-} // namespace vst
+} // namespace vst::impl
 
 namespace std
 {
 
 template<typename... args_t>
-struct hash<vst::type_impl<args_t...>> : vst::hash<vst::type_impl<args_t...>>
+struct hash<vst::impl::type<args_t...>> : vst::hash<vst::impl::type<args_t...>>
 {
-    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type_impl<args_t...>, vst::op::hashable>()>;
+    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::impl::type<args_t...>, vst::op::hashable>()>;
 };
 
 } // namespace std
