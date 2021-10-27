@@ -13,4 +13,13 @@ TEST(test_named_type, basic)
     static_assert(price{4} != price{2});
     static_assert(price{4} < price{6});
     static_assert(price{4} > price{2});
+    static_assert(price{4} + price{1} == price{5});
+    static_assert(price{4} - price{1} == price{3});
+
+    EXPECT_TRUE((price{4} == price{4}));
+    EXPECT_TRUE((price{4} != price{2}));
+    EXPECT_TRUE((price{4} < price{6}));
+    EXPECT_TRUE((price{4} > price{2}));
+    EXPECT_TRUE((price{4} + price{1} == price{5}));
+    EXPECT_TRUE((price{4} - price{1} == price{3}));
 }
