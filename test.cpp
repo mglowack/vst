@@ -418,7 +418,47 @@ TEST(test_vst, custom_ctor)
     EXPECT_THAT(obj.y, Eq(10));
 }
 
-TEST(test_vst, build_in_comparison_for_const_char)
+// ########################################
+// # custom operators on a per type basis #
+// ########################################
+
+namespace 
+{
+    struct string_int {
+        std::string number;
+    };
+
+    // NOTE: it does not have any operators, lets assume we cannot add them directly on the type
+
+    bool operator==(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
+    {
+        return std::atoi(lhs.value.number.c_str()) == std::atoi(rhs.value.number.c_str());
+    }
+
+    bool operator<(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
+    {
+        return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
+    }
+
+    std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
+    {
+        return os << rhs.value.number;
+    }
+}
+
+TEST(test_vst, custom_comparison_for_string_int)
+{
+    struct pod {
+        int x;
+        string_int s;
+    };
+    using data = vst::type<pod, vst::op::ordered>;
+
+    ASSERT_THAT((std::string{"10"}), Lt(std::string{"4"}));
+    EXPECT_THAT((data{4, "10"}), Gt(data{4, "4"}));
+}
+
+TEST(test_vst, built_in_comparison_for_const_char)
 {
     struct pod {
         int x;
@@ -430,27 +470,26 @@ TEST(test_vst, build_in_comparison_for_const_char)
     std::string s2 = "bbb";
 
     // make sure the one with lower address has the lexicographically higher value
-    if (s1.data() < s2.data())
+    if (s1.c_str() < s2.c_str())
     {
         // needs swapping
         s1 = "bbb";
         s2 = "aaa";
         
         // make sure pointer arithmetic would give the wrong answer lexicographically
-        ASSERT_TRUE((s1.data() < s2.data() && s1 > s2));
-        EXPECT_THAT((data{4, s1.data()}), Gt(data{4, s2.data()}));
+        ASSERT_TRUE((s1.c_str() < s2.c_str() && s1 > s2));
+        EXPECT_THAT((data{4, s1.c_str()}), Gt(data{4, s2.c_str()}));
     }
     else
     {
         // make sure pointer arithmetic would give the wrong answer lexicographically
-        ASSERT_TRUE((s1.data() > s2.data() && s1 < s2));
-        EXPECT_THAT((data{4, s1.data()}), Lt(data{4, s2.data()}));
+        ASSERT_TRUE((s1.c_str() > s2.c_str() && s1 < s2));
+        EXPECT_THAT((data{4, s1.c_str()}), Lt(data{4, s2.c_str()}));
     }
 }
 
 // TODO MG:
 //  * addable
-//  * customized operators for specific types via wrapping
 //  * named_type
 //  * specifying names + tests for streaming
 //  * solve hash detection and other TODOs
