@@ -71,6 +71,53 @@ std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
     return os << rhs.name << "=" << rhs.value;
 }
 
+// #################
+// # wrapped_value #
+// #################
+
+template<typename T, typename ENABLER = void>
+struct wrapped_value
+{
+    const T& value;
+};
+
+// defaults
+template<typename T>
+constexpr bool operator==(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs.value == rhs.value;
+}
+
+template<typename T>
+constexpr bool operator<(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs.value < rhs.value;
+}
+
+template<typename T>
+constexpr T operator+(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs.value + rhs.value;
+}
+
+template <typename T>
+std::size_t hash_value(const wrapped_value<T>& v)
+{
+    using boost::hash_value;
+    return hash_value(v.value);
+}
+
+// overrides - const char*
+bool operator==(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
+{
+    return strcmp(lhs.value, rhs.value) == 0;
+}
+
+bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
+{
+    return strcmp(lhs.value, rhs.value) < 0;
+}
+
 namespace vst {
 
 // #########

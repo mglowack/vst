@@ -401,6 +401,7 @@ TEST(test_vst, manual_override)
 // #######################
 // # custom constructors #
 // #######################
+
 TEST(test_vst, custom_ctor)
 {
     struct custom_ctor_pod {
@@ -415,6 +416,36 @@ TEST(test_vst, custom_ctor)
 
     EXPECT_THAT(obj.x, Eq(5));
     EXPECT_THAT(obj.y, Eq(10));
+}
+
+TEST(test_vst, build_in_comparison_for_const_char)
+{
+    struct pod {
+        int x;
+        const char* s;
+    };
+    using data = vst::type<pod, vst::op::ordered>;
+
+    std::string s1 = "aaa";
+    std::string s2 = "bbb";
+
+    // make sure the one with lower address has the lexicographically higher value
+    if (s1.data() < s2.data())
+    {
+        // needs swapping
+        s1 = "bbb";
+        s2 = "aaa";
+        
+        // make sure pointer arithmetic would give the wrong answer lexicographically
+        ASSERT_TRUE((s1.data() < s2.data() && s1 > s2));
+        EXPECT_THAT((data{4, s1.data()}), Gt(data{4, s2.data()}));
+    }
+    else
+    {
+        // make sure pointer arithmetic would give the wrong answer lexicographically
+        ASSERT_TRUE((s1.data() > s2.data() && s1 < s2));
+        EXPECT_THAT((data{4, s1.data()}), Lt(data{4, s2.data()}));
+    }
 }
 
 // TODO MG:
