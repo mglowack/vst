@@ -5,6 +5,14 @@
 
 #include <type_traits>
 
+namespace std {
+template<typename T>
+struct type_identity
+{
+    using type = T;
+};
+}
+
 namespace vst {
 
 // ##################
@@ -30,51 +38,31 @@ constexpr bool is_vst_type = false;
 template<typename T, typename... ops>
 constexpr bool is_vst_type<type<T, ops...>> = true;
 
-// ##############
-// # underlying #
-// ##############
+// #############
+// # aggregate #
+// #############
 
 template<typename T>
-struct underlying;
+struct aggregate : std::type_identity<T> {};
 
 template<typename T, typename... ops>
-struct underlying<type<T, ops...>>
-{
-    using type = T;
-};
+struct aggregate<type<T, ops...>> : std::type_identity<T> {};
 
 template<typename T>
-using underlying_t = typename underlying<T>::type;
+using aggregate_t = typename aggregate<T>::type;
 
-// namespace std {
-// template<typename T>
-// struct type_identity
-// {
-//     using type = T;
-// };
-// }
+// ###################
+// # propagate_const #
+// ###################
 
-// template<typename T>
-// struct aggregate : std::type_identity<T> {};
+template<typename T, typename U>
+struct propagate_const : std::type_identity<U> {};
 
-// template<typename T, typename... ops>
-// struct aggregate<type<T, ops...>> : std::type_identity<T> {};
+template<typename T, typename U>
+struct propagate_const<const T, U> : std::type_identity<const U> {};
 
-// template<typename T>
-// using aggregate_t = typename aggregate<T>::type;
-
-// // ###################
-// // # propagate_const #
-// // ###################
-
-// template<typename T, typename U>
-// struct propagate_const : std::type_identity<U> {};
-
-// template<typename T, typename U>
-// struct propagate_const<const T, U> : std::type_identity<const U> {};
-
-// template<typename T, typename U>
-// using propagate_const_t = typename propagate_const<T, U>::type;
+template<typename T, typename U>
+using propagate_const_t = typename propagate_const<T, U>::type;
 
 // #################
 // # is_fields_def #

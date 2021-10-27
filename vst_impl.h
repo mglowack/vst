@@ -147,18 +147,9 @@ private:
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
-        // return static_cast<propagate_const_t<std::remove_reference_t<T>, aggregate_t<std::decay_t<T>>>&>(obj);
-        if constexpr(is_vst_type<std::decay_t<T>>)
-        {
-            using U = underlying_t<std::decay_t<T>>;
-            using X = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>, const U, U>;
-            return static_cast<X&>(obj);
-            // return boost::pfr::structure_tie(obj);
-        }
-        else
-        {
-            return obj;
-        }
+        return static_cast<propagate_const_t<
+            std::remove_reference_t<T>, 
+            aggregate_t<std::decay_t<T>>>&>(obj);
     }
 
     template<typename T, typename... field_ptrs_t>
