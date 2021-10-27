@@ -358,3 +358,10 @@ TYPED_TEST(test_vst, boost_hashed)
         VST{2, 1.f}, 
         VST{1, 3.f}));
 }
+
+// TODO MG:
+//  * addable
+//  * manual operators
+//  * customized operators for specific types via wrapping
+//  * named_type
+//  * specifying names + tests for streaming

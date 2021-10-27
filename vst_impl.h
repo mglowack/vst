@@ -113,17 +113,11 @@ struct trait<
 {
 };
 
-// template<typename T, auto (*get_fields_func)(), typename... ops>
-// struct trait<type<T, with_fields::from_func<get_fields_func>, ops...>>
-// : make_basic_trait<T, ops...>
-// , with_fields::from_func<get_fields_func>
-// {
-// };
-
 // ##########
 // # helper #
 // ##########
 
+// TODO MG: move into trait?
 struct helper 
 {
     template<typename T, typename op>
@@ -182,7 +176,7 @@ private:
 // # operators #
 // #############
 
-// TODO: drop is vst check?
+// TODO MG: drop is vst check?
 
 // comparable
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
@@ -245,145 +239,6 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
 
 } // namespace vst
 
-// // comparable
-// template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
-// constexpr bool operator==(const T& lhs, const T& rhs)
-// {
-//     return vst::helper::tie(lhs) == vst::helper::tie(rhs);
-// }
-
-// template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
-// constexpr bool operator!=(const T& lhs, const T& rhs)
-// {
-//     return !(lhs == rhs);
-// }
-
-// // ordered
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator<(const T& lhs, const T& rhs)
-// {
-//     return vst::helper::tie(lhs) < vst::helper::tie(rhs);
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator<=(const T& lhs, const T& rhs)
-// {
-//     return lhs < rhs || lhs == rhs;
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator>(const T& lhs, const T& rhs)
-// {
-//     return !(lhs <= rhs);
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator>=(const T& lhs, const T& rhs)
-// {
-//     return !(lhs < rhs);
-// }
-
-// // comparable
-// template<typename T, std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T>, int> = 0>
-// constexpr bool operator==(const T& lhs, const T& rhs)
-// {
-//     return vst::helper::tie(lhs) == vst::helper::tie(rhs);
-// }
-
-// template<typename T, std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T>, int> = 0>
-// constexpr bool operator!=(const T& lhs, const T& rhs)
-// {
-//     return !(lhs == rhs);
-// }
-
-// // ordered
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator<(const T& lhs, const T& rhs)
-// {
-//     return vst::helper::tie(lhs) < vst::helper::tie(rhs);
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exist && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator<=(const T& lhs, const T& rhs)
-// {
-//     return lhs < rhs || lhs == rhs;
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator>(const T& lhs, const T& rhs)
-// {
-//     return !(lhs <= rhs);
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && !vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator>=(const T& lhs, const T& rhs)
-// {
-//     return !(lhs < rhs);
-// }
-
-
-// // comparable
-// template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
-// constexpr bool operator==(const T& lhs, const T& rhs)
-// {
-//     return vst::helper::tie(lhs) == vst::helper::tie(rhs);
-// }
-
-// template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
-// constexpr bool operator!=(const T& lhs, const T& rhs)
-// {
-//     return !(lhs == rhs);
-// }
-
-// // ordered
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator<(const T& lhs, const T& rhs)
-// {
-//     return vst::helper::tie(lhs) < vst::helper::tie(rhs);
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator<=(const T& lhs, const T& rhs)
-// {
-//     return lhs < rhs || lhs == rhs;
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator>(const T& lhs, const T& rhs)
-// {
-//     return !(lhs <= rhs);
-// }
-
-// template<
-//     typename T, 
-//     std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
-// constexpr bool operator>=(const T& lhs, const T& rhs)
-// {
-//     return !(lhs < rhs);
-// }
-
 namespace vst 
 {
 
@@ -423,20 +278,5 @@ struct hash<vst::type<args_t...>> : vst::hash<vst::type<args_t...>>
 };
 
 } // namespace std
-
-// namespace std {
-
-// template<typename T>
-// struct hash<T>
-// {
-//     using checkIfHashable = std::enable_if_t<trait<foo>::exists>;
-
-//     size_t operator()(const foo&) const noexcept
-//     {        
-//         return 0;
-//     }
-// };
-
-// }
 
 #endif
