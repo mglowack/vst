@@ -102,6 +102,17 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
         std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 }
 
+// template<typename T, typename ENABLER = void>
+// constexpr bool is_addable = false;
+
+// template<typename T>
+// constexpr bool is_addable<
+//     T, 
+//     std::void_t<
+//         decltype(std::declval<const T&>() + std::declval<const T&>()),
+//         decltype(std::declval<const T&>() - std::declval<const T&>())>>
+//  = true;
+
 }
 
 #endif

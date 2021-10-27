@@ -57,7 +57,7 @@ struct float_pod {
 
 struct composite_pod {
     int x;
-    vst::type<float_pod, vst::op::ordered, vst::op::hashable> y; // to support all typed tests
+    vst::type<float_pod, vst::op::ordered, vst::op::hashable, vst::op::addable> y; // to support all typed tests
 };
 
 // ########
@@ -132,6 +132,17 @@ constexpr bool is_hashable<
 
 //  static_assert(!is_hashable<simple<>>);
 //  static_assert( is_hashable<simple<vst::op::hashable>>);
+
+template<typename T, typename ENABLER = void>
+constexpr bool is_addable = false;
+
+template<typename T>
+constexpr bool is_addable<
+    T, 
+    std::void_t<
+        decltype(std::declval<const T&>() + std::declval<const T&>()),
+        decltype(std::declval<const T&>() - std::declval<const T&>())>>
+ = true;
 
 template<typename T, typename... extra_args_t>
 struct append_template_args;
@@ -376,6 +387,31 @@ TYPED_TEST(test_vst, boost_hashed)
         VST{1, 3.f}));
 }
 
+TYPED_TEST(test_vst, addable)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::addable>::type;
+
+    static_assert(is_streamable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(!is_ordered<VST>);
+    static_assert(is_addable<VST>);
+    // static_assert(!is_hashable<VST>);
+
+    static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
+    static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});
+    
+    EXPECT_TRUE((VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f}));
+    EXPECT_TRUE((VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f}));
+
+    VST obj{0, 0.f};
+    obj += VST{1, 1.f};
+    EXPECT_TRUE((obj == VST{1, 1.f}));
+    obj += VST{1, 1.f};
+    EXPECT_TRUE((obj == VST{2, 2.f}));
+    obj -= VST{0, 1.f};
+    EXPECT_TRUE((obj == VST{2, 1.f}));
+}
+
 // ###################################
 // # manual overloading of operators #
 // ###################################
@@ -496,8 +532,8 @@ TEST(test_vst, built_in_comparison_for_const_char)
 }
 
 // TODO MG:
-//  * addable
 //  * named_type
 //  * named_type automatic comparisons to underlying
 //  * specifying names + tests for streaming
+//  * tests for composition with std containers, optionals, variants etc
 //  * solve hash detection and other TODOs
