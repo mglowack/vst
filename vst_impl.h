@@ -100,6 +100,26 @@ struct trait<
 // # helper #
 // ##########
 
+// template<typename T>
+// struct cast_to_underlying
+// {
+//     using underlying = underlying_t<std::decay_t<T>>;
+//     using type = std::conditional_t<
+//         std::is_const_v<std::remove_reference_t<T>>,
+//         const underlying,
+//         underlying>;
+// };
+
+// template<typename T, typename... ops>
+// struct cast_to_underlying<type<T, ops...>>
+// {
+//     using underlying = underlying_t<std::decay_t<T>>;
+//     using type = std::conditional_t<
+//         std::is_const_v<std::remove_reference_t<T>>,
+//         const underlying,
+//         underlying>;
+// };
+
 struct helper 
 {
     template<typename T, typename op>
@@ -108,13 +128,14 @@ struct helper
     template<typename T>
     static constexpr decltype(auto) tie(T& obj)
     {
-        if constexpr (has_get_fields<std::decay_t<T>>) 
+        using trait_t = trait<std::decay_t<T>>;
+        if constexpr (has_get_fields_raw<trait_t>) 
         {
             return std::apply(
                 [&obj](const auto&... f) { 
                     return std::tie((obj.*f.p)...); 
                 }, 
-                trait<std::decay_t<T>>::get_fields());
+                trait_t::get_fields());
         }
         else if constexpr(is_vst_type<std::decay_t<T>>)
         {
