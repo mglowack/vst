@@ -59,7 +59,6 @@ struct underlying<type<T, ops...>>
 template<typename T>
 using underlying_t = typename underlying<T>::type;
 
-
 }
 
 // #################

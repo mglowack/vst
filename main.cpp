@@ -103,6 +103,48 @@ static_assert(baz{2, 2.f} < baz{2, 3.f});
 
 }
 
+// ##################
+// # empty_inferred #
+// ##################
+
+struct empty_inferred_pod {};
+using empty_inferred = vst::type<empty_inferred_pod, vst::op::ordered>;
+
+static_assert(!vst::has_get_fields_raw<empty_inferred_pod>);
+static_assert(vst::is_vst_type<empty_inferred>);
+static_assert(vst::trait<empty_inferred>::exists);
+
+static_assert(empty_inferred{} == empty_inferred{});
+static_assert(empty_inferred{} <= empty_inferred{});
+
+// ##################
+// # empty_explicit #
+// ##################
+
+struct empty_explicit_pod {};
+using empty_explicit = vst::type<empty_explicit_pod, vst::with_fields::empty, vst::op::ordered>;
+
+static_assert(!vst::has_get_fields_raw<empty_explicit_pod>);
+static_assert(vst::is_vst_type<empty_explicit>);
+static_assert(vst::trait<empty_explicit>::exists);
+
+static_assert(empty_explicit{} == empty_explicit{});
+static_assert(empty_explicit{} <= empty_explicit{});
+
+// namespace vst {
+
+// template<>
+// struct trait<bar> 
+// : make_basic_trait<>
+// , with_fields::empty
+// {
+// };
+
+// } // namespace vst
+
+// static_assert(bar{} == bar{});
+// // static_assert(bar{} < bar{});
+
 // ##########
 // # simple #
 // ##########

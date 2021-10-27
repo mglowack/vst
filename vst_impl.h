@@ -68,6 +68,15 @@ struct trait<
 {
 };
 
+template<typename T, typename maybe_field_def, typename... ops>
+struct trait<
+    type<T, maybe_field_def, ops...>, 
+    std::enable_if_t<is_fields_def_v<maybe_field_def> && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
+: make_basic_trait<T, ops...>
+, maybe_field_def
+{
+};
+
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields_raw<T>>>
 : make_trait<T, ops...>
@@ -80,12 +89,12 @@ struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_f
 {
 };
 
-template<typename T, auto (*get_fields_func)(), typename... ops>
-struct trait<type<T, with_fields::from_func<get_fields_func>, ops...>>
-: make_basic_trait<T, ops...>
-, with_fields::from_func<get_fields_func>
-{
-};
+// template<typename T, auto (*get_fields_func)(), typename... ops>
+// struct trait<type<T, with_fields::from_func<get_fields_func>, ops...>>
+// : make_basic_trait<T, ops...>
+// , with_fields::from_func<get_fields_func>
+// {
+// };
 
 // ##########
 // # helper #
@@ -125,6 +134,8 @@ struct helper
 // #############
 // # operators #
 // #############
+
+// TODO: drop is vst check?
 
 // comparable
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
