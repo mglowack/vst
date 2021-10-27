@@ -177,16 +177,15 @@ struct helper
     static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
 
     template<typename T>
-    static constexpr auto wrapped_tie(T& obj)
+    static constexpr auto tie(T& obj)
     {
-        return wrap(raw_tie(obj));
+        return wrapped_tie(obj);
     }
 
     template<typename T>
-    static constexpr auto tie(T& obj)
+    static constexpr auto wrapped_tie(T& obj)
     {
-        // return raw_tie(obj);
-        return wrapped_tie(obj);
+        return wrap(raw_tie(obj));
     }
 
     template<typename T>
@@ -233,28 +232,15 @@ private:
             fields);
     }
 
-    template<typename T>
-    static constexpr wrapped_value<T> wrap(const T& field)
-    {
-        // return wrapped_value<std::remove_reference_t<T>>{field};
-        return wrapped_value<T>{field};
-    }
-
     template<typename... Ts>
     static constexpr auto wrap(std::tuple<Ts&...> fields)
     {
         return std::apply(
             [](auto&... f) { 
-                return std::tuple(wrap(f)...); 
+                return std::tuple(wrapped_value<std::remove_const_t<Ts>>{f}...); 
             }, 
             fields);
     }
-    
-    // static_assert(std::is_same_v<wrapped_value<int>, decltype(wrap(std::declval<int&>()))>);
-    // static_assert(std::is_same_v<wrapped_value<const int>, decltype(wrap(std::declval<const int&>()))>);
-    
-    // static_assert(std::is_same_v<std::tuple<wrapped_value<int>>, decltype(wrap(std::declval<std::tuple<int&>>()))>);
-    // static_assert(std::is_same_v<std::tuple<wrapped_value<const int>>, decltype(wrap(std::declval<std::tuple<const int&>>()))>);
 };
 
 
