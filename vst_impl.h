@@ -465,7 +465,7 @@ struct hash<T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashab
 
 namespace vst::impl {
 
-template <typename T>
+template <typename T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashable>(), int> = 0>
 std::size_t hash_value(const T& o)
 {
     return hash<T>{}(o);

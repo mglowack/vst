@@ -122,18 +122,19 @@ constexpr bool is_streamable<
 template<typename T, typename ENABLER = void>
 constexpr bool is_hashable = false;
 
-// TODO MG: test for boost hash and boost::hash_value
+// TODO MG: test for std::hash somehow?
 template<typename T>
 constexpr bool is_hashable<
     T, 
     std::void_t<
-        // decltype(std::declval<const std::hash<T>&>())>>
-        // decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))>>
+        // decltype(sizeof(std::hash<T>))
+        // decltype(std::declval<const std::hash<T>&>())>
+        // decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))
         decltype(hash_value(std::declval<const T&>()))>>
  = true;
 
-//  static_assert(!is_hashable<simple<>>);
-//  static_assert( is_hashable<simple<vst::op::hashable>>);
+static_assert(!is_hashable<simple<>>);
+static_assert( is_hashable<simple<vst::op::hashable>>);
 
 template<typename T, typename ENABLER = void>
 constexpr bool is_addable = false;
@@ -185,7 +186,8 @@ TYPED_TEST(test_vst, comparable)
     static_assert(is_streamable<VST>);
     static_assert(is_comparable<VST>);
     static_assert(!is_ordered<VST>);
-    // static_assert(!is_hashable<VST>);
+    static_assert(!is_hashable<VST>);
+    static_assert(!is_addable<VST>);
 
     static_assert(VST{1, 2.f} == VST{1, 2.f});
     static_assert(VST{2, 2.f} == VST{2, 2.f});
@@ -205,7 +207,8 @@ TYPED_TEST(test_vst, ordered)
     static_assert(is_streamable<VST>);
     static_assert(is_comparable<VST>);
     static_assert(is_ordered<VST>);
-    // static_assert(!is_hashable<VST>);
+    static_assert(!is_hashable<VST>);
+    static_assert(!is_addable<VST>);
 
     static_assert(VST{1, 2.f} <= VST{1, 2.f});
     static_assert(VST{1, 2.f} >= VST{1, 2.f});
@@ -308,7 +311,8 @@ TYPED_TEST(test_vst, hashable)
     static_assert(is_streamable<VST>);
     static_assert(is_comparable<VST>);
     static_assert(!is_ordered<VST>);
-    // static_assert(is_hashable<VST>);
+    static_assert(is_hashable<VST>);
+    static_assert(!is_addable<VST>);
 
     auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
     auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
@@ -404,8 +408,8 @@ TYPED_TEST(test_vst, addable)
     static_assert(is_streamable<VST>);
     static_assert(is_comparable<VST>);
     static_assert(!is_ordered<VST>);
+    static_assert(!is_hashable<VST>);
     static_assert(is_addable<VST>);
-    // static_assert(!is_hashable<VST>);
 
     static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
     static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});
