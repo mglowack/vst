@@ -44,12 +44,18 @@ struct simple_self_described_pod {
 // # vsts #
 // ########
 
-using simple                = vst::type<simple_pod>;
-using simple_self_described = vst::type<simple_self_described_pod>;
+template<typename... ops>
+using simple                = vst::type<simple_pod, ops...>;
+template<typename... ops>
+using simple_self_described = vst::type<simple_self_described_pod, ops...>;
+template<typename... ops>
 using custom_from_func      = vst::type<simple_pod, 
-                                        vst::with_fields::from_func<get_simple_pod_fields>>;
+                                        vst::with_fields::from_func<get_simple_pod_fields>,
+                                        ops...>;
+template<typename... ops>
 using custom_from_var       = vst::type<simple_pod,
-                                        vst::with_fields::from_var<&k_simple_pod_fields>>;
+                                        vst::with_fields::from_var<&k_simple_pod_fields>,
+                                        ops...>;
 
 // #########
 // # utils #
@@ -108,10 +114,10 @@ template <typename T>
 class test_vst_equality : public ::testing::Test {};
 
 using equality_types = ::testing::Types<
-    simple_self_described,
-    custom_from_func,
-    custom_from_var,
-    simple
+    simple_self_described<>,
+    custom_from_func<>,
+    custom_from_var<>,
+    simple<>
 >;
 
 TYPED_TEST_SUITE(test_vst_equality, equality_types);
@@ -138,10 +144,10 @@ TYPED_TEST(test_vst_equality, test)
 // class test_vst_comparable : public ::testing::Test {};
 
 // using ordered_types = ::testing::Types<
-//     simple_self_described,
-//     custom_from_func,
-//     custom_from_var,
-//     simple
+//     simple<vst::op::ordered>,
+//     custom_from_func<vst::op::ordered>,
+//     custom_from_var<vst::op::ordered>,
+//     simple<vst::op::ordered>
 // >;
 
 // TYPED_TEST_SUITE(test_vst_comparable, equality_types);
