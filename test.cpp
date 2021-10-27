@@ -45,6 +45,20 @@ struct simple_self_described_pod {
             MEMBER(simple_self_described_pod, y)};
     }
 };
+        
+// #################
+// # composite_pod #
+// #################
+
+// leveraging aggregate initialization to support all typed tests
+struct float_pod {
+    float f;
+};
+
+struct composite_pod {
+    int x;
+    vst::type<float_pod, vst::op::ordered, vst::op::hashable> y; // to support all typed tests
+};
 
 // ########
 // # vsts #
@@ -62,6 +76,8 @@ template<typename... ops>
 using custom_from_var       = vst::type<simple_pod,
                                         vst::with_fields::from_var<&k_simple_pod_fields>,
                                         ops...>;
+template<typename... ops>                            
+using composite = vst::type<composite_pod, ops...>;
 
 // #########
 // # utils #
@@ -132,10 +148,11 @@ template <typename T>
 class test_vst : public ::testing::Test {};
 
 using all_types = ::testing::Types<
+    simple<>,
     simple_self_described<>,
     custom_from_func<>,
     custom_from_var<>,
-    simple<>
+    composite<>
 >;
 
 TYPED_TEST_SUITE(test_vst, all_types);
@@ -359,9 +376,31 @@ TYPED_TEST(test_vst, boost_hashed)
         VST{1, 3.f}));
 }
 
+// manual overloading of operators
+
+namespace {
+
+struct manual_override_pod {
+    int x, y;
+};
+using manual_override = vst::type<manual_override_pod>;
+
+constexpr bool operator==(const manual_override&, const manual_override&) {
+    return true;
+}
+
+} // close anon namespace
+
+TEST(test_vst, manual_override)
+{
+    EXPECT_TRUE((manual_override{1, 2} == manual_override{1, 1}));
+    EXPECT_FALSE((manual_override{1, 2} != manual_override{1, 1}));
+}
+
 // TODO MG:
 //  * addable
 //  * manual operators
+//  * custom ctors
 //  * customized operators for specific types via wrapping
 //  * named_type
 //  * specifying names + tests for streaming
