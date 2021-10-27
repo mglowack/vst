@@ -136,10 +136,10 @@ constexpr bool is_hashable<
 template<typename T, typename... extra_args_t>
 struct append_template_args;
 
-template<template<typename...> typename template_t, typename... args_t, typename... extra_args_t>
-struct append_template_args<template_t<args_t...>, extra_args_t...>
+template<typename T, typename... args_t, typename... extra_args_t>
+struct append_template_args<vst::type_impl<T, type_list<args_t...>>, extra_args_t...>
 {
-    using type = template_t<args_t..., extra_args_t...>;
+    using type = vst::type_impl<T, type_list<args_t..., extra_args_t...>>;
 };
 
 } // close anon namespace
@@ -376,8 +376,9 @@ TYPED_TEST(test_vst, boost_hashed)
         VST{1, 3.f}));
 }
 
-// manual overloading of operators
-
+// ###################################
+// # manual overloading of operators #
+// ###################################
 namespace {
 
 struct manual_override_pod {
@@ -397,6 +398,29 @@ TEST(test_vst, manual_override)
     EXPECT_FALSE((manual_override{1, 2} != manual_override{1, 1}));
 }
 
+// #######################
+// # custom constructors #
+// #######################
+namespace {
+
+struct custom_ctor_pod {
+    int x, y;
+
+    // NOTE: default ctor *not required*
+    explicit custom_ctor_pod(int z) : x(z), y(z) {}
+};
+using custom_ctor = vst::type<custom_ctor_pod>;
+
+} // close anon namespace
+
+TEST(test_vst, custom_ctor)
+{
+    custom_ctor obj(5);
+
+    EXPECT_THAT(obj.x, Eq(5));
+    EXPECT_THAT(obj.y, Eq(5));
+}
+
 // TODO MG:
 //  * addable
 //  * manual operators
@@ -404,3 +428,4 @@ TEST(test_vst, manual_override)
 //  * customized operators for specific types via wrapping
 //  * named_type
 //  * specifying names + tests for streaming
+//  * solve hash detection and other TODOs

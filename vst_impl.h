@@ -272,9 +272,9 @@ namespace std
 {
 
 template<typename... args_t>
-struct hash<vst::type<args_t...>> : vst::hash<vst::type<args_t...>>
+struct hash<vst::type_impl<args_t...>> : vst::hash<vst::type_impl<args_t...>>
 {
-    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type<args_t...>, vst::op::hashable>()>;
+    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::type_impl<args_t...>, vst::op::hashable>()>;
 };
 
 } // namespace std
