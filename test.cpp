@@ -56,15 +56,28 @@ using custom_from_var       = vst::type<simple_pod,
 // #########
 
 template<typename T, typename ENABLER = void>
-constexpr bool can_compare = false;
+constexpr bool is_equality_comparable = false;
 
 template<typename T>
-constexpr bool can_compare<
+constexpr bool is_equality_comparable<
     T, 
     std::void_t<
         decltype(std::declval<const T&>() == std::declval<const T&>()),
         decltype(std::declval<const T&>() != std::declval<const T&>())>>
  = true;
+
+template<typename T, typename ENABLER = void>
+constexpr bool is_comparable = false;
+
+template<typename T>
+constexpr bool is_comparable<
+    T, 
+    std::void_t<
+        decltype(std::declval<const T&>() < std::declval<const T&>()),
+        decltype(std::declval<const T&>() > std::declval<const T&>()),
+        decltype(std::declval<const T&>() <= std::declval<const T&>()),
+        decltype(std::declval<const T&>() >= std::declval<const T&>())>>
+ = is_equality_comparable<T>;
 
 } // close anon namespace
 
@@ -82,7 +95,8 @@ TYPED_TEST_SUITE(test_vst_equality, equality_types);
 
 TYPED_TEST(test_vst_equality, test)
 {
-    static_assert(can_compare<TypeParam>);
+    static_assert(is_equality_comparable<TypeParam>);
+    static_assert(!is_comparable<TypeParam>);
     static_assert(TypeParam{1, 2.f} == TypeParam{1, 2.f});
     static_assert(TypeParam{2, 2.f} == TypeParam{2, 2.f});
     static_assert(TypeParam{2, 2.f} != TypeParam{3, 2.f});
