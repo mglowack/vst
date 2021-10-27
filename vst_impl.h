@@ -455,13 +455,9 @@ template<typename T>
 struct hash<T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashable>()>>
 {
     size_t operator()(const T& o) const noexcept
-    {        
-        size_t hash = 0;
-        std::apply(
-            [&hash](const auto&... field){
-                (boost::hash_combine(hash, field), ...);
-            }, helper::tie(o));
-        return hash;
+    {
+        // use boost helper for hash of tuples
+        return boost::hash_value(helper::tie(o));
     }
 };
 
