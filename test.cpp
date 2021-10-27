@@ -16,14 +16,16 @@ struct simple_pod {
     float y;
 };
 
-static constexpr auto get_simple_pod_fields() {
+constexpr auto get_simple_pod_fields() {
     return std::tuple{
         MEMBER(simple_pod, x), 
         MEMBER(simple_pod, y)};
 }
 
-static constexpr auto k_simple_pod_fields = get_simple_pod_fields();
-
+constexpr auto k_simple_pod_fields = std::tuple{
+        MEMBER(simple_pod, x), 
+        MEMBER(simple_pod, y)};
+        
 // #############################
 // # simple_self_described_pod #
 // #############################
@@ -47,8 +49,8 @@ using simple                = vst::type<simple_pod>;
 using simple_self_described = vst::type<simple_self_described_pod>;
 using custom_from_func      = vst::type<simple_pod, 
                                         vst::with_fields::from_func<get_simple_pod_fields>>;
-// using custom_from_var       = vst::type<simple_pod
-//                                         vst::with_fields::from_func<&k_simple_pod_fields>>;
+using custom_from_var       = vst::type<simple_pod,
+                                        vst::with_fields::from_var<&k_simple_pod_fields>>;
 
 } // close anon namespace
 
@@ -57,8 +59,8 @@ class test_vst_equality : public ::testing::Test {};
 
 using equality_types = ::testing::Types<
     simple_self_described,
-    // custom_from_func,
-    // custom_from_var,
+    custom_from_func,
+    custom_from_var,
     simple
 >;
 
