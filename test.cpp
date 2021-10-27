@@ -117,33 +117,14 @@ constexpr bool is_hashable<
 //  static_assert(!is_hashable<simple<>>);
 //  static_assert( is_hashable<simple<vst::op::hashable>>);
 
-// template<typename T>
-// struct holder
-// {
-//     using type = T;
-// };
-
-// template<template<typename...> typename template_t, typename... args_t>
-// struct holder<template_t<args_t...>>
-// {
-//     using type = template_t;
-// };
-
-template<typename... args_t>
-struct example {};
-
 template<typename T, typename... extra_args_t>
-struct reconfigure;
+struct append_template_args;
 
 template<template<typename...> typename template_t, typename... args_t, typename... extra_args_t>
-struct reconfigure<template_t<args_t...>, extra_args_t...>
+struct append_template_args<template_t<args_t...>, extra_args_t...>
 {
     using type = template_t<args_t..., extra_args_t...>;
 };
-
-static_assert(std::is_same_v<example<int, float>, typename reconfigure<example<int>, float>::type>);
-static_assert(std::is_same_v<example<float>, typename reconfigure<example<>, float>::type>);
-static_assert(std::is_same_v<simple<float>, typename reconfigure<simple<>, float>::type>);
 
 } // close anon namespace
 
@@ -161,7 +142,7 @@ TYPED_TEST_SUITE(test_vst, all_types);
 
 TYPED_TEST(test_vst, comparable)
 {
-    using VST = typename reconfigure<TypeParam>::type;
+    using VST = TypeParam;
 
     static_assert(is_streamable<VST>);
     static_assert(is_equality_comparable<VST>);
@@ -181,7 +162,7 @@ TYPED_TEST(test_vst, comparable)
 
 TYPED_TEST(test_vst, ordered)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
     static_assert(is_streamable<VST>);
     static_assert(is_equality_comparable<VST>);
@@ -209,7 +190,7 @@ TYPED_TEST(test_vst, ordered)
 
 TYPED_TEST(test_vst, set)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
     
     // GIVEN
     std::set<VST> c;
@@ -232,7 +213,7 @@ TYPED_TEST(test_vst, set)
 
 TYPED_TEST(test_vst, map)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
     // GIVEN
     std::map<VST, int> c;
@@ -255,7 +236,7 @@ TYPED_TEST(test_vst, map)
 
 TYPED_TEST(test_vst, boost_ordered)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::ordered>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
     // GIVEN
     namespace bmi = boost::multi_index;
@@ -284,7 +265,7 @@ TYPED_TEST(test_vst, boost_ordered)
 
 TYPED_TEST(test_vst, hashable)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
     static_assert(is_streamable<VST>);
     static_assert(is_equality_comparable<VST>);
@@ -305,7 +286,7 @@ TYPED_TEST(test_vst, hashable)
 
 TYPED_TEST(test_vst, unordered_set)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
     // GIVEN
     std::unordered_set<VST> c;
@@ -328,7 +309,7 @@ TYPED_TEST(test_vst, unordered_set)
 
 TYPED_TEST(test_vst, unordered_map)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
     
     // GIVEN
     std::unordered_map<VST, int> c;
@@ -351,7 +332,7 @@ TYPED_TEST(test_vst, unordered_map)
 
 TYPED_TEST(test_vst, boost_hashed)
 {
-    using VST = typename reconfigure<TypeParam, vst::op::hashable>::type;
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
     
     // GIVEN
     namespace bmi = boost::multi_index;
