@@ -427,22 +427,29 @@ namespace
     struct string_int {
         std::string number;
     };
-
-    // NOTE: it does not have any operators, lets assume we cannot add them directly on the type
-
-    bool operator==(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
+    
+    bool operator==(const string_int& lhs, const string_int& rhs)
     {
-        return std::atoi(lhs.value.number.c_str()) == std::atoi(rhs.value.number.c_str());
+        return lhs.number == rhs.number;
+    }
+    
+    bool operator<(const string_int& lhs, const string_int& rhs)
+    {
+        return lhs.number < rhs.number;
     }
 
+    std::ostream& operator<<(std::ostream& os, const string_int& rhs)
+    {
+        return os << rhs.number;
+    }
+
+    // NOTE: 'string_int' already has operators defined, 
+    // but we want to have different semantics in our code base 
+    // for that specific type e.g. we want to use the string 
+    // as if it was an integer like so:
     bool operator<(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
     {
         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
-    }
-
-    std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
-    {
-        return os << rhs.value.number;
     }
 }
 
