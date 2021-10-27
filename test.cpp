@@ -22,9 +22,7 @@ constexpr auto get_simple_pod_fields() {
         MEMBER(simple_pod, y)};
 }
 
-constexpr auto k_simple_pod_fields = std::tuple{
-        MEMBER(simple_pod, x), 
-        MEMBER(simple_pod, y)};
+constexpr auto k_simple_pod_fields = get_simple_pod_fields();
         
 // #############################
 // # simple_self_described_pod #
