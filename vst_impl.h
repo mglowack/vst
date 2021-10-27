@@ -202,7 +202,7 @@ private:
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
         return static_cast<propagate_const_t<
-            std::remove_reference_t<T>, 
+            T, 
             aggregate_t<std::decay_t<T>>>&>(obj);
     }
 
