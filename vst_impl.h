@@ -128,6 +128,23 @@ struct helper
     static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
 
     template<typename T>
+    static constexpr decltype(auto) tie(T& obj)
+    {
+        using trait_t = trait<std::decay_t<T>>;
+        if constexpr (has_get_fields<trait_t>) 
+        {
+            return from_fields_tie(obj, trait_t::get_fields());
+        }
+        else
+        {
+            // try boost::pfr
+            return boost::pfr::structure_tie(as_aggregate(obj));
+        }
+
+    }
+    
+private:
+    template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
         if constexpr(is_vst_type<std::decay_t<T>>)
@@ -152,22 +169,6 @@ struct helper
                 return std::tie((obj.*f.p)...); 
             }, 
             fields);
-    }
-
-    template<typename T>
-    static constexpr decltype(auto) tie(T& obj)
-    {
-        using trait_t = trait<std::decay_t<T>>;
-        if constexpr (has_get_fields<trait_t>) 
-        {
-            return from_fields_tie(obj, trait_t::get_fields());
-        }
-        else
-        {
-            // try boost::pfr
-            return boost::pfr::structure_tie(as_aggregate(obj));
-        }
-
     }
 };
 
