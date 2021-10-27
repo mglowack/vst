@@ -201,9 +201,7 @@ private:
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
-        return static_cast<propagate_const_t<
-            T, 
-            aggregate_t<std::decay_t<T>>>&>(obj);
+        return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
     }
 
     template<typename T, typename... field_ptrs_t>
