@@ -9,6 +9,8 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/member.hpp>
 
+#include <sstream>
+
 using namespace ::testing;
 
 // TODO MG: test ADL?
@@ -152,6 +154,14 @@ struct append_template_args<vst::impl::type<T, type_list<args_t...>>, extra_args
 {
     using type = vst::impl::type<T, type_list<args_t..., extra_args_t...>>;
 };
+
+template<typename T>
+std::string stringify(const T& o)
+{
+    std::ostringstream oss;
+    oss << o;
+    return oss.str();
+}
 
 } // close anon namespace
 
@@ -412,6 +422,19 @@ TYPED_TEST(test_vst, addable)
     EXPECT_TRUE((obj == VST{2, 1.f}));
 }
 
+// #############
+// # streaming #
+// #############
+
+TEST(test_vst, streaming)
+{
+    EXPECT_THAT(stringify(simple<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
+    EXPECT_THAT(stringify(simple_self_described<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(stringify(custom_from_func<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(stringify(custom_from_var<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(stringify(composite<>{1, 1.f}), Eq("[ field1=1 field2=[ field1=1 ] ]"));
+}
+
 // ###################################
 // # manual overloading of operators #
 // ###################################
@@ -532,7 +555,6 @@ TEST(test_vst, built_in_comparison_for_const_char)
 }
 
 // TODO MG:
-//  * specifying names + tests for streaming
 //  * tests for composition with std containers, optionals, variants etc
 //  * add static asserts to help with debugging compiler errors
 //  * solve hash detection and other TODOs

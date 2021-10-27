@@ -71,6 +71,26 @@ std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
     return os << rhs.name << "=" << rhs.value;
 }
 
+// ###############
+// # indexed_var #
+// ###############
+
+template<typename T, std::size_t I>
+struct indexed_var
+{
+    static constexpr std::size_t index = I;
+    const T& value;
+
+    constexpr explicit indexed_var(const T& value) 
+    : value(value) {}
+};
+
+template<typename T, std::size_t I>
+std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
+{
+    return os << "field" << rhs.index << "=" << rhs.value;
+}
+
 // #################
 // # wrapped_value #
 // #################
@@ -200,7 +220,6 @@ struct helper
         }
         else
         {
-            // try boost::pfr
             return boost::pfr::structure_tie(as_aggregate(obj));
         }
     }
@@ -215,8 +234,7 @@ struct helper
         }
         else
         {
-            // try boost::pfr
-            return boost::pfr::structure_tie(as_aggregate(obj));
+            return wrap_into_indexed_var(boost::pfr::structure_tie(as_aggregate(obj)));
         }
     }
 
@@ -256,6 +274,16 @@ private:
         return std::apply(
             [&obj](const auto&... f) { 
                 return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
+            }, 
+            fields);
+    }
+
+    template<typename... Ts>
+    static constexpr auto wrap_into_indexed_var(std::tuple<Ts&...> fields)
+    {
+        return apply_with_index(
+            [](const auto&... elem) { 
+                return std::tuple(indexed_var<std::remove_const_t<Ts>, elem.index + 1>{elem.value}...); 
             }, 
             fields);
     }
