@@ -84,67 +84,6 @@ using composite = vst::type<composite_pod, ops...>;
 // # utils #
 // #########
 
-template<typename T, typename ENABLER = void>
-constexpr bool is_comparable = false;
-
-template<typename T>
-constexpr bool is_comparable<
-    T, 
-    std::void_t<
-        decltype(std::declval<const T&>() == std::declval<const T&>()),
-        decltype(std::declval<const T&>() != std::declval<const T&>())>>
- = true;
-
-template<typename T, typename ENABLER = void>
-constexpr bool is_ordered = false;
-
-template<typename T>
-constexpr bool is_ordered<
-    T, 
-    std::void_t<
-        decltype(std::declval<const T&>() < std::declval<const T&>()),
-        decltype(std::declval<const T&>() > std::declval<const T&>()),
-        decltype(std::declval<const T&>() <= std::declval<const T&>()),
-        decltype(std::declval<const T&>() >= std::declval<const T&>())>>
- = is_comparable<T>;
-
-template<typename T, typename ENABLER = void>
-constexpr bool is_streamable = false;
-
-template<typename T>
-constexpr bool is_streamable<
-    T, 
-    std::void_t<
-        decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>
- = true;
-
-template<typename T, typename ENABLER = void>
-constexpr bool is_hashable = false;
-
-template<typename T>
-constexpr bool is_hashable<
-    T, 
-    std::void_t<
-        // decltype(sizeof(std::hash<T>))
-        // decltype(std::declval<const std::hash<T>&>())>
-        // decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))
-        decltype(hash_value(std::declval<const T&>()))>>
- = true;
-
-static_assert(!is_hashable<simple<>>);
-static_assert( is_hashable<simple<vst::op::hashable>>);
-
-template<typename T, typename ENABLER = void>
-constexpr bool is_addable = false;
-
-template<typename T>
-constexpr bool is_addable<
-    T, 
-    std::void_t<
-        decltype(std::declval<const T&>() + std::declval<const T&>()),
-        decltype(std::declval<const T&>() - std::declval<const T&>())>>
- = true;
-
 template<typename T, typename... extra_args_t>
 struct append_template_args;
 
@@ -560,7 +499,8 @@ TEST(test_vst, built_in_comparison_for_const_char)
 //  * tests for composition with std containers, optionals, variants etc
 //  * add static asserts to help with debugging compiler errors
 //  * test ADL?
-//  * solve std::hash detection and other TODOs
+//  * solve std::hash detection
+//  * print through wrapper so it can be customized (think how to compose with dev::printable)
 //
 // TODO MG cleanup:
 //  * move helper to trait?
