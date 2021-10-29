@@ -170,18 +170,11 @@ bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const 
     return strcmp(lhs.value, rhs.value) < 0;
 }
 
-namespace vst {
+namespace vst::impl {
 
 // ##########
 // # helper #
 // ##########
-
-template<typename T>
-struct helperX
-{
-    template<typename op>
-    static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
-};
 
 struct helper 
 {
@@ -296,6 +289,10 @@ private:
     }
 };
 
+} // close vst::impl namespace
+
+namespace vst {
+
 // #########
 // # trait #
 // #########
@@ -322,7 +319,6 @@ struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fi
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields<T>>>
 : make_basic_trait<T, ops...>
-, helperX<type<T, with_fields::inferred, ops...>>
 {
 };
 
@@ -334,8 +330,6 @@ struct trait<
         && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
 : make_basic_trait<T, ops...>
 , maybe_field_def
-, helperX<type<T, maybe_field_def, ops...>>
-// , helper
 {
 };
 
@@ -351,7 +345,7 @@ namespace vst::impl {
 template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
 constexpr bool operator==(const T& lhs, const T& rhs)
 {
-    return vst::helper::wrapped_tie(lhs) == vst::helper::wrapped_tie(rhs);
+    return helper::wrapped_tie(lhs) == helper::wrapped_tie(rhs);
 }
 
 template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
@@ -363,15 +357,15 @@ constexpr bool operator!=(const T& lhs, const T& rhs)
 // ordered
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator<(const T& lhs, const T& rhs)
 {
-    return vst::helper::wrapped_tie(lhs) < vst::helper::wrapped_tie(rhs);
+    return helper::wrapped_tie(lhs) < helper::wrapped_tie(rhs);
 }
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator<=(const T& lhs, const T& rhs)
 {
     return lhs < rhs || lhs == rhs;
@@ -379,7 +373,7 @@ constexpr bool operator<=(const T& lhs, const T& rhs)
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator>(const T& lhs, const T& rhs)
 {
     return !(lhs <= rhs);
@@ -387,7 +381,7 @@ constexpr bool operator>(const T& lhs, const T& rhs)
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator>=(const T& lhs, const T& rhs)
 {
     return !(lhs < rhs);
@@ -416,11 +410,11 @@ struct minus_assign
 template <typename op_t, typename vst_t>
 constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
 {
-    apply_with_index([rhs_tie = vst::helper::tie(rhs)](auto&&... a) {
+    apply_with_index([rhs_tie = helper::tie(rhs)](auto&&... a) {
         (op_t{}(
             a.value,
             std::get<a.index>(rhs_tie)), ...);
-    }, vst::helper::tie(lhs));
+    }, helper::tie(lhs));
     return lhs;
 }
 
@@ -428,38 +422,38 @@ template <typename op_t, typename vst_t>
 constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
 {
     return apply_with_index(
-        [lhs_tie = vst::helper::tie(lhs), rhs_tie = vst::helper::tie(rhs)]
+        [lhs_tie = helper::tie(lhs), rhs_tie = helper::tie(rhs)]
         (auto&&... a) {
         return vst_t{op_t{}(
             std::get<a.index>(lhs_tie),
             std::get<a.index>(rhs_tie))...};
-    }, vst::helper::tie(lhs));
+    }, helper::tie(lhs));
 }
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T operator+(const T& lhs, const T& rhs)
 {
     return binary_op<std::plus<>>(lhs, rhs);
 }
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T operator-(const T& lhs, const T& rhs)
 {
     return binary_op<std::minus<>>(lhs, rhs);
 }
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T& operator+=(T& lhs, const T& rhs)
 {
     return binary_assign_op<plus_assign<>>(lhs, rhs);
 }
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T& operator-=(T& lhs, const T& rhs)
 {
     return binary_assign_op<minus_assign<>>(lhs, rhs);
@@ -473,7 +467,7 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
     std::apply(
         [&os, &rhs](const auto&... field){
             ((os << " " << field), ...);
-        }, vst::helper::named_tie(rhs));
+        }, helper::named_tie(rhs));
     os << " ]";
     return os;
 }
@@ -488,12 +482,12 @@ template<typename T, typename ENABLER = void>
 struct hash;
 
 template<typename T>
-struct hash<T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashable>()>>
+struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
 {
     size_t operator()(const T& o) const noexcept
     {
         // use boost helper for hash of tuples
-        return boost::hash_value(helper::tie(o));
+        return boost::hash_value(impl::helper::tie(o));
     }
 };
 
@@ -515,7 +509,8 @@ namespace std
 template<typename... args_t>
 struct hash<vst::impl::type<args_t...>> : vst::hash<vst::impl::type<args_t...>>
 {
-    using checkIfHashable = std::enable_if_t<vst::helper::has_op<vst::impl::type<args_t...>, vst::op::hashable>()>;
+    using checkIfHashable = std::enable_if_t<
+        vst::impl::helper::has_op<vst::impl::type<args_t...>, vst::op::hashable>()>;
 };
 
 } // namespace std
