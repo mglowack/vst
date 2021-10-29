@@ -101,20 +101,6 @@ using composite = vst::type<composite_pod, ops...>;
 // # utils #
 // #########
 
-// TODO MG: move to utils, but needs reordering to access vst::hash
-template<typename T, typename ENABLER = void>
-constexpr bool is_hashable = false;
-
-template<typename T>
-constexpr bool is_hashable<
-    T, 
-    std::void_t<
-        decltype(std::declval<vst::hash<T>>()(std::declval<T>())),
-        decltype(std::declval<std::hash<T>>()(std::declval<T>())),
-        decltype(std::declval<boost::hash<T>>()(std::declval<T>())),
-        decltype(hash_value(std::declval<T>()))>>
- = true;
-
 template<typename T, typename... extra_args_t>
 struct append_template_args;
 

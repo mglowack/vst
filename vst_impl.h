@@ -489,9 +489,6 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
 namespace vst
 {
 
-template<typename T, typename ENABLER = void>
-struct hash;
-
 template<typename T>
 struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
 {
