@@ -28,6 +28,15 @@ template<typename T, typename ENABLER = void>
 struct wrapped_value
 {
     const T& value;
+
+    constexpr explicit wrapped_value(const T& value) 
+    : value(value) {}
+};
+
+template<typename P, typename T, typename ENABLER = void>
+struct wrapped_value_of : wrapped_value<T>
+{
+    using wrapped_value<T>::wrapped_value;
 };
 
 // defaults
@@ -115,6 +124,22 @@ struct named_var<wrapped_value<T>>
     : name(name), value(value) {}
 };
 
+template<typename P, typename T>
+struct named_var<wrapped_value_of<P, T>>
+{
+    const char* name;
+    wrapped_value_of<P, T> value;
+
+    constexpr explicit named_var(const char* name, wrapped_value_of<P, T> value) 
+    : name(name), value(value) {}
+};
+
+template<typename P, typename T, typename ENABLER = void>
+struct named_var_of : named_var<T> 
+{
+    using named_var<T>::named_var;
+};
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
 {
@@ -139,6 +164,13 @@ struct indexed_var<wrapped_value<T>, I>
     wrapped_value<T> value;
 };
 
+template<typename P, typename T, std::size_t I>
+struct indexed_var<wrapped_value_of<P, T>, I>
+{
+    static constexpr std::size_t index = I;
+    wrapped_value_of<P, T> value;
+};
+
 template<typename T, std::size_t I>
 std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
 {
@@ -159,10 +191,10 @@ struct helper
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        using trait_t = trait<std::decay_t<T>>;
-        if constexpr (has_get_fields<trait_t>) 
+        using vst_t = std::decay_t<T>;
+        if constexpr (has_get_fields<trait<vst_t>>) 
         {
-            return tie(obj, trait_t::get_fields());
+            return tie(obj, trait<vst_t>::get_fields());
         }
         else
         {
@@ -171,23 +203,24 @@ struct helper
     }
 
     template<typename T>
-    static constexpr auto named_tie(T& obj)
+    static constexpr auto wrapped_tie(T& obj)
     {
-        using trait_t = trait<std::decay_t<T>>;
-        if constexpr (has_get_fields<trait_t>) 
-        {
-            return named_tie(obj, trait_t::get_fields());
-        }
-        else
-        {
-            return named_tie(boost::pfr::structure_tie(as_aggregate(obj)));
-        }
+        using vst_t = std::decay_t<T>;
+        return wrapped_tie<vst_t>(tie(obj));
     }
 
     template<typename T>
-    static constexpr auto wrapped_tie(T& obj)
+    static constexpr auto named_tie(T& obj)
     {
-        return wrap(tie(obj));
+        using vst_t = std::decay_t<T>;
+        if constexpr (has_get_fields<trait<vst_t>>) 
+        {
+            return named_tie<vst_t>(obj, trait<vst_t>::get_fields());
+        }
+        else
+        {
+            return named_tie<vst_t>(boost::pfr::structure_tie(as_aggregate(obj)));
+        }
     }
 
 private:
@@ -201,31 +234,40 @@ private:
             fields);
     }
 
-    template<typename T, typename... field_ptrs_t>
+    template<typename vst_t, typename... Ts>
+    static constexpr auto wrapped_tie(std::tuple<Ts&...> fields)
+    {
+        return std::apply(
+            [](auto&... f) { 
+                return std::tuple(wrapped_value_of<vst_t, std::remove_const_t<Ts>>{f}...); 
+            }, 
+            fields);
+    }
+
+    template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(
         T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
     {
         return std::apply(
             [&obj](const auto&... f) { 
-                return std::tuple(as_named_var(f.name, obj.*f.field_ptr)...); 
+                return std::tuple(as_named_var<vst_t>(f.name, obj.*f.field_ptr)...); 
             }, 
             fields);
     }
 
     // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
-    template<typename T, typename... field_ptrs_t>
+    template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
-        return named_tie(tie(obj, fields));
+        return named_tie<vst_t>(tie(obj, fields));
     }
-    
 
-    template<typename... Ts>
+    template<typename vst_t, typename... Ts>
     static constexpr auto named_tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
             [](const auto&... elem) { 
-                return std::tuple(as_indexed_var<elem.index + 1>(elem.value)...); // convert to 1-based
+                return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
             }, 
             fields);
     }
@@ -242,26 +284,16 @@ private:
         return obj.*f.field_ptr;
     }
 
-    template<std::size_t I, typename T>
+    template<typename vst_t, std::size_t I, typename T>
     static constexpr auto as_indexed_var(const T& var)
     {
-        return indexed_var<wrapped_value<T>, I>{var};
+        return indexed_var<wrapped_value_of<vst_t, T>, I>{wrapped_value_of<vst_t, T>{var}};
     }
 
-    template<typename T>
+    template<typename vst_t, typename T>
     static constexpr auto as_named_var(const char* name, const T& var)
     {
-        return named_var<wrapped_value<T>>{name, wrapped_value<T>{var}};
-    }
-
-    template<typename... Ts>
-    static constexpr auto wrap(std::tuple<Ts&...> fields)
-    {
-        return std::apply(
-            [](auto&... f) { 
-                return std::tuple(wrapped_value<std::remove_const_t<Ts>>{f}...); 
-            }, 
-            fields);
+        return named_var_of<vst_t, wrapped_value_of<vst_t, T>>{name, wrapped_value_of<vst_t, T>{var}};
     }
     
     template<typename T>
