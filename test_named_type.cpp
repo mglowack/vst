@@ -43,7 +43,7 @@ TEST(test_named_type, to_and_from_underlying)
     static_assert(price{4} < 6);
     static_assert(4 < price{6});
     static_assert(price{4} > 2);
-    static_assert(2 > price{2});
+    static_assert(4 > price{2});
     static_assert(price{4} <= 4);
     static_assert(4 <= price{4});
     static_assert(price{4} >= 4);

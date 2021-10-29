@@ -122,6 +122,7 @@ constexpr bool is_comparable_impl<
     std::void_t<
         decltype(std::declval<const T&>() == std::declval<const U&>()),
         decltype(std::declval<const T&>() != std::declval<const U&>()),
+
         decltype(std::declval<const U&>() == std::declval<const T&>()),
         decltype(std::declval<const U&>() != std::declval<const T&>())
     >
@@ -140,7 +141,7 @@ constexpr bool is_ordered_impl = false;
 
 template<typename T, typename U>
 constexpr bool is_ordered_impl<
-    T, 
+    T, U,
     std::void_t<
         decltype(std::declval<const T&>() <  std::declval<const U&>()),
         decltype(std::declval<const T&>() >  std::declval<const U&>()),
@@ -163,6 +164,7 @@ constexpr bool is_ordered = is_ordered_impl<T, U>;
 template<typename T, typename U, typename ENABLER = void>
 constexpr bool is_addable_impl = false;
 
+// TODO MG: add assign operators
 template<typename T, typename U>
 constexpr bool is_addable_impl<
     T, 
@@ -170,6 +172,7 @@ constexpr bool is_addable_impl<
     std::void_t<
         decltype(std::declval<const T&>() + std::declval<const U&>()),
         decltype(std::declval<const T&>() - std::declval<const U&>()),
+
         decltype(std::declval<const U&>() + std::declval<const T&>()),
         decltype(std::declval<const U&>() - std::declval<const T&>())
     >
