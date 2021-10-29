@@ -200,22 +200,10 @@ struct helper
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        return wrapped_tie(obj);
-    }
-
-    template<typename T>
-    static constexpr auto wrapped_tie(T& obj)
-    {
-        return wrap(raw_tie(obj));
-    }
-
-    template<typename T>
-    static constexpr auto raw_tie(T& obj)
-    {
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
         {
-            return from_fields_tie(obj, trait_t::get_fields());
+            return tie(obj, trait_t::get_fields());
         }
         else
         {
@@ -229,22 +217,48 @@ struct helper
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
         {
-            return from_fields_named_tie(obj, trait_t::get_fields());
+            return named_tie(obj, trait_t::get_fields());
         }
         else
         {
-            return from_values_named_tie(boost::pfr::structure_tie(as_aggregate(obj)));
+            return named_tie(boost::pfr::structure_tie(as_aggregate(obj)));
         }
+    }
+
+    template<typename T>
+    static constexpr auto wrapped_tie(T& obj)
+    {
+        return wrap(tie(obj));
     }
 
 private:
     template<typename T, typename... field_ptrs_t>
-    static constexpr auto from_fields_tie(
-        T& obj, const std::tuple<field_ptrs_t...>& fields)
+    static constexpr auto tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
         return std::apply(
             [&obj](const auto&... f) { 
                 return std::tie(as_ref_to_value(obj, f)...); 
+            }, 
+            fields);
+    }
+
+    template<typename T, typename... field_ptrs_t>
+    static constexpr auto named_tie(
+        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
+            }, 
+            fields);
+    }
+
+    template<typename... Ts>
+    static constexpr auto named_tie(std::tuple<Ts&...> fields)
+    {
+        return apply_with_index(
+            [](const auto&... elem) { 
+                return std::tuple(indexed_var<std::remove_const_t<Ts>, elem.index + 1>{elem.value}...); 
             }, 
             fields);
     }
@@ -265,27 +279,6 @@ private:
     static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
     {
         return obj.*f.field_ptr;
-    }
-
-    template<typename T, typename... field_ptrs_t>
-    static constexpr auto from_fields_named_tie(
-        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
-    {
-        return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
-            }, 
-            fields);
-    }
-
-    template<typename... Ts>
-    static constexpr auto from_values_named_tie(std::tuple<Ts&...> fields)
-    {
-        return apply_with_index(
-            [](const auto&... elem) { 
-                return std::tuple(indexed_var<std::remove_const_t<Ts>, elem.index + 1>{elem.value}...); 
-            }, 
-            fields);
     }
 
     template<typename... Ts>
@@ -317,7 +310,7 @@ namespace vst::impl {
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
 constexpr bool operator==(const T& lhs, const T& rhs)
 {
-    return vst::helper::tie(lhs) == vst::helper::tie(rhs);
+    return vst::helper::wrapped_tie(lhs) == vst::helper::wrapped_tie(rhs);
 }
 
 template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
@@ -332,7 +325,7 @@ template<
     std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator<(const T& lhs, const T& rhs)
 {
-    return vst::helper::tie(lhs) < vst::helper::tie(rhs);
+    return vst::helper::wrapped_tie(lhs) < vst::helper::wrapped_tie(rhs);
 }
 
 template<
@@ -382,11 +375,11 @@ struct minus_assign
 template <typename op_t, typename vst_t>
 constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
 {
-    apply_with_index([rhs_tie = vst::helper::raw_tie(rhs)](auto&&... a) {
+    apply_with_index([rhs_tie = vst::helper::tie(rhs)](auto&&... a) {
         (op_t{}(
             a.value,
             std::get<a.index>(rhs_tie)), ...);
-    }, vst::helper::raw_tie(lhs));
+    }, vst::helper::tie(lhs));
     return lhs;
 }
 
@@ -394,12 +387,12 @@ template <typename op_t, typename vst_t>
 constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
 {
     return apply_with_index(
-        [lhs_tie = vst::helper::raw_tie(lhs), rhs_tie = vst::helper::raw_tie(rhs)]
+        [lhs_tie = vst::helper::tie(lhs), rhs_tie = vst::helper::tie(rhs)]
         (auto&&... a) {
         return vst_t{op_t{}(
             std::get<a.index>(lhs_tie),
             std::get<a.index>(rhs_tie))...};
-    }, vst::helper::raw_tie(lhs));
+    }, vst::helper::tie(lhs));
 }
 
 template<
