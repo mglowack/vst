@@ -172,46 +172,6 @@ bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const 
 
 namespace vst {
 
-// #########
-// # trait #
-// #########
-
-template<typename T>
-struct trait<type<T>> : trait<type<T, with_fields::inferred>>
-{
-};
-
-template<typename T, typename maybe_field_def, typename... ops>
-struct trait<
-    type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def<maybe_field_def>>>
-: trait<type<T, with_fields::inferred, maybe_field_def, ops...>>
-{
-};
-
-template<typename T, typename... ops>
-struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields<T>>>
-: trait<type<T, with_fields::from<T>, ops...>>
-{
-};
-
-template<typename T, typename... ops>
-struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields<T>>>
-: make_basic_trait<T, ops...>
-{
-};
-
-template<typename T, typename maybe_field_def, typename... ops>
-struct trait<
-    type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<
-        is_fields_def<maybe_field_def> 
-        && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
-: make_basic_trait<T, ops...>
-, maybe_field_def
-{
-};
-
 // ##########
 // # helper #
 // ##########
@@ -329,6 +289,48 @@ private:
     }
 };
 
+// #########
+// # trait #
+// #########
+
+template<typename T>
+struct trait<type<T>> : trait<type<T, with_fields::inferred>>
+{
+};
+
+template<typename T, typename maybe_field_def, typename... ops>
+struct trait<
+    type<T, maybe_field_def, ops...>, 
+    std::enable_if_t<!is_fields_def<maybe_field_def>>>
+: trait<type<T, with_fields::inferred, maybe_field_def, ops...>>
+{
+};
+
+template<typename T, typename... ops>
+struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fields<T>>>
+: trait<type<T, with_fields::from<T>, ops...>>
+{
+};
+
+template<typename T, typename... ops>
+struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields<T>>>
+: make_basic_trait<T, ops...>
+// , helper
+{
+};
+
+template<typename T, typename maybe_field_def, typename... ops>
+struct trait<
+    type<T, maybe_field_def, ops...>, 
+    std::enable_if_t<
+        is_fields_def<maybe_field_def> 
+        && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
+: make_basic_trait<T, ops...>
+, maybe_field_def
+// , helper
+{
+};
+
 } // namespace vst
 
 // #############
@@ -338,13 +340,13 @@ private:
 namespace vst::impl {
 
 // comparable
-template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
+template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
 constexpr bool operator==(const T& lhs, const T& rhs)
 {
     return vst::helper::wrapped_tie(lhs) == vst::helper::wrapped_tie(rhs);
 }
 
-template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
+template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
 constexpr bool operator!=(const T& lhs, const T& rhs)
 {
     return !(lhs == rhs);
@@ -353,7 +355,7 @@ constexpr bool operator!=(const T& lhs, const T& rhs)
 // ordered
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator<(const T& lhs, const T& rhs)
 {
     return vst::helper::wrapped_tie(lhs) < vst::helper::wrapped_tie(rhs);
@@ -361,7 +363,7 @@ constexpr bool operator<(const T& lhs, const T& rhs)
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator<=(const T& lhs, const T& rhs)
 {
     return lhs < rhs || lhs == rhs;
@@ -369,7 +371,7 @@ constexpr bool operator<=(const T& lhs, const T& rhs)
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator>(const T& lhs, const T& rhs)
 {
     return !(lhs <= rhs);
@@ -377,7 +379,7 @@ constexpr bool operator>(const T& lhs, const T& rhs)
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::ordered>(), int> = 0>
 constexpr bool operator>=(const T& lhs, const T& rhs)
 {
     return !(lhs < rhs);
@@ -428,35 +430,35 @@ constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
 
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T operator+(const T& lhs, const T& rhs)
 {
     return binary_op<std::plus<>>(lhs, rhs);
 }
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T operator-(const T& lhs, const T& rhs)
 {
     return binary_op<std::minus<>>(lhs, rhs);
 }
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T& operator+=(T& lhs, const T& rhs)
 {
     return binary_assign_op<plus_assign<>>(lhs, rhs);
 }
 template<
     typename T, 
-    std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T> && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
+    std::enable_if_t<vst::trait<T>::exists && vst::helper::has_op<T, vst::op::addable>(), int> = 0>
 constexpr T& operator-=(T& lhs, const T& rhs)
 {
     return binary_assign_op<minus_assign<>>(lhs, rhs);
 }
 
 // stream
-template<typename T, std::enable_if_t<vst::trait<T>::exists && vst::is_vst_type<T>, int> = 0>
+template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
 std::ostream& operator<<(std::ostream& os, const T& rhs)
 {
     os << "[";
