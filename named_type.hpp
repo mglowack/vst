@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
     return os << rhs.get();
 }
 
-// complementary operators, because ADL sucks
+// complementary operators
 template<typename T, typename tag_t, typename... ops>
 constexpr bool operator!=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
 {
