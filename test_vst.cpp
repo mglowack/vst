@@ -489,7 +489,7 @@ namespace
         vst::op::ordered>;
 
     // NOTE: this overrides the stream operator of 'string_int' 
-    //       but ONLY WHEN printed as part 'specific_data' vst
+    //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
     std::ostream& operator<<(std::ostream& os,
                              const wrapped_value_of<specific_data, string_int>& rhs)
     {
@@ -498,6 +498,19 @@ namespace
 
     bool operator<(const wrapped_value_of<specific_data, string_int>& lhs, 
                    const wrapped_value_of<specific_data, string_int>& rhs)
+    {
+        // fall back to the original operator
+        return lhs.value < rhs.value;
+    }
+
+    std::ostream& operator<<(std::ostream& os,
+                             const wrapped_value_of<specific_data_named, string_int>& rhs)
+    {
+        return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
+
+    bool operator<(const wrapped_value_of<specific_data_named, string_int>& lhs, 
+                   const wrapped_value_of<specific_data_named, string_int>& rhs)
     {
         // fall back to the original operator
         return lhs.value < rhs.value;
@@ -517,25 +530,7 @@ TEST(test_vst, custom_operators_for_string_int)
     EXPECT_THAT(stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
     EXPECT_THAT(stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
     EXPECT_THAT(stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
-    EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific:\"10\" ]"));
-
-    static_assert(std::is_same_v<
-        decltype(vst::impl::helper::named_tie(std::declval<specific_data&>())),
-        std::tuple<indexed_var<wrapped_value_of<specific_data, string_int>, 1>>>);
-
-    static_assert(std::is_same_v<
-        decltype(vst::impl::helper::named_tie(std::declval<const specific_data&>())),
-        std::tuple<indexed_var<wrapped_value_of<specific_data, string_int>, 1>>>);
-
-    static_assert(std::is_same_v<
-        decltype(vst::impl::helper::named_tie(std::declval<specific_data_named&>())),
-        std::tuple<named_var<wrapped_value_of<specific_data_named, string_int>>>>);
-
-    static_assert(std::is_same_v<
-        decltype(vst::impl::helper::named_tie(std::declval<const specific_data_named&>())),
-        std::tuple<named_var<wrapped_value_of<specific_data_named, string_int>>>>);
-
-    // specific_data_named
+    EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
 
     ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
     EXPECT_THAT((data{"10"}), Gt(data{"4"}));
