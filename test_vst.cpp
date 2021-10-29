@@ -587,7 +587,6 @@ TEST(test_vst, built_in_comparison_for_const_char)
 //  * tests for composition with std containers, optionals, variants etc
 //  * add static asserts to help with debugging compiler errors
 //  * test ADL?
-//  * solve std::hash detection
 //  * tags to allow re-using PODs?
 //
 // TODO MG cleanup:
