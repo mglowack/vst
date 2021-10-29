@@ -23,7 +23,7 @@ struct named_type_pod
 
     static constexpr auto get_fields()
     { 
-        return std::tuple{MEMBER(self, value)};
+        return std::tuple{&self::value};
     }
 };
 

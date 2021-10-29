@@ -246,6 +246,17 @@ private:
 
     template<typename T, typename... field_ptrs_t>
     static constexpr auto from_fields_tie(
+        T& obj, const std::tuple<field_ptrs_t...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tie((obj.*f)...); 
+            }, 
+            fields);
+    }
+
+    template<typename T, typename... field_ptrs_t>
+    static constexpr auto from_fields_tie(
         T& obj, const std::tuple<field_ptr<field_ptrs_t>...>& fields)
     {
         return std::apply(
