@@ -102,7 +102,7 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
         std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 }
 
-// TODO MG: figure out if better and why does not work in constexpr even though: https://godbolt.org/z/n9oPeMqTn
+// TODO MG: figure out if better and why does not work in constexpr even though: https://godbolt.org/z/rfrs5bnjf
 
 // template<typename F, std::size_t... I, typename... args_t>
 // constexpr decltype(auto) apply_with_index_impl(F&& f, std::index_sequence<I...>, args_t&&... a)
