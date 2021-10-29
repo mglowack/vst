@@ -108,6 +108,11 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
 // # test utils #
 // ##############
 
+
+// #################
+// # is_comparable #
+// #################
+
 template<typename T, typename U, typename ENABLER = void>
 constexpr bool is_comparable_impl = false;
 
@@ -126,44 +131,34 @@ constexpr bool is_comparable_impl<
 template<typename T, typename U = T>
 constexpr bool is_comparable = is_comparable_impl<T, U>;
 
-template<typename T, typename ENABLER = void>
-constexpr bool is_ordered = false;
+// ##############
+// # is_ordered #
+// ##############
 
-template<typename T>
-constexpr bool is_ordered<
+template<typename T, typename U, typename ENABLER = void>
+constexpr bool is_ordered_impl = false;
+
+template<typename T, typename U>
+constexpr bool is_ordered_impl<
     T, 
     std::void_t<
-        decltype(std::declval<const T&>() < std::declval<const T&>()),
-        decltype(std::declval<const T&>() > std::declval<const T&>()),
-        decltype(std::declval<const T&>() <= std::declval<const T&>()),
-        decltype(std::declval<const T&>() >= std::declval<const T&>())>>
+        decltype(std::declval<const T&>() <  std::declval<const U&>()),
+        decltype(std::declval<const T&>() >  std::declval<const U&>()),
+        decltype(std::declval<const T&>() <= std::declval<const U&>()),
+        decltype(std::declval<const T&>() >= std::declval<const U&>()),
+
+        decltype(std::declval<const U&>() <  std::declval<const T&>()),
+        decltype(std::declval<const U&>() >  std::declval<const T&>()),
+        decltype(std::declval<const U&>() <= std::declval<const T&>()),
+        decltype(std::declval<const U&>() >= std::declval<const T&>())>>
  = is_comparable<T>;
 
-template<typename T, typename ENABLER = void>
-constexpr bool is_streamable = false;
+template<typename T, typename U = T>
+constexpr bool is_ordered = is_ordered_impl<T, U>;
 
-template<typename T>
-constexpr bool is_streamable<
-    T, 
-    std::void_t<
-        decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>
- = true;
-
-template<typename T, typename ENABLER = void>
-constexpr bool is_hashable = false;
-
-template<typename T>
-constexpr bool is_hashable<
-    T, 
-    std::void_t<
-        // decltype(sizeof(std::hash<T>))
-        // decltype(std::declval<const std::hash<T>&>())>
-        // decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))
-        decltype(hash_value(std::declval<const T&>()))>>
- = true;
-
-// static_assert(!is_hashable<simple<>>);
-// static_assert( is_hashable<simple<vst::op::hashable>>);
+// ##############
+// # is_addable #
+// ##############
 
 template<typename T, typename U, typename ENABLER = void>
 constexpr bool is_addable_impl = false;
@@ -183,5 +178,39 @@ constexpr bool is_addable_impl<
 
 template<typename T, typename U = T>
 constexpr bool is_addable = is_addable_impl<T, U>;
+
+// #################
+// # is_streamable #
+// #################
+
+template<typename T, typename ENABLER = void>
+constexpr bool is_streamable = false;
+
+template<typename T>
+constexpr bool is_streamable<
+    T, 
+    std::void_t<
+        decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>
+ = true;
+
+// ###############
+// # is_hashable #
+// ###############
+
+template<typename T, typename ENABLER = void>
+constexpr bool is_hashable = false;
+
+template<typename T>
+constexpr bool is_hashable<
+    T, 
+    std::void_t<
+        // decltype(sizeof(std::hash<T>))
+        // decltype(std::declval<const std::hash<T>&>())>
+        // decltype(std::declval<const std::hash<T>&>()(std::declval<const T&>()))
+        decltype(hash_value(std::declval<const T&>()))>>
+ = true;
+
+// static_assert(!is_hashable<simple<>>);
+// static_assert( is_hashable<simple<vst::op::hashable>>);
 
 #endif

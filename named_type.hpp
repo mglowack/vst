@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
     return os << rhs.get();
 }
 
-// complementary ops, because ADL sucks
+// complementary operators, because ADL sucks
 template<typename T, typename tag_t, typename... ops>
 constexpr bool operator!=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
 {
@@ -71,6 +71,42 @@ template<typename T, typename tag_t, typename... ops>
 constexpr bool operator!=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
 {
     return !(lhs == rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator>(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+{
+    return !(lhs < rhs || lhs == rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator>(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+{
+    return !(lhs < rhs || lhs == rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator>=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+{
+    return !(lhs < rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator>=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator<=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+{
+    return !(lhs > rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator<=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+{
+    return !(lhs > rhs);
 }
 
 #endif
