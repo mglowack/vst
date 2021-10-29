@@ -403,7 +403,7 @@ namespace {
 struct manual_override_pod {
     int x, y;
 };
-using manual_override = vst::type<manual_override_pod>;
+using manual_override = vst::type<manual_override_pod, vst::op::hashable>;
 
 constexpr bool operator==(const manual_override&, const manual_override&) {
     return true;
@@ -411,10 +411,28 @@ constexpr bool operator==(const manual_override&, const manual_override&) {
 
 } // close anon namespace
 
+namespace vst 
+{
+
+template <>
+struct hash<manual_override>
+{
+    size_t operator()(const manual_override&) const noexcept
+    {
+        return 42;
+    }
+};
+
+}
+
 TEST(test_vst, manual_override)
 {
     EXPECT_TRUE((manual_override{1, 2} == manual_override{1, 1}));
     EXPECT_FALSE((manual_override{1, 2} != manual_override{1, 1}));
+    EXPECT_TRUE((vst::hash<manual_override>{}(manual_override{1, 2}) == 42));
+    EXPECT_TRUE((std::hash<manual_override>{}(manual_override{1, 2}) == 42));
+    EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
+    EXPECT_TRUE((hash_value(manual_override{1, 2}) == 42));
 }
 
 // #######################
