@@ -104,11 +104,6 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
 
 }
 
-// ##############
-// # test utils #
-// ##############
-
-
 // #################
 // # is_comparable #
 // #################
