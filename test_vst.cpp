@@ -470,6 +470,11 @@ namespace
     {
         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
     }
+
+    std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
+    {
+        return os << "int:" << std::atoi(rhs.value.number.c_str());
+    }
 }
 
 TEST(test_vst, custom_comparison_for_string_int)
@@ -480,6 +485,7 @@ TEST(test_vst, custom_comparison_for_string_int)
     };
     using data = vst::type<pod, vst::op::ordered>;
 
+    EXPECT_THAT(stringify(data{4, "10"}), Eq("[ field1=4 field2=int:10 ]"));
     ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
     EXPECT_THAT((data{4, "10"}), Gt(data{4, "4"}));
 }
@@ -520,10 +526,9 @@ TEST(test_vst, built_in_comparison_for_const_char)
 //  * test ADL?
 //  * solve std::hash detection
 //  * print through wrapper so it can be customized (think how to compose with dev::printable)
+//  * allow specializing printing of a field contained by a concrete type
 //
 // TODO MG cleanup:
-//  * move helper to trait?
 //  * move operators to utils
 //  * move var classes to right namespace
-//  * drop the VST check on operators
 //  * use wrapped version on modyfying operators to allow customizing (maybe not possible)

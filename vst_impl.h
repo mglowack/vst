@@ -20,6 +20,61 @@
 struct non_matchable {};
 inline void show_type(non_matchable) {}
 
+// #################
+// # wrapped_value #
+// #################
+
+template<typename T, typename ENABLER = void>
+struct wrapped_value
+{
+    const T& value;
+};
+
+// defaults
+template<typename T>
+constexpr bool operator==(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs.value == rhs.value;
+}
+
+template<typename T>
+constexpr bool operator<(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs.value < rhs.value;
+}
+
+template<typename T>
+constexpr T operator+(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs.value + rhs.value;
+}
+
+template <typename T>
+std::size_t hash_value(const wrapped_value<T>& v)
+{
+    using boost::hash_value;
+    return hash_value(v.value);
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const wrapped_value<T>& rhs)
+{
+    return os << "(" << rhs.value << ")";
+}
+
+// overrides - const char*
+inline
+bool operator==(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
+{
+    return strcmp(lhs.value, rhs.value) == 0;
+}
+
+inline
+bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
+{
+    return strcmp(lhs.value, rhs.value) < 0;
+}
+
 // ###################
 // # named_field_ptr #
 // ###################
@@ -65,70 +120,19 @@ struct indexed_var
 {
     static constexpr std::size_t index = I;
     const T& value;
+};
 
-    constexpr explicit indexed_var(const T& value) 
-    : value(value) {}
+template<typename T, std::size_t I>
+struct indexed_var<wrapped_value<T>, I>
+{
+    static constexpr std::size_t index = I;
+    T value;
 };
 
 template<typename T, std::size_t I>
 std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
 {
     return os << "field" << rhs.index << "=" << rhs.value;
-}
-
-// #################
-// # wrapped_value #
-// #################
-
-template<typename T, typename ENABLER = void>
-struct wrapped_value
-{
-    const T& value;
-};
-
-// defaults
-template<typename T>
-constexpr bool operator==(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
-{
-    return lhs.value == rhs.value;
-}
-
-template<typename T>
-constexpr bool operator<(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
-{
-    return lhs.value < rhs.value;
-}
-
-template<typename T>
-constexpr T operator+(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
-{
-    return lhs.value + rhs.value;
-}
-
-template <typename T>
-std::size_t hash_value(const wrapped_value<T>& v)
-{
-    using boost::hash_value;
-    return hash_value(v.value);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const wrapped_value<T>& rhs)
-{
-    return os << rhs.value;
-}
-
-// overrides - const char*
-inline
-bool operator==(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
-{
-    return strcmp(lhs.value, rhs.value) == 0;
-}
-
-inline
-bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
-{
-    return strcmp(lhs.value, rhs.value) < 0;
 }
 
 namespace vst::impl {
@@ -210,7 +214,9 @@ private:
     {
         return apply_with_index(
             [](const auto&... elem) { 
-                return std::tuple(indexed_var<std::remove_const_t<Ts>, elem.index + 1>{elem.value}...); 
+                return std::tuple(
+                    indexed_var<std::remove_const_t<Ts>, elem.index + 1>{elem.value}...); 
+                    // indexed_var<wrapped_value<std::remove_const_t<Ts>>, elem.index + 1>{wrapped_value<std::remove_const_t<Ts>>{elem.value}}...); 
             }, 
             fields);
     }

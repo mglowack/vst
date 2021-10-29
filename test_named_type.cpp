@@ -90,3 +90,4 @@ TEST(test_named_type, to_and_from_underlying)
 
 // TODO MG:
 //  * configurable comparisons to underlying?
+//  * ref-types
