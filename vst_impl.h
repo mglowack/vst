@@ -176,6 +176,13 @@ namespace vst {
 // # helper #
 // ##########
 
+template<typename T>
+struct helperX
+{
+    template<typename op>
+    static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
+};
+
 struct helper 
 {
     template<typename T, typename op>
@@ -315,7 +322,7 @@ struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<has_get_fi
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields<T>>>
 : make_basic_trait<T, ops...>
-// , helper
+, helperX<type<T, with_fields::inferred, ops...>>
 {
 };
 
@@ -327,6 +334,7 @@ struct trait<
         && !std::is_same_v<maybe_field_def, with_fields::inferred>>>
 : make_basic_trait<T, ops...>
 , maybe_field_def
+, helperX<type<T, maybe_field_def, ops...>>
 // , helper
 {
 };
