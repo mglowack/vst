@@ -20,21 +20,6 @@
 struct non_matchable {};
 inline void show_type(non_matchable) {}
 
-// #############
-// # field_ptr #
-// #############
-
-template<typename field_ptr_t>
-struct field_ptr
-{
-    field_ptr_t p;
-
-    constexpr explicit field_ptr(field_ptr_t field_ptr) 
-    : p(field_ptr) {}
-};
-
-// #define MEMBER(obj, x) field_ptr{&obj::x}
-
 // ###################
 // # named_field_ptr #
 // ###################
@@ -48,30 +33,6 @@ struct named_field_ptr
     constexpr explicit named_field_ptr(const char* name, field_ptr_t field_ptr) 
     : name(name), field_ptr(field_ptr) {}
 };
-
-// // ##################
-// // # has_names #
-// // ##################
-
-// template<typename T, typename W, typename ENABLER = std::void_t<>>
-// constexpr bool is_tuple_of = false;
-
-// template<typename T, template<typename> typename W>
-// constexpr bool is_tuple_of<
-//     T, W,
-//     std::void_t<std::is_tuple_of<decltype(T::get_fields()), named_field_ptr>>
-// >
-// = true;
-
-// template<typename T, typename ENABLER = std::void_t<>>
-// constexpr bool has_names = false;
-
-// template<typename T>
-// constexpr bool has_names<
-//     T, 
-//     std::void_t<std::is_tuple_of<decltype(T::get_fields()), named_field_ptr>>
-// >
-// = true;
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
@@ -261,12 +222,6 @@ private:
     }
 
     template<typename T, typename field_ptr_t>
-    static constexpr decltype(auto) as_ref_to_value(T& obj, const field_ptr<field_ptr_t>& f)
-    {
-        return obj.*f.p;
-    }
-
-    template<typename T, typename field_ptr_t>
     static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
     {
         return obj.*f.field_ptr;
@@ -387,6 +342,7 @@ constexpr bool operator>=(const T& lhs, const T& rhs)
     return !(lhs < rhs);
 }
 
+// TODO MG: move out
 template<typename = void>
 struct plus_assign
 {
@@ -474,7 +430,10 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
 
 } // namespace vst::impl
 
-// hashable
+// ############
+// # hashable #
+// ############
+
 namespace vst
 {
 
