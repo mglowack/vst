@@ -49,6 +49,30 @@ struct named_field_ptr
     : name(name), field_ptr(field_ptr) {}
 };
 
+// // ##################
+// // # has_names #
+// // ##################
+
+// template<typename T, typename W, typename ENABLER = std::void_t<>>
+// constexpr bool is_tuple_of = false;
+
+// template<typename T, template<typename> typename W>
+// constexpr bool is_tuple_of<
+//     T, W,
+//     std::void_t<std::is_tuple_of<decltype(T::get_fields()), named_field_ptr>>
+// >
+// = true;
+
+// template<typename T, typename ENABLER = std::void_t<>>
+// constexpr bool has_names = false;
+
+// template<typename T>
+// constexpr bool has_names<
+//     T, 
+//     std::void_t<std::is_tuple_of<decltype(T::get_fields()), named_field_ptr>>
+// >
+// = true;
+
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
 // #############
@@ -217,7 +241,14 @@ struct helper
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
         {
-            return named_tie(obj, trait_t::get_fields());
+            // if constexpr (has_names<trait_t>) 
+            // {
+                return named_tie(obj, trait_t::get_fields());
+            // }
+            // else
+            // {
+                // return named_tie(tie(obj));
+            // }
         }
         else
         {
@@ -251,6 +282,13 @@ private:
                 return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
             }, 
             fields);
+    }
+
+    // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
+    template<typename T, typename... field_ptrs_t>
+    static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
+    {
+        return named_tie(tie(obj, fields));
     }
 
     template<typename... Ts>

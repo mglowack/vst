@@ -31,6 +31,21 @@ constexpr auto get_simple_pod_fields() {
 }
 
 constexpr auto k_simple_pod_fields = get_simple_pod_fields();
+
+// ########################
+// # simple_just_ptrs_pod #
+// ########################
+
+struct simple_just_ptrs_pod {
+    int x;
+    float y;
+
+    static constexpr auto get_fields() {
+        return std::tuple{
+            &simple_just_ptrs_pod::x,
+            &simple_just_ptrs_pod::y};
+    }
+};
         
 // #############################
 // # simple_self_described_pod #
@@ -67,6 +82,8 @@ struct composite_pod {
 
 template<typename... ops>
 using simple                = vst::type<simple_pod, ops...>;
+template<typename... ops>
+using simple_just_ptrs      = vst::type<simple_just_ptrs_pod, ops...>;
 template<typename... ops>
 using simple_self_described = vst::type<simple_self_described_pod, ops...>;
 template<typename... ops>
@@ -108,6 +125,7 @@ class test_vst : public ::testing::Test {};
 
 using all_types = ::testing::Types<
     simple<>,
+    simple_just_ptrs<>,
     simple_self_described<>,
     custom_from_func<>,
     custom_from_var<>,
@@ -370,6 +388,7 @@ TYPED_TEST(test_vst, addable)
 TEST(test_vst, streaming)
 {
     EXPECT_THAT(stringify(simple<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
+    EXPECT_THAT(stringify(simple_just_ptrs<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
     EXPECT_THAT(stringify(simple_self_described<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
     EXPECT_THAT(stringify(custom_from_func<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
     EXPECT_THAT(stringify(custom_from_var<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
