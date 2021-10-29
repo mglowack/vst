@@ -24,7 +24,7 @@ inline void show_type(non_matchable) {}
 // # wrapped_value #
 // #################
 
-template<typename T, typename ENABLER = void>
+template<typename T>
 struct wrapped_value
 {
     const T& value;
@@ -33,7 +33,7 @@ struct wrapped_value
     : value(value) {}
 };
 
-template<typename P, typename T, typename ENABLER = void>
+template<typename P, typename T>
 struct wrapped_value_of : wrapped_value<T>
 {
     using wrapped_value<T>::wrapped_value;
@@ -132,12 +132,6 @@ struct named_var<wrapped_value_of<P, T>>
 
     constexpr explicit named_var(const char* name, wrapped_value_of<P, T> value) 
     : name(name), value(value) {}
-};
-
-template<typename P, typename T, typename ENABLER = void>
-struct named_var_of : named_var<T> 
-{
-    using named_var<T>::named_var;
 };
 
 template<typename T>
@@ -293,7 +287,7 @@ private:
     template<typename vst_t, typename T>
     static constexpr auto as_named_var(const char* name, const T& var)
     {
-        return named_var_of<vst_t, wrapped_value_of<vst_t, T>>{name, wrapped_value_of<vst_t, T>{var}};
+        return named_var<wrapped_value_of<vst_t, T>>{name, wrapped_value_of<vst_t, T>{var}};
     }
     
     template<typename T>

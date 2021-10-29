@@ -471,32 +471,77 @@ namespace
         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
     }
 
-    // NOTE: this overrides the stream operator of 'string_int' but ONLY WHEN printed as part of vst
+    // NOTE: this overrides the stream operator of 'string_int'
+    //       but ONLY WHEN printed as part of ANY vst
     std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
     {
         return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
-}
+    
+    struct specific_data_pod {
+        string_int s;
+    };
+    static constexpr auto specific_data_pod_fields = std::tuple{MEMBER(specific_data_pod, s)};
+    using specific_data = vst::type<specific_data_pod, vst::op::ordered>;
+    using specific_data_named = vst::type<
+        specific_data_pod, 
+        vst::with_fields::from_var<&specific_data_pod_fields>,
+        vst::op::ordered>;
 
-// TODO MG: check if complement operators work
+    // NOTE: this overrides the stream operator of 'string_int' 
+    //       but ONLY WHEN printed as part 'specific_data' vst
+    std::ostream& operator<<(std::ostream& os,
+                             const wrapped_value_of<specific_data, string_int>& rhs)
+    {
+        return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
+
+    bool operator<(const wrapped_value_of<specific_data, string_int>& lhs, 
+                   const wrapped_value_of<specific_data, string_int>& rhs)
+    {
+        // fall back to the original operator
+        return lhs.value < rhs.value;
+    }
+}
 
 TEST(test_vst, custom_operators_for_string_int)
 {
     struct pod {
-        int x;
         string_int s;
     };
-    static constexpr auto pod_fields = std::tuple{MEMBER(pod, x), MEMBER(pod, s)};
+    static constexpr auto pod_fields = std::tuple{MEMBER(pod, s)};
     using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
     using data = vst::type<pod, vst::op::ordered>;
 
     ASSERT_THAT(stringify(string_int{"10"}), Eq("10"));
-    EXPECT_THAT(stringify(data{4, "10"}), Eq("[ field1=4 field2=int:\"10\" ]"));
-    EXPECT_THAT(stringify(data_named{4, "10"}), Eq("[ x=4 s=int:\"10\" ]"));
+    EXPECT_THAT(stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
+    EXPECT_THAT(stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
+    EXPECT_THAT(stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
+    EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific:\"10\" ]"));
+
+    static_assert(std::is_same_v<
+        decltype(vst::impl::helper::named_tie(std::declval<specific_data&>())),
+        std::tuple<indexed_var<wrapped_value_of<specific_data, string_int>, 1>>>);
+
+    static_assert(std::is_same_v<
+        decltype(vst::impl::helper::named_tie(std::declval<const specific_data&>())),
+        std::tuple<indexed_var<wrapped_value_of<specific_data, string_int>, 1>>>);
+
+    static_assert(std::is_same_v<
+        decltype(vst::impl::helper::named_tie(std::declval<specific_data_named&>())),
+        std::tuple<named_var<wrapped_value_of<specific_data_named, string_int>>>>);
+
+    static_assert(std::is_same_v<
+        decltype(vst::impl::helper::named_tie(std::declval<const specific_data_named&>())),
+        std::tuple<named_var<wrapped_value_of<specific_data_named, string_int>>>>);
+
+    // specific_data_named
 
     ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
-    EXPECT_THAT((data{4, "10"}), Gt(data{4, "4"}));
-    EXPECT_THAT((data_named{4, "10"}), Gt(data_named{4, "4"}));
+    EXPECT_THAT((data{"10"}), Gt(data{"4"}));
+    EXPECT_THAT((data_named{"10"}), Gt(data_named{"4"}));
+    EXPECT_THAT((specific_data{"10"}), Lt(specific_data{"4"}));
+    EXPECT_THAT((specific_data_named{"10"}), Lt(specific_data_named{"4"}));
 }
 
 TEST(test_vst, built_in_comparison_for_const_char)
@@ -536,6 +581,7 @@ TEST(test_vst, built_in_comparison_for_const_char)
 //  * solve std::hash detection
 //  * print through wrapper so it can be customized (think how to compose with dev::printable)
 //  * allow specializing printing of a field contained by a concrete type
+//  * tags to allow re-using PODs?
 //
 // TODO MG cleanup:
 //  * move operators to utils
