@@ -506,10 +506,11 @@ struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::
 
 namespace vst::impl {
 
+// boost::hash support via hash_value
 template <typename T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashable>(), int> = 0>
 std::size_t hash_value(const T& o)
 {
-    return hash<T>{}(o);
+    return vst::hash<T>{}(o);
 }
 
 } // namespace vst::impl
@@ -517,11 +518,14 @@ std::size_t hash_value(const T& o)
 namespace std
 {
 
+// std::hash support
 template<typename... args_t>
-struct hash<vst::impl::type<args_t...>> : vst::hash<vst::impl::type<args_t...>>
+struct hash<vst::impl::type<args_t...>>
 {
-    using checkIfHashable = std::enable_if_t<
-        vst::impl::helper::has_op<vst::impl::type<args_t...>, vst::op::hashable>()>;
+    size_t operator()(const vst::impl::type<args_t...>& o) const noexcept
+    {
+        return vst::hash<vst::impl::type<args_t...>>{}(o);
+    }
 };
 
 } // namespace std
