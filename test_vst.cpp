@@ -574,8 +574,6 @@ TEST(test_vst, built_in_comparison_for_const_char)
 //  * add static asserts to help with debugging compiler errors
 //  * test ADL?
 //  * solve std::hash detection
-//  * print through wrapper so it can be customized (think how to compose with dev::printable)
-//  * allow specializing printing of a field contained by a concrete type
 //  * tags to allow re-using PODs?
 //
 // TODO MG cleanup:
