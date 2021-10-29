@@ -102,6 +102,24 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
         std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 }
 
+// template<typename F, std::size_t... I, typename... args_t>
+// constexpr decltype(auto) apply_with_index_impl(F&& f, std::index_sequence<I...>, args_t&&... a)
+// {
+//     return std::forward<F>(f)(
+//         value_with_index<I, decltype(a)>{std::forward<decltype(a)>(a)}...);
+// }
+
+// template<typename F, typename Tuple>
+// constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
+// {
+//     return std::apply([f = std::forward<F>(f)](auto&&... a) {
+//         return apply_with_index_impl(
+//             std::move(f), 
+//             std::make_index_sequence<sizeof...(a)>{},
+//             std::forward<decltype(a)>(a)...);
+//     }, std::forward<Tuple>(tuple));
+// }
+
 }
 
 // #################

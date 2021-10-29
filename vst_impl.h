@@ -431,10 +431,10 @@ template <typename op_t, typename vst_t>
 constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
 {
     return apply_with_index(
-        [lhs_tie = helper::tie(lhs), rhs_tie = helper::tie(rhs)]
+        [rhs_tie = helper::tie(rhs)]
         (auto&&... a) {
         return vst_t{op_t{}(
-            std::get<a.index>(lhs_tie),
+            a.value,
             std::get<a.index>(rhs_tie))...};
     }, helper::tie(lhs));
 }
