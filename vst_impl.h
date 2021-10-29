@@ -106,6 +106,16 @@ struct named_var
 };
 
 template<typename T>
+struct named_var<wrapped_value<T>>
+{
+    const char* name;
+    wrapped_value<T> value;
+
+    constexpr explicit named_var(const char* name, wrapped_value<T> value) 
+    : name(name), value(value) {}
+};
+
+template<typename T>
 std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
 {
     return os << rhs.name << "=" << rhs.value;
@@ -126,7 +136,7 @@ template<typename T, std::size_t I>
 struct indexed_var<wrapped_value<T>, I>
 {
     static constexpr std::size_t index = I;
-    T value;
+    wrapped_value<T> value;
 };
 
 template<typename T, std::size_t I>
@@ -197,7 +207,8 @@ private:
     {
         return std::apply(
             [&obj](const auto&... f) { 
-                return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
+                return std::tuple(as_named_var(f.name, obj.*f.field_ptr)...); 
+                // return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
             }, 
             fields);
     }
@@ -208,15 +219,14 @@ private:
     {
         return named_tie(tie(obj, fields));
     }
+    
 
     template<typename... Ts>
     static constexpr auto named_tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
             [](const auto&... elem) { 
-                return std::tuple(
-                    indexed_var<std::remove_const_t<Ts>, elem.index + 1>{elem.value}...); 
-                    // indexed_var<wrapped_value<std::remove_const_t<Ts>>, elem.index + 1>{wrapped_value<std::remove_const_t<Ts>>{elem.value}}...); 
+                return std::tuple(as_indexed_var<elem.index + 1>(elem.value)...); // convert to 1-based
             }, 
             fields);
     }
@@ -231,6 +241,19 @@ private:
     static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
     {
         return obj.*f.field_ptr;
+    }
+
+    template<std::size_t I, typename T>
+    static constexpr auto as_indexed_var(const T& var)
+    {
+        return indexed_var<wrapped_value<T>, I>{var};
+    }
+
+    template<typename T>
+    static constexpr auto as_named_var(const char* name, const T& var)
+    {
+        return named_var<T>{name, var};
+        // return named_var<wrapped_value<T>, I>{name, var};
     }
 
     template<typename... Ts>
