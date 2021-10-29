@@ -59,7 +59,7 @@ std::size_t hash_value(const wrapped_value<T>& v)
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const wrapped_value<T>& rhs)
 {
-    return os << "(" << rhs.value << ")";
+    return os << rhs.value;
 }
 
 // overrides - const char*
@@ -208,7 +208,6 @@ private:
         return std::apply(
             [&obj](const auto&... f) { 
                 return std::tuple(as_named_var(f.name, obj.*f.field_ptr)...); 
-                // return std::tuple(named_var{f.name, obj.*f.field_ptr}...); 
             }, 
             fields);
     }
@@ -252,8 +251,7 @@ private:
     template<typename T>
     static constexpr auto as_named_var(const char* name, const T& var)
     {
-        return named_var<T>{name, var};
-        // return named_var<wrapped_value<T>, I>{name, var};
+        return named_var<wrapped_value<T>>{name, wrapped_value<T>{var}};
     }
 
     template<typename... Ts>

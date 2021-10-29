@@ -471,23 +471,29 @@ namespace
         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
     }
 
+    // NOTE: this overrides the stream operator of 'string_int' ONLY WHEN printed as part of vst
     std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
     {
         return os << "int:" << std::atoi(rhs.value.number.c_str());
     }
 }
 
-TEST(test_vst, custom_comparison_for_string_int)
+TEST(test_vst, custom_operators_for_string_int)
 {
     struct pod {
         int x;
         string_int s;
     };
+    static constexpr auto pod_fields = std::tuple{MEMBER(pod, x), MEMBER(pod, s)};
+    using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
     using data = vst::type<pod, vst::op::ordered>;
 
     EXPECT_THAT(stringify(data{4, "10"}), Eq("[ field1=4 field2=int:10 ]"));
+    EXPECT_THAT(stringify(data_named{4, "10"}), Eq("[ x=4 s=int:10 ]"));
+
     ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
     EXPECT_THAT((data{4, "10"}), Gt(data{4, "4"}));
+    EXPECT_THAT((data_named{4, "10"}), Gt(data_named{4, "4"}));
 }
 
 TEST(test_vst, built_in_comparison_for_const_char)
