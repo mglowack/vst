@@ -241,14 +241,7 @@ struct helper
         using trait_t = trait<std::decay_t<T>>;
         if constexpr (has_get_fields<trait_t>) 
         {
-            // if constexpr (has_names<trait_t>) 
-            // {
-                return named_tie(obj, trait_t::get_fields());
-            // }
-            // else
-            // {
-                // return named_tie(tie(obj));
-            // }
+            return named_tie(obj, trait_t::get_fields());
         }
         else
         {
