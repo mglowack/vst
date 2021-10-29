@@ -250,31 +250,27 @@ private:
     {
         return std::apply(
             [&obj](const auto&... f) { 
-                return std::tie((obj.*f)...); 
+                return std::tie(as_ref_to_value(obj, f)...); 
             }, 
             fields);
     }
 
-    template<typename T, typename... field_ptrs_t>
-    static constexpr auto from_fields_tie(
-        T& obj, const std::tuple<field_ptr<field_ptrs_t>...>& fields)
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
     {
-        return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tie((obj.*f.p)...); 
-            }, 
-            fields);
+        return obj.*f;
     }
 
-    template<typename T, typename... field_ptrs_t>
-    static constexpr auto from_fields_tie(
-        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, const field_ptr<field_ptr_t>& f)
     {
-        return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tie((obj.*f.field_ptr)...); 
-            }, 
-            fields);
+        return obj.*f.p;
+    }
+
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
+    {
+        return obj.*f.field_ptr;
     }
 
     template<typename T, typename... field_ptrs_t>
