@@ -233,17 +233,11 @@ struct helper
         }
         else
         {
-            return wrap_into_indexed_var(boost::pfr::structure_tie(as_aggregate(obj)));
+            return from_values_named_tie(boost::pfr::structure_tie(as_aggregate(obj)));
         }
     }
 
 private:
-    template<typename T>
-    static constexpr decltype(auto) as_aggregate(T& obj)
-    {
-        return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
-    }
-
     template<typename T, typename... field_ptrs_t>
     static constexpr auto from_fields_tie(
         T& obj, const std::tuple<field_ptrs_t...>& fields)
@@ -285,7 +279,7 @@ private:
     }
 
     template<typename... Ts>
-    static constexpr auto wrap_into_indexed_var(std::tuple<Ts&...> fields)
+    static constexpr auto from_values_named_tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
             [](const auto&... elem) { 
@@ -302,6 +296,12 @@ private:
                 return std::tuple(wrapped_value<std::remove_const_t<Ts>>{f}...); 
             }, 
             fields);
+    }
+    
+    template<typename T>
+    static constexpr decltype(auto) as_aggregate(T& obj)
+    {
+        return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
     }
 };
 
