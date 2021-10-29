@@ -30,10 +30,47 @@ struct named_type_pod
 template<typename underlying_t, typename tag_t, typename... ops>
 using named_type = vst::type<named_type_pod<underlying_t, tag_t>, ops...>;
 
-template<typename underlying_t, typename tag_t, typename... ops>
-std::ostream& operator<<(std::ostream& os, const named_type<underlying_t, tag_t, ops...>& rhs)
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator==(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
 {
-    return os << static_cast<const underlying_t&>(rhs);
+    return lhs.get() == rhs;
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator==(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+{
+    return lhs == rhs.get();
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator<(const  named_type<T, tag_t, ops...>& lhs, const T& rhs)
+{
+    return lhs.get() < rhs;
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator<(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+{
+    return lhs < rhs.get();
+}
+
+template<typename T, typename tag_t, typename... ops>
+std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& rhs)
+{
+    return os << rhs.get();
+}
+
+// complementary ops, because ADL sucks
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator!=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template<typename T, typename tag_t, typename... ops>
+constexpr bool operator!=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+{
+    return !(lhs == rhs);
 }
 
 #endif
