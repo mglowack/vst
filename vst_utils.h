@@ -170,9 +170,13 @@ constexpr bool is_addable_impl<
     T, 
     U,
     std::void_t<
+        decltype(std::declval<T&>()      += std::declval<const U&>()),
+        decltype(std::declval<T&>()      -= std::declval<const U&>()),
         decltype(std::declval<const T&>() + std::declval<const U&>()),
         decltype(std::declval<const T&>() - std::declval<const U&>()),
 
+        decltype(std::declval<U&>()      += std::declval<const T&>()),
+        decltype(std::declval<U&>()      -= std::declval<const T&>()),
         decltype(std::declval<const U&>() + std::declval<const T&>()),
         decltype(std::declval<const U&>() - std::declval<const T&>())
     >
