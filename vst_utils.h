@@ -164,7 +164,6 @@ constexpr bool is_ordered = is_ordered_impl<T, U>;
 template<typename T, typename U, typename ENABLER = void>
 constexpr bool is_addable_impl = false;
 
-// TODO MG: add assign operators
 template<typename T, typename U>
 constexpr bool is_addable_impl<
     T, 
@@ -204,6 +203,7 @@ constexpr bool is_streamable<
 // # is_hashable #
 // ###############
 
+// TODO MG: document why std::hash cannot be used, maybe try inserting into a container ?
 template<typename T, typename ENABLER = void>
 constexpr bool is_hashable = false;
 
