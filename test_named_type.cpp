@@ -129,17 +129,8 @@ TEST(test_named_type, heterogeneous_lookup_std_set)
 
 namespace std {
     template<>
-    struct less<price>
+    struct less<price> : less<>
     {
-        constexpr bool operator()(const price& lhs, const price& rhs) const {
-            return lhs < rhs;
-        }
-        constexpr bool operator()(const price& lhs, const int& rhs) const {
-            return lhs < rhs;
-        }
-        constexpr bool operator()(const int& lhs, const price& rhs) const {
-            return lhs < rhs;
-        }
     };
 }
 
@@ -176,6 +167,12 @@ namespace vst {
         }
     };
 }
+namespace std {
+    template<>
+    struct equal_to<price> : equal_to<>
+    {
+    };
+}
 
 TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
 {
@@ -186,9 +183,8 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
         price,
         bmi::indexed_by<
             bmi::hashed_unique<
-                bmi::identity<price>,
-                vst::hash<price>,
-                std::equal_to<>
+                bmi::identity<price>
+            //   , vst::hash<price>
             >
         >
     >;

@@ -512,6 +512,22 @@ std::size_t hash_value(const T& o)
 
 } // namespace vst::impl
 
+namespace boost
+{
+
+// boost::hash support
+template<typename... args_t>
+struct hash<vst::impl::type<args_t...>>
+{
+    template<typename T>
+    size_t operator()(const T& o) const noexcept
+    {
+        return vst::hash<vst::impl::type<args_t...>>{}(o);
+    }
+};
+
+} // namespace boost
+
 namespace std
 {
 
