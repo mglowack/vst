@@ -172,7 +172,7 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
                 bmi::identity<price>
             //   , vst::hash<price>
               , price_hash
-              , std::equal_to<>
+              , transparent_equal_to<price>
             >
         >
     >;
