@@ -225,10 +225,12 @@ template<typename T>
 constexpr bool is_hashable<
     T, 
     std::void_t<
-        decltype(std::declval<vst::hash<T>>()(std::declval<T>())),
-        decltype(std::declval<std::hash<T>>()(std::declval<T>())),
-        decltype(std::declval<boost::hash<T>>()(std::declval<T>())),
-        decltype(hash_value(std::declval<T>()))>>
+        decltype(std::declval<vst::hash<T>>()(std::declval<T>()))
+      , decltype(std::declval<std::hash<T>>()(std::declval<T>()))
+      , decltype(std::declval<boost::hash<T>>()(std::declval<T>()))
+    //   , decltype(hash_value(std::declval<T>()))
+    >
+>
  = true;
 
 #endif

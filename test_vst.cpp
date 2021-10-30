@@ -271,7 +271,7 @@ TYPED_TEST(test_vst, hashable)
 
     auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
     auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
-    auto bh = [](const VST& o) { return hash_value(o); };
+    auto bh = [](const VST& o) { return boost::hash<VST>{}(o); };
 
     EXPECT_TRUE((h(VST{1, 2.f}) == sh(VST{1, 2.f})));
     EXPECT_TRUE((h(VST{1, 2.f}) == bh(VST{1, 2.f})));
@@ -432,7 +432,7 @@ TEST(test_vst, manual_override)
     EXPECT_TRUE((vst::hash<manual_override>{}(manual_override{1, 2}) == 42));
     EXPECT_TRUE((std::hash<manual_override>{}(manual_override{1, 2}) == 42));
     EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
-    EXPECT_TRUE((hash_value(manual_override{1, 2}) == 42));
+    // EXPECT_TRUE((hash_value(manual_override{1, 2}) == 42));
 }
 
 // #######################

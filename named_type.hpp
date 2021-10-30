@@ -60,6 +60,79 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
     return os << rhs.get();
 }
 
+template<typename T, typename ENABLER = void>
+struct transparent_equal_to;
+
+template<typename underlying_t, typename tag_t, typename... ops>
+struct transparent_equal_to<named_type<underlying_t, tag_t, ops...>>
+{
+    using is_transparent = void;
+    
+    constexpr bool operator()(
+        const named_type<underlying_t, tag_t, ops...>& lhs, 
+        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    {
+        return lhs == rhs;
+    }
+
+    constexpr bool operator()(
+        const named_type<underlying_t, tag_t, ops...>& lhs, 
+        const underlying_t& rhs) const
+    {
+        return lhs == rhs;
+    }
+
+    constexpr bool operator()(
+        const underlying_t& lhs, 
+        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    {
+        return lhs == rhs;
+    }
+};
+
+template<typename T, typename ENABLER = void>
+struct transparent_less;
+
+template<typename underlying_t, typename tag_t, typename... ops>
+struct transparent_less<named_type<underlying_t, tag_t, ops...>> //: std::less<>
+{
+    using is_transparent = void;
+
+    constexpr bool operator()(
+        const named_type<underlying_t, tag_t, ops...>& lhs, 
+        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    {
+        return lhs < rhs;
+    }
+
+    constexpr bool operator()(
+        const named_type<underlying_t, tag_t, ops...>& lhs, 
+        const underlying_t& rhs) const
+    {
+        return lhs < rhs;
+    }
+    
+    constexpr bool operator()(
+        const underlying_t& lhs, 
+        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    {
+        return lhs < rhs;
+    }
+};
+
+namespace std {
+    // template<typename T>
+    // struct equal_to<T> : transparent_equal_to<T> {};
+
+    // template<typename underlying_t, typename tag_t, typename... ops>
+    // struct equal_to<named_type<underlying_t, tag_t, ops...>>
+    // : transparent_equal_to<named_type<underlying_t, tag_t, ops...>> {};
+
+    template<typename underlying_t, typename tag_t, typename... ops>
+    struct less<named_type<underlying_t, tag_t, ops...>>
+    : transparent_less<named_type<underlying_t, tag_t, ops...>> {};
+}
+
 // complementary operators
 template<typename T, typename tag_t, typename... ops>
 constexpr bool operator!=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)

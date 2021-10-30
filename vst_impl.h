@@ -501,16 +501,16 @@ struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::
 
 } // namespace vst
 
-namespace vst::impl {
+// namespace vst::impl {
 
-// boost::hash support via hash_value
-template <typename T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashable>(), int> = 0>
-std::size_t hash_value(const T& o)
-{
-    return vst::hash<T>{}(o);
-}
+// // boost::hash support via hash_value
+// template <typename T, std::enable_if_t<trait<T>::exists && helper::has_op<T, op::hashable>(), int> = 0>
+// std::size_t hash_value(const T& o)
+// {
+//     return vst::hash<T>{}(o);
+// }
 
-} // namespace vst::impl
+// } // namespace vst::impl
 
 namespace boost
 {
