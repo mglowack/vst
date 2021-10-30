@@ -489,11 +489,8 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
 namespace vst::impl
 {
     
-template<typename T, typename ENABLER = void>
-struct hash;
-
 template<typename T>
-struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
+struct hash
 {
     size_t operator()(const T& o) const noexcept
     {
