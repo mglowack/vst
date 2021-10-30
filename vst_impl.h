@@ -324,16 +324,19 @@ struct trait
 // };
 
 template<typename T, typename ENABLER = void>
-struct infer_get_fields;
+struct infer_fields_def;
 
 template<typename T>
-struct infer_get_fields<T, std::enable_if_t<has_get_fields<T>>>
+using infer_fields_def_t = typename infer_fields_def<T>::type;
+
+template<typename T>
+struct infer_fields_def<T, std::enable_if_t<has_get_fields<T>>>
 {
     using type = with_fields::from<T>;
 };
 
 template<typename T>
-struct infer_get_fields<T, std::enable_if_t<!has_get_fields<T>>>
+struct infer_fields_def<T, std::enable_if_t<!has_get_fields<T>>>
 {
     using type = with_fields::from_aggregate;
 };
@@ -342,7 +345,7 @@ struct infer_get_fields<T, std::enable_if_t<!has_get_fields<T>>>
 
 template<typename T>
 struct trait<type<T>>
-: impl::trait<T, typename impl::infer_get_fields<T>::type>
+: impl::trait<T, impl::infer_fields_def_t<T>>
 {
 };
 
@@ -361,18 +364,26 @@ struct trait<type<T>>
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
     type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def<maybe_field_def> && has_get_fields<T>>>
-: impl::trait<T, with_fields::from<T>, maybe_field_def, ops...>
+    std::enable_if_t<!is_fields_def<maybe_field_def>>>
+: impl::trait<T, impl::infer_fields_def_t<T>, maybe_field_def, ops...>
 {
 };
 
-template<typename T, typename maybe_field_def, typename... ops>
-struct trait<
-    type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def<maybe_field_def> && !has_get_fields<T>>>
-: impl::trait<T, with_fields::from_aggregate, maybe_field_def, ops...>
-{
-};
+// template<typename T, typename maybe_field_def, typename... ops>
+// struct trait<
+//     type<T, maybe_field_def, ops...>, 
+//     std::enable_if_t<!is_fields_def<maybe_field_def> && has_get_fields<T>>>
+// : impl::trait<T, with_fields::from<T>, maybe_field_def, ops...>
+// {
+// };
+
+// template<typename T, typename maybe_field_def, typename... ops>
+// struct trait<
+//     type<T, maybe_field_def, ops...>, 
+//     std::enable_if_t<!is_fields_def<maybe_field_def> && !has_get_fields<T>>>
+// : impl::trait<T, with_fields::from_aggregate, maybe_field_def, ops...>
+// {
+// };
 
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
