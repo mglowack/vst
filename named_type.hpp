@@ -130,7 +130,7 @@ namespace std {
     : transparent_less<named_type<underlying_t, tag_t, ops...>> {};
 }
 
-namespace vst::impl {
+namespace vst {
     template<typename underlying_t, typename tag_t, typename... ops>
     struct hash<named_type<underlying_t, tag_t, ops...>>
     {
