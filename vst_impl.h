@@ -342,19 +342,7 @@ template<typename T>
 struct infer_fields_def<T, std::enable_if_t<!has_get_fields<T>>>
 : std::type_identity<aggregate_vst_helper> {};
 
-}
-
-template<typename T>
-struct trait<type<T, with_fields::use_default>>
-: impl::trait<T, impl::infer_fields_def_t<T>>
-{
-};
-
-template<typename T>
-struct trait<type<T>>
-: trait<type<T, with_fields::use_default>>
-{
-};
+} // namespace impl
 
 template<typename T, typename first_op, typename... ops>
 struct trait<
@@ -369,6 +357,12 @@ struct trait<
     type<T, fields_def, ops...>, 
     std::enable_if_t<is_fields_def<fields_def>>>
 : impl::trait<T, impl::described_vst_helper<fields_def>, ops...>
+{
+};
+
+template<typename T>
+struct trait<type<T>>
+: trait<type<T, with_fields::use_default>>
 {
 };
 
