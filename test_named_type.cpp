@@ -176,7 +176,7 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
         >
     >;
 
-    // EXPECT_TRUE((vst::hash<price>{}(4) == vst::hash<price>{}(price{4})));
+    EXPECT_TRUE((vst::hash<price>{}(4) == vst::hash<price>{}(price{4})));
 
     index_t c;
 
