@@ -1,14 +1,27 @@
 #include "named_type.hpp"
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/indexed_by.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/member.hpp>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 using namespace ::testing;
 
+namespace 
+{
+    using price = named_type<int, 
+                             struct price_tag, 
+                             vst::op::ordered, 
+                             vst::op::hashable, 
+                             vst::op::addable>;
+}
+
 TEST(test_named_type, basic)
 {
-    using price = named_type<int, struct price_tag, vst::op::ordered, vst::op::addable>;
-
     static_assert(is_comparable<price>);
 
     static_assert(price{4} == price{4});
@@ -50,8 +63,6 @@ TEST(test_named_type, basic)
 
 TEST(test_named_type, to_and_from_underlying)
 {
-    using price = named_type<int, struct price_tag, vst::op::ordered, vst::op::addable>;
-
     static_assert(is_comparable<price, int>);
 
     static_assert(price{4} == 4);
@@ -88,6 +99,55 @@ TEST(test_named_type, to_and_from_underlying)
     static_assert(!is_addable<price, int>); // but no implcit addable to underlying
 }
 
+TEST(test_named_type, heterogeneous_lookup_std_map)
+{
+    // GIVEN
+    std::map<price, std::string, std::less<>> m;
+
+    // WHEN
+    m[price{5}] = "5";
+    m[price{1}] = "1";
+    m[price{4}] = "4";
+    
+    // THEN
+    EXPECT_THAT(m.find(5), Ne(std::end(m)));
+}
+
+TEST(test_named_type, heterogeneous_lookup_std_set)
+{
+    // GIVEN
+    std::set<price, std::less<>> s;
+
+    // WHEN
+    s.insert(price{4});
+    s.insert(price{5});
+    s.insert(price{1});
+    
+    // THEN
+    EXPECT_THAT(s.find(5), Ne(std::end(s)));
+}
+
+// TEST(test_named_type, heterogeneous_lookup_boost)
+// {
+//     // GIVEN
+//     namespace bmi = boost::multi_index;
+
+//     using index_t = boost::multi_index_container<
+//         price,
+//         bmi::indexed_by<bmi::hashed_unique<bmi::identity<price>>>>;
+
+//     index_t c;
+
+//     // WHEN
+//     c.insert(price{5});
+//     c.insert(price{5});
+//     c.insert(price{1});
+    
+//     // THEN
+//     EXPECT_THAT(c.find(5), Ne(std::end(c)));
+// }
+
 // TODO MG:
 //  * configurable comparisons to underlying?
 //  * ref-types
+//  * heterogenous lookup
