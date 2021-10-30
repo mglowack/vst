@@ -177,16 +177,47 @@ namespace vst::impl {
 // # helper #
 // ##########
 
+struct common_tie_helper
+{
+protected:    
+    template<typename vst_t, typename... Ts>
+    static constexpr auto indexed_tie(std::tuple<Ts&...> fields)
+    {
+        return apply_with_index(
+            [](const auto&... elem) { 
+                return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
+            }, 
+            fields);
+    }
+
+    template<typename vst_t, std::size_t I, typename T>
+    static constexpr auto as_indexed_var(const T& var)
+    {
+        return indexed_var<wrapped_value_of<vst_t, T>, I>{wrapped_value_of<vst_t, T>{var}};
+    }
+};
+
 template<typename fields_def_t>
-struct tie_helper : fields_def_t
+struct tie_helper : fields_def_t, common_tie_helper
 {
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        return tie(obj, fields_def_t::get_fields());
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tie(as_ref_to_value(obj, f)...); 
+            }, 
+            fields_def_t::get_fields());
     }
 
-// private:
+    template<typename T>
+    static constexpr auto named_tie(T& obj)
+    {
+        using vst_t = std::decay_t<T>;
+        return named_tie<vst_t>(obj, fields_def_t::get_fields());
+    }
+
+private:
     template<typename T, typename... field_ptrs_t>
     static constexpr auto tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
@@ -208,9 +239,33 @@ struct tie_helper : fields_def_t
     {
         return obj.*f.field_ptr;
     }
+
+    template<typename vst_t, typename T, typename... field_ptrs_t>
+    static constexpr auto named_tie(
+        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tuple(as_named_var<vst_t>(f.name, obj.*f.field_ptr)...); 
+            }, 
+            fields);
+    }
+
+    // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
+    template<typename vst_t, typename T, typename... field_ptrs_t>
+    static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
+    {
+        return indexed_tie<vst_t>(tie(obj, fields)); // fallback to indexing members
+    }
+
+    template<typename vst_t, typename T>
+    static constexpr auto as_named_var(const char* name, const T& var)
+    {
+        return named_var<wrapped_value_of<vst_t, T>>{name, wrapped_value_of<vst_t, T>{var}};
+    }
 };
 
-struct tie_from_aggregate_helper
+struct tie_from_aggregate_helper : common_tie_helper
 {
     template<typename T>
     static constexpr auto tie(T& obj)
@@ -218,7 +273,13 @@ struct tie_from_aggregate_helper
         return boost::pfr::structure_tie(as_aggregate(obj));
     }
 
-private:
+    template<typename T>
+    static constexpr auto named_tie(T& obj)
+    {
+        return indexed_tie<std::decay_t<T>>(tie(obj));
+    }
+
+private:    
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
@@ -238,26 +299,16 @@ struct helper
     }
 
     template<typename T>
+    static constexpr auto named_tie(T& obj)
+    {
+        return trait<std::decay_t<T>>::named_tie(obj);
+    }
+
+    template<typename T>
     static constexpr auto wrapped_tie(T& obj)
     {
         using vst_t = std::decay_t<T>;
         return wrapped_tie<vst_t>(trait<vst_t>::tie(obj));
-    }
-
-    template<typename T>
-    static constexpr auto named_tie(T& obj)
-    {
-        using vst_t = std::decay_t<T>;
-        // return trait<vst_t>::named_tie(obj);
-
-        if constexpr (has_get_fields<trait<vst_t>>) 
-        {
-            return named_tie<vst_t>(obj, trait<vst_t>::get_fields());
-        }
-        else
-        {
-            return named_tie<vst_t>(boost::pfr::structure_tie(as_aggregate(obj)));
-        }
     }
 
 private:
@@ -269,52 +320,6 @@ private:
                 return std::tuple(wrapped_value_of<vst_t, std::remove_const_t<Ts>>{f}...); 
             }, 
             fields);
-    }
-
-    template<typename vst_t, typename T, typename... field_ptrs_t>
-    static constexpr auto named_tie(
-        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
-    {
-        return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tuple(as_named_var<vst_t>(f.name, obj.*f.field_ptr)...); 
-            }, 
-            fields);
-    }
-
-    // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
-    template<typename vst_t, typename T, typename... field_ptrs_t>
-    static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
-    {
-        return named_tie<vst_t>(trait<vst_t>::tie(obj, fields));
-    }
-
-    template<typename vst_t, typename... Ts>
-    static constexpr auto named_tie(std::tuple<Ts&...> fields)
-    {
-        return apply_with_index(
-            [](const auto&... elem) { 
-                return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
-            }, 
-            fields);
-    }
-
-    template<typename vst_t, std::size_t I, typename T>
-    static constexpr auto as_indexed_var(const T& var)
-    {
-        return indexed_var<wrapped_value_of<vst_t, T>, I>{wrapped_value_of<vst_t, T>{var}};
-    }
-
-    template<typename vst_t, typename T>
-    static constexpr auto as_named_var(const char* name, const T& var)
-    {
-        return named_var<wrapped_value_of<vst_t, T>>{name, wrapped_value_of<vst_t, T>{var}};
-    }
-    
-    template<typename T>
-    static constexpr decltype(auto) as_aggregate(T& obj)
-    {
-        return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
     }
 };
 
