@@ -486,7 +486,7 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
 // # hashable #
 // ############
 
-namespace vst//::impl
+namespace vst::impl
 {
     
 template<typename T, typename ENABLER = void>
@@ -504,15 +504,19 @@ struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::
 
 } // namespace vst
 
-// namespace vst
-// {
+namespace vst
+{
 
-// template<typename T, typename ENABLER = void>
-// struct hash : impl::hash<T>
-// {
-// };
+template<typename T, typename ENABLER = void>
+struct hash;
 
-// } // namespace vst
+template<typename T>
+struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
+: impl::hash<T>
+{
+};
+
+} // namespace vst
 
 template<typename T, typename ENABLER = void>
 constexpr bool is_hashable = false;
