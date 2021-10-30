@@ -595,6 +595,6 @@ TEST(test_vst, built_in_comparison_for_const_char)
 //  * tags to allow re-using PODs?
 //
 // TODO MG cleanup:
-//  * move operators to utils
+//  * move operators (plus_assign, minus_assign) to utils
 //  * move var classes to right namespace
 //  * use wrapped version on modyfying operators to allow customizing (maybe not possible)

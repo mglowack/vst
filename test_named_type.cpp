@@ -173,4 +173,3 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
 // TODO MG:
 //  * configurable comparisons to underlying?
 //  * ref-types
-//  * heterogenous lookup

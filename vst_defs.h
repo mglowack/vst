@@ -18,13 +18,14 @@ namespace op {
 namespace impl {
 
 template <typename T, typename properties_t, typename ENABLER = void>
-struct type : public T
+struct type
+: public T
 {
     using T::T;
 };
 
 template <typename T, typename properties_t>
-struct type<T, properties_t, std::enable_if_t<std::is_aggregate_v<T>>> 
+struct type<T, properties_t, std::enable_if_t<std::is_aggregate_v<T>>>
 : public T
 {
 };
@@ -76,6 +77,8 @@ struct empty
         return std::tuple{};
     }
 };
+
+struct from_aggregate {};
 
 struct inferred {};
 
