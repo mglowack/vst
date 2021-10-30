@@ -320,35 +320,15 @@ namespace vst {
 
 namespace impl {
 
-template<typename T, typename field_def_t, typename... ops>
+template<typename T, typename fields_def_helper_t, typename... ops>
 struct trait
-: field_def_t
+: fields_def_helper_t
 {
     static constexpr bool exists = true;
     using properties = type_list<ops...>;
 };
 
-template<typename T, typename ENABLER = void>
-struct infer_fields_def;
-
-template<typename T>
-using infer_fields_def_t = typename infer_fields_def<T>::type;
-
-template<typename T>
-struct infer_fields_def<T, std::enable_if_t<has_get_fields<T>>>
-: std::type_identity<described_vst_helper<with_fields::from<T>>> {};
-
-template<typename T>
-struct infer_fields_def<T, std::enable_if_t<!has_get_fields<T>>>
-: std::type_identity<aggregate_vst_helper> {};
-
 } // namespace impl
-
-// template<typename T>
-// struct trait<type<T, with_fields::use_default>>
-// : impl::trait<T, impl::infer_fields_def_t<T>>
-// {
-// };
 
 template<typename T>
 struct trait<type<T>>
