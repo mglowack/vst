@@ -88,6 +88,8 @@ using simple_just_ptrs      = vst::type<simple_just_ptrs_pod, ops...>;
 template<typename... ops>
 using simple_self_described = vst::type<simple_self_described_pod, ops...>;
 template<typename... ops>
+using simple_explicit_default = vst::type<simple_self_described_pod, vst::with_fields::use_default, ops...>;
+template<typename... ops>
 using custom_from_func      = vst::type<simple_pod, 
                                         vst::with_fields::from_func<get_simple_pod_fields>,
                                         ops...>;
@@ -128,6 +130,7 @@ using all_types = ::testing::Types<
     simple<>,
     simple_just_ptrs<>,
     simple_self_described<>,
+    simple_explicit_default<>,
     custom_from_func<>,
     custom_from_var<>,
     composite<>

@@ -73,7 +73,6 @@ template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = 
 template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
 template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
 template<>            constexpr bool is_fields_def<with_fields::empty> = true;
-template<>            constexpr bool is_fields_def<with_fields::inferred> = true;
 
 // ####################
 // # apply_with_index #

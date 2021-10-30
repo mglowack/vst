@@ -173,15 +173,14 @@ std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
 
 namespace vst::impl {
 
-// ##########
-// # helper #
-// ##########
+// ###########
+// # helpers #
+// ###########
 
-struct common_tie_helper
+struct indexed_tie_helper
 {
-protected:    
     template<typename vst_t, typename... Ts>
-    static constexpr auto indexed_tie(std::tuple<Ts&...> fields)
+    static constexpr auto tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
             [](const auto&... elem) { 
@@ -198,23 +197,18 @@ protected:
 };
 
 template<typename fields_def_t>
-struct tie_helper : fields_def_t, common_tie_helper
+struct described_vst_helper
 {
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tie(as_ref_to_value(obj, f)...); 
-            }, 
-            fields_def_t::get_fields());
+        return tie(obj, fields_def_t::get_fields());
     }
 
     template<typename T>
     static constexpr auto named_tie(T& obj)
     {
-        using vst_t = std::decay_t<T>;
-        return named_tie<vst_t>(obj, fields_def_t::get_fields());
+        return named_tie<std::decay_t<T>>(obj, fields_def_t::get_fields());
     }
 
 private:
@@ -255,7 +249,7 @@ private:
     template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
-        return indexed_tie<vst_t>(tie(obj, fields)); // fallback to indexing members
+        return indexed_tie_helper::tie<vst_t>(tie(obj, fields)); // fallback to indexing members
     }
 
     template<typename vst_t, typename T>
@@ -265,7 +259,7 @@ private:
     }
 };
 
-struct tie_from_aggregate_helper : common_tie_helper
+struct aggregate_vst_helper
 {
     template<typename T>
     static constexpr auto tie(T& obj)
@@ -276,7 +270,7 @@ struct tie_from_aggregate_helper : common_tie_helper
     template<typename T>
     static constexpr auto named_tie(T& obj)
     {
-        return indexed_tie<std::decay_t<T>>(tie(obj));
+        return indexed_tie_helper::tie<std::decay_t<T>>(tie(obj));
     }
 
 private:    
@@ -308,18 +302,11 @@ struct helper
     static constexpr auto wrapped_tie(T& obj)
     {
         using vst_t = std::decay_t<T>;
-        return wrapped_tie<vst_t>(trait<vst_t>::tie(obj));
-    }
-
-private:
-    template<typename vst_t, typename... Ts>
-    static constexpr auto wrapped_tie(std::tuple<Ts&...> fields)
-    {
         return std::apply(
             [](auto&... f) { 
-                return std::tuple(wrapped_value_of<vst_t, std::remove_const_t<Ts>>{f}...); 
+                return std::tuple(wrapped_value_of<vst_t, std::decay_t<decltype(f)>>{f}...); 
             }, 
-            fields);
+            tie(obj));
     }
 };
 
@@ -349,17 +336,23 @@ using infer_fields_def_t = typename infer_fields_def<T>::type;
 
 template<typename T>
 struct infer_fields_def<T, std::enable_if_t<has_get_fields<T>>>
-: std::type_identity<tie_helper<with_fields::from<T>>> {};
+: std::type_identity<described_vst_helper<with_fields::from<T>>> {};
 
 template<typename T>
 struct infer_fields_def<T, std::enable_if_t<!has_get_fields<T>>>
-: std::type_identity<tie_from_aggregate_helper> {};
+: std::type_identity<aggregate_vst_helper> {};
 
 }
 
 template<typename T>
-struct trait<type<T>>
+struct trait<type<T, with_fields::use_default>>
 : impl::trait<T, impl::infer_fields_def_t<T>>
+{
+};
+
+template<typename T>
+struct trait<type<T>>
+: trait<type<T, with_fields::use_default>>
 {
 };
 
@@ -375,7 +368,7 @@ template<typename T, typename fields_def, typename... ops>
 struct trait<
     type<T, fields_def, ops...>, 
     std::enable_if_t<is_fields_def<fields_def>>>
-: impl::trait<T, impl::tie_helper<fields_def>, ops...>
+: impl::trait<T, impl::described_vst_helper<fields_def>, ops...>
 {
 };
 

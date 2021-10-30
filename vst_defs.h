@@ -76,9 +76,7 @@ struct empty
     }
 };
 
-struct from_aggregate {};
-
-struct inferred {};
+struct use_default {};
 
 } // namespace fields
 
