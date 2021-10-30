@@ -315,19 +315,48 @@ struct trait
     using properties = type_list<ops...>;
 };
 
+// template<typename T, typename field_def_t, typename... ops>
+// struct trait_infer
+// : field_def_t
+// {
+//     static constexpr bool exists = true;
+//     using properties = type_list<ops...>;
+// };
+
+template<typename T, typename ENABLER = void>
+struct infer_get_fields;
+
+template<typename T>
+struct infer_get_fields<T, std::enable_if_t<has_get_fields<T>>>
+{
+    using type = with_fields::from<T>;
+};
+
+template<typename T>
+struct infer_get_fields<T, std::enable_if_t<!has_get_fields<T>>>
+{
+    using type = with_fields::from_aggregate;
+};
+
 }
 
 template<typename T>
-struct trait<type<T>, std::enable_if_t<has_get_fields<T>>>
-: impl::trait<T, with_fields::from<T>>
+struct trait<type<T>>
+: impl::trait<T, typename impl::infer_get_fields<T>::type>
 {
 };
 
-template<typename T>
-struct trait<type<T>, std::enable_if_t<!has_get_fields<T>>>
-: impl::trait<T, with_fields::from_aggregate>
-{
-};
+// template<typename T>
+// struct trait<type<T>, std::enable_if_t<has_get_fields<T>>>
+// : impl::trait<T, with_fields::from<T>>
+// {
+// };
+
+// template<typename T>
+// struct trait<type<T>, std::enable_if_t<!has_get_fields<T>>>
+// : impl::trait<T, with_fields::from_aggregate>
+// {
+// };
 
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
