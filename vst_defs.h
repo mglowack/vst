@@ -37,8 +37,8 @@ using type = impl::type<T, type_list<ops...>>;
 template<typename T, typename ENABLER = void>
 struct trait;
 
-template<typename T, typename ENABLER = void>
-struct hash;
+// template<typename T, typename ENABLER = void>
+// struct hash;
 
 namespace with_fields {
 
