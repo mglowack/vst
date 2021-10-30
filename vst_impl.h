@@ -234,17 +234,7 @@ struct helper
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        using vst_t = std::decay_t<T>;
-        return trait<vst_t>::tie(obj);
-
-        // if constexpr (has_get_fields<trait<vst_t>>) 
-        // {
-        //     return tie(obj, trait<vst_t>::get_fields());
-        // }
-        // else
-        // {
-        //     return boost::pfr::structure_tie(as_aggregate(obj));
-        // }
+        return trait<std::decay_t<T>>::tie(obj);
     }
 
     template<typename T>
@@ -271,16 +261,6 @@ struct helper
     }
 
 private:
-    // template<typename T, typename... field_ptrs_t>
-    // static constexpr auto tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
-    // {
-    //     return std::apply(
-    //         [&obj](const auto&... f) { 
-    //             return std::tie(as_ref_to_value(obj, f)...); 
-    //         }, 
-    //         fields);
-    // }
-
     template<typename vst_t, typename... Ts>
     static constexpr auto wrapped_tie(std::tuple<Ts&...> fields)
     {
@@ -318,18 +298,6 @@ private:
             }, 
             fields);
     }
-
-    // template<typename T, typename field_ptr_t>
-    // static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
-    // {
-    //     return obj.*f;
-    // }
-
-    // template<typename T, typename field_ptr_t>
-    // static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
-    // {
-    //     return obj.*f.field_ptr;
-    // }
 
     template<typename vst_t, std::size_t I, typename T>
     static constexpr auto as_indexed_var(const T& var)
