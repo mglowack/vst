@@ -127,7 +127,27 @@ TEST(test_named_type, heterogeneous_lookup_std_set)
     EXPECT_THAT(s.find(5), Ne(std::end(s)));
 }
 
-// TEST(test_named_type, heterogeneous_lookup_boost)
+TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
+{
+    // GIVEN
+    namespace bmi = boost::multi_index;
+
+    using index_t = boost::multi_index_container<
+        price,
+        bmi::indexed_by<bmi::ordered_unique<bmi::identity<price>, std::less<>>>>;
+
+    index_t c;
+
+    // WHEN
+    c.insert(price{5});
+    c.insert(price{5});
+    c.insert(price{1});
+    
+    // THEN
+    EXPECT_THAT(c.find(5), Ne(std::end(c)));
+}
+
+// TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
 // {
 //     // GIVEN
 //     namespace bmi = boost::multi_index;
