@@ -177,6 +177,55 @@ namespace vst::impl {
 // # helper #
 // ##########
 
+template<typename fields_def_t>
+struct tie_helper
+{
+    template<typename T>
+    static constexpr auto tie(T& obj)
+    {
+        return tie(obj, fields_def_t::get_fields());
+    }
+
+private:
+    template<typename T, typename... field_ptrs_t>
+    static constexpr auto tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tie(as_ref_to_value(obj, f)...); 
+            }, 
+            fields);
+    }
+
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
+    {
+        return obj.*f;
+    }
+
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
+    {
+        return obj.*f.field_ptr;
+    }
+};
+
+struct tie_from_aggregate_helper
+{
+    template<typename T>
+    static constexpr auto tie(T& obj)
+    {
+        return boost::pfr::structure_tie(as_aggregate(obj));
+    }
+
+private:
+    template<typename T>
+    static constexpr decltype(auto) as_aggregate(T& obj)
+    {
+        return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
+    }
+};
+
 struct helper 
 {
     template<typename T, typename op>
@@ -186,6 +235,8 @@ struct helper
     static constexpr auto tie(T& obj)
     {
         using vst_t = std::decay_t<T>;
+        // return trait<vst_t>::tie(obj);
+
         if constexpr (has_get_fields<trait<vst_t>>) 
         {
             return tie(obj, trait<vst_t>::get_fields());
@@ -207,6 +258,8 @@ struct helper
     static constexpr auto named_tie(T& obj)
     {
         using vst_t = std::decay_t<T>;
+        // return trait<vst_t>::named_tie(obj);
+
         if constexpr (has_get_fields<trait<vst_t>>) 
         {
             return named_tie<vst_t>(obj, trait<vst_t>::get_fields());
