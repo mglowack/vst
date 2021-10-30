@@ -127,6 +127,22 @@ TEST(test_named_type, heterogeneous_lookup_std_set)
     EXPECT_THAT(s.find(5), Ne(std::end(s)));
 }
 
+namespace std {
+    template<>
+    struct less<price>
+    {
+        constexpr bool operator()(const price& lhs, const price& rhs) const {
+            return lhs < rhs;
+        }
+        constexpr bool operator()(const price& lhs, const int& rhs) const {
+            return lhs < rhs;
+        }
+        constexpr bool operator()(const int& lhs, const price& rhs) const {
+            return lhs < rhs;
+        }
+    };
+}
+
 TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
 {
     // GIVEN
@@ -134,7 +150,8 @@ TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
 
     using index_t = boost::multi_index_container<
         price,
-        bmi::indexed_by<bmi::ordered_unique<bmi::identity<price>, std::less<>>>>;
+        // bmi::indexed_by<bmi::ordered_unique<bmi::identity<price>, std::less<>>>>;
+        bmi::indexed_by<bmi::ordered_unique<bmi::identity<price>>>>;
 
     index_t c;
 
@@ -147,25 +164,45 @@ TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
     EXPECT_THAT(c.find(5), Ne(std::end(c)));
 }
 
-// TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
-// {
-//     // GIVEN
-//     namespace bmi = boost::multi_index;
+namespace vst {
+    template<>
+    struct hash<price>
+    {
+        size_t operator()(const price& o) const noexcept {
+            return (*this)(o.get());
+        }
+        size_t operator()(const int& o) const noexcept {
+            return std::hash<int>{}(o);
+        }
+    };
+}
 
-//     using index_t = boost::multi_index_container<
-//         price,
-//         bmi::indexed_by<bmi::hashed_unique<bmi::identity<price>>>>;
+TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
+{
+    // GIVEN
+    namespace bmi = boost::multi_index;
 
-//     index_t c;
+    using index_t = boost::multi_index_container<
+        price,
+        bmi::indexed_by<
+            bmi::hashed_unique<
+                bmi::identity<price>,
+                vst::hash<price>,
+                std::equal_to<>
+            >
+        >
+    >;
 
-//     // WHEN
-//     c.insert(price{5});
-//     c.insert(price{5});
-//     c.insert(price{1});
+    index_t c;
+
+    // WHEN
+    c.insert(price{5});
+    c.insert(price{5});
+    c.insert(price{1});
     
-//     // THEN
-//     EXPECT_THAT(c.find(5), Ne(std::end(c)));
-// }
+    // THEN
+    EXPECT_THAT(c.find(5), Ne(std::end(c)));
+}
 
 // TODO MG:
 //  * configurable comparisons to underlying?
