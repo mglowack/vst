@@ -147,50 +147,46 @@ TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
     EXPECT_THAT(c.find(5), Ne(std::end(c)));
 }
 
-// namespace vst {
-//     template<>
-//     struct hash<price>
-//     {
-//         size_t operator()(const price& o) const noexcept {
-//             return (*this)(o.get());
-//         }
-//         size_t operator()(const int& o) const noexcept {
-//             return std::hash<int>{}(o);
-//         }
-//     };
-// }
-// namespace std {
-//     template<>
-//     struct equal_to<price> : equal_to<>
-//     {
-//     };
-// }
+namespace {
+    struct price_hash
+    {
+        size_t operator()(const price& o) const noexcept {
+            return (*this)(o.get());
+        }
+        size_t operator()(const int& o) const noexcept {
+            return std::hash<int>{}(o);
+        }
+    };
+}
 
-// TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
-// {
-//     // GIVEN
-//     namespace bmi = boost::multi_index;
 
-//     using index_t = boost::multi_index_container<
-//         price,
-//         bmi::indexed_by<
-//             bmi::hashed_unique<
-//                 bmi::identity<price>
-//             //   , vst::hash<price>
-//             >
-//         >
-//     >;
+TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
+{
+    // GIVEN
+    namespace bmi = boost::multi_index;
 
-//     index_t c;
+    using index_t = boost::multi_index_container<
+        price,
+        bmi::indexed_by<
+            bmi::hashed_unique<
+                bmi::identity<price>
+            //   , vst::hash<price>
+              , price_hash
+              , std::equal_to<>
+            >
+        >
+    >;
 
-//     // WHEN
-//     c.insert(price{5});
-//     c.insert(price{5});
-//     c.insert(price{1});
+    index_t c;
+
+    // WHEN
+    c.insert(price{5});
+    c.insert(price{5});
+    c.insert(price{1});
     
-//     // THEN
-//     EXPECT_THAT(c.find(5), Ne(std::end(c)));
-// }
+    // THEN
+    EXPECT_THAT(c.find(5), Ne(std::end(c)));
+}
 
 // TODO MG:
 //  * configurable comparisons to underlying?

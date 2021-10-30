@@ -94,7 +94,7 @@ template<typename T, typename ENABLER = void>
 struct transparent_less;
 
 template<typename underlying_t, typename tag_t, typename... ops>
-struct transparent_less<named_type<underlying_t, tag_t, ops...>> //: std::less<>
+struct transparent_less<named_type<underlying_t, tag_t, ops...>>
 {
     using is_transparent = void;
 
@@ -121,16 +121,26 @@ struct transparent_less<named_type<underlying_t, tag_t, ops...>> //: std::less<>
 };
 
 namespace std {
-    // template<typename T>
-    // struct equal_to<T> : transparent_equal_to<T> {};
-
-    // template<typename underlying_t, typename tag_t, typename... ops>
-    // struct equal_to<named_type<underlying_t, tag_t, ops...>>
-    // : transparent_equal_to<named_type<underlying_t, tag_t, ops...>> {};
+    template<typename underlying_t, typename tag_t, typename... ops>
+    struct equal_to<named_type<underlying_t, tag_t, ops...>>
+    : transparent_equal_to<named_type<underlying_t, tag_t, ops...>> {};
 
     template<typename underlying_t, typename tag_t, typename... ops>
     struct less<named_type<underlying_t, tag_t, ops...>>
     : transparent_less<named_type<underlying_t, tag_t, ops...>> {};
+}
+
+namespace vst {
+    template<typename underlying_t, typename tag_t, typename... ops>
+    struct hash<named_type<underlying_t, tag_t, ops...>>
+    {
+        size_t operator()(const named_type<underlying_t, tag_t, ops...>& o) const noexcept {
+            return (*this)(o.get());
+        }
+        size_t operator()(const underlying_t& o) const noexcept {
+            return std::hash<underlying_t>{}(o);
+        }
+    };
 }
 
 // complementary operators
