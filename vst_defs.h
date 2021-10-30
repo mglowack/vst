@@ -5,8 +5,6 @@
 
 #include <tuple>
 
-#include <boost/functional/hash.hpp>
-
 namespace vst {
 
 namespace op {
@@ -83,20 +81,6 @@ struct from_aggregate {};
 struct inferred {};
 
 } // namespace fields
-
-// template<typename... ops>
-// struct make_basic_trait
-// {
-//     static constexpr bool exists = true;
-//     using properties = type_list<ops...>;
-// };
-
-// template <typename T, typename... ops>
-// struct make_trait 
-// : make_basic_trait<ops...>
-// , with_fields::from<T> 
-// {
-// };
 
 } // close vst namespace
 

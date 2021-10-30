@@ -349,18 +349,6 @@ struct trait<type<T>>
 {
 };
 
-// template<typename T>
-// struct trait<type<T>, std::enable_if_t<has_get_fields<T>>>
-// : impl::trait<T, with_fields::from<T>>
-// {
-// };
-
-// template<typename T>
-// struct trait<type<T>, std::enable_if_t<!has_get_fields<T>>>
-// : impl::trait<T, with_fields::from_aggregate>
-// {
-// };
-
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
     type<T, maybe_field_def, ops...>, 
@@ -369,22 +357,6 @@ struct trait<
 {
 };
 
-// template<typename T, typename maybe_field_def, typename... ops>
-// struct trait<
-//     type<T, maybe_field_def, ops...>, 
-//     std::enable_if_t<!is_fields_def<maybe_field_def> && has_get_fields<T>>>
-// : impl::trait<T, with_fields::from<T>, maybe_field_def, ops...>
-// {
-// };
-
-// template<typename T, typename maybe_field_def, typename... ops>
-// struct trait<
-//     type<T, maybe_field_def, ops...>, 
-//     std::enable_if_t<!is_fields_def<maybe_field_def> && !has_get_fields<T>>>
-// : impl::trait<T, with_fields::from_aggregate, maybe_field_def, ops...>
-// {
-// };
-
 template<typename T, typename maybe_field_def, typename... ops>
 struct trait<
     type<T, maybe_field_def, ops...>, 
@@ -392,29 +364,6 @@ struct trait<
 : impl::trait<T, maybe_field_def, ops...>
 {
 };
-
-// template<typename T, typename... ops>
-// struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<>>
-// : trait<type<T, with_fields::from<T>, ops...>>
-// {
-// };
-
-// template<typename T, typename... ops>
-// struct trait<type<T, with_fields::inferred, ops...>, std::enable_if_t<!has_get_fields<T>>>
-// : make_basic_trait<T, ops...>
-// {
-// };
-
-        // && !std::is_same_v<maybe_field_def, with_fields::inferred>
-// template<typename T, typename field_def_t, typename... ops>
-// struct trait<
-//     type<T, field_def_t, ops...>, 
-//     std::enable_if_t<is_fields_def<field_def_t>>
-// >
-// : make_basic_trait<T, ops...>
-// , field_def_t
-// {
-// };
 
 } // namespace vst
 
