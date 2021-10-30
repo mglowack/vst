@@ -147,19 +147,6 @@ TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
     EXPECT_THAT(c.find(5), Ne(std::end(c)));
 }
 
-namespace {
-    struct price_hash
-    {
-        size_t operator()(const price& o) const noexcept {
-            return (*this)(o.get());
-        }
-        size_t operator()(const int& o) const noexcept {
-            return std::hash<int>{}(o);
-        }
-    };
-}
-
-
 TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
 {
     // GIVEN
@@ -167,14 +154,7 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
 
     using index_t = boost::multi_index_container<
         price,
-        bmi::indexed_by<
-            bmi::hashed_unique<
-                bmi::identity<price>
-            //   , vst::hash<price>
-              , price_hash
-            >
-        >
-    >;
+        bmi::indexed_by<bmi::hashed_unique<bmi::identity<price>>>>;
 
     EXPECT_TRUE((vst::hash<price>{}(4) == vst::hash<price>{}(price{4})));
 

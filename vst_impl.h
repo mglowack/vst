@@ -489,7 +489,8 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
 namespace vst
 {
     
-template<typename T, typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
+template<typename T, 
+         typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
 struct hash
 {
     size_t operator()(const T& o) const noexcept
@@ -497,20 +498,6 @@ struct hash
         // use boost helper for hash of tuples
         return boost::hash_value(impl::helper::tie(o));
     }
-};
-
-} // namespace vst
-
-namespace vst::impl
-{
-
-template<typename T, typename ENABLER = void>
-struct hash;
-
-template<typename T>
-struct hash<T, std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
-: ::vst::hash<T>
-{
 };
 
 } // namespace vst
