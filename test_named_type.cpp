@@ -1,4 +1,5 @@
 #include "named_type.hpp"
+#include "vst_test_utils.h"
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/indexed_by.hpp>
