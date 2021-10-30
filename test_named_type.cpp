@@ -103,29 +103,29 @@ TEST(test_named_type, to_and_from_underlying)
 TEST(test_named_type, heterogeneous_lookup_std_set)
 {
     // GIVEN
-    std::set<price> s;
+    std::set<price> c;
 
     // WHEN
-    s.insert(price{4});
-    s.insert(price{5});
-    s.insert(price{1});
+    c.insert(price{4});
+    c.insert(price{5});
+    c.insert(price{1});
     
     // THEN
-    EXPECT_THAT(s.find(5), Ne(std::end(s)));
+    EXPECT_THAT(c.find(5), Eq(c.find(price{5})));
 }
 
 TEST(test_named_type, heterogeneous_lookup_std_map)
 {
     // GIVEN
-    std::map<price, std::string> m;
+    std::map<price, std::string> c;
 
     // WHEN
-    m[price{5}] = "5";
-    m[price{1}] = "1";
-    m[price{4}] = "4";
+    c[price{5}] = "5";
+    c[price{1}] = "1";
+    c[price{4}] = "4";
     
     // THEN
-    EXPECT_THAT(m.find(5), Ne(std::end(m)));
+    EXPECT_THAT(c.find(5), Eq(c.find(price{5})));
 }
 
 TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
@@ -145,7 +145,7 @@ TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
     c.insert(price{1});
     
     // THEN
-    EXPECT_THAT(c.find(5), Ne(std::end(c)));
+    EXPECT_THAT(c.find(5), Eq(c.find(price{5})));
 }
 
 TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
