@@ -359,8 +359,16 @@ struct trait<type<T>>
 template<typename T, typename first_op, typename... ops>
 struct trait<
     type<T, first_op, ops...>, 
-    std::enable_if_t<!is_fields_def<first_op>>>
-: impl::trait<T, impl::infer_fields_def_t<T>, first_op, ops...>
+    std::enable_if_t<!is_fields_def<first_op> && has_get_fields<T>>>
+: trait<type<T, with_fields::from<T>, first_op, ops...>>
+{
+};
+
+template<typename T, typename first_op, typename... ops>
+struct trait<
+    type<T, first_op, ops...>, 
+    std::enable_if_t<!is_fields_def<first_op> && !has_get_fields<T>>>
+: impl::trait<T, impl::aggregate_vst_helper, first_op, ops...>
 {
 };
 
