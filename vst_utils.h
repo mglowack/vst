@@ -28,15 +28,15 @@ constexpr bool has_get_fields<
     std::void_t<decltype(T::get_fields())>>
 = true;
 
-// ###############
-// # is_vst_type #
-// ###############
+// #################
+// # is_fields_def #
+// #################
 
-template<typename T>
-constexpr bool is_vst_type = false;
-
-template<typename T, typename... ops>
-constexpr bool is_vst_type<type<T, ops...>> = true;
+template<typename T>  constexpr bool is_fields_def = false;
+template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = true;
+template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
+template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
+template<>            constexpr bool is_fields_def<with_fields::empty> = true;
 
 // #############
 // # aggregate #
@@ -63,16 +63,6 @@ struct propagate_const<const T, U> : std::type_identity<const U> {};
 
 template<typename T, typename U>
 using propagate_const_t = typename propagate_const<T, U>::type;
-
-// #################
-// # is_fields_def #
-// #################
-
-template<typename T>  constexpr bool is_fields_def = false;
-template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = true;
-template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
-template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
-template<>            constexpr bool is_fields_def<with_fields::empty> = true;
 
 // ####################
 // # apply_with_index #
