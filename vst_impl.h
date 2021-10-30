@@ -315,14 +315,6 @@ struct trait
     using properties = type_list<ops...>;
 };
 
-// template<typename T, typename field_def_t, typename... ops>
-// struct trait_infer
-// : field_def_t
-// {
-//     static constexpr bool exists = true;
-//     using properties = type_list<ops...>;
-// };
-
 template<typename T, typename ENABLER = void>
 struct infer_fields_def;
 
@@ -331,15 +323,11 @@ using infer_fields_def_t = typename infer_fields_def<T>::type;
 
 template<typename T>
 struct infer_fields_def<T, std::enable_if_t<has_get_fields<T>>>
-{
-    using type = with_fields::from<T>;
-};
+: std::type_identity<with_fields::from<T>> {};
 
 template<typename T>
 struct infer_fields_def<T, std::enable_if_t<!has_get_fields<T>>>
-{
-    using type = with_fields::from_aggregate;
-};
+: std::type_identity<with_fields::from_aggregate> {};
 
 }
 
@@ -349,19 +337,19 @@ struct trait<type<T>>
 {
 };
 
-template<typename T, typename maybe_field_def, typename... ops>
+template<typename T, typename first_op, typename... ops>
 struct trait<
-    type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<!is_fields_def<maybe_field_def>>>
-: impl::trait<T, impl::infer_fields_def_t<T>, maybe_field_def, ops...>
+    type<T, first_op, ops...>, 
+    std::enable_if_t<!is_fields_def<first_op>>>
+: impl::trait<T, impl::infer_fields_def_t<T>, first_op, ops...>
 {
 };
 
-template<typename T, typename maybe_field_def, typename... ops>
+template<typename T, typename fields_def, typename... ops>
 struct trait<
-    type<T, maybe_field_def, ops...>, 
-    std::enable_if_t<is_fields_def<maybe_field_def>>>
-: impl::trait<T, maybe_field_def, ops...>
+    type<T, fields_def, ops...>, 
+    std::enable_if_t<is_fields_def<fields_def>>>
+: impl::trait<T, fields_def, ops...>
 {
 };
 
