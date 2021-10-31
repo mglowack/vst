@@ -14,11 +14,20 @@ using namespace ::testing;
 
 namespace 
 {
-    using price = named_type<int, 
-                             struct price_tag, 
-                             vst::op::ordered, 
-                             vst::op::hashable, 
-                             vst::op::addable>;
+    using price = named_type<
+        int, 
+        struct price_tag, 
+        vst::op::ordered, 
+        vst::op::hashable, 
+        vst::op::addable>;
+
+    // using price_relaxed = named_type<
+    //     int, 
+    //     struct price_tag, 
+    //     type_list<implicitly_convertible_to<int>, transparently_>,
+    //     vst::op::ordered, 
+    //     vst::op::hashable, 
+    //     vst::op::addable>;
 }
 
 TEST(test_named_type, basic)

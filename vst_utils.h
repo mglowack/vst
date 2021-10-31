@@ -36,6 +36,7 @@ template<typename T>  constexpr bool is_fields_def = false;
 template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = true;
 template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
 template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
+template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = true;
 template<>            constexpr bool is_fields_def<with_fields::empty> = true;
 
 // #############

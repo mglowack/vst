@@ -78,6 +78,8 @@ struct empty
 
 struct use_default {};
 
+struct from_aggregate {};
+
 } // namespace fields
 
 } // close vst namespace
