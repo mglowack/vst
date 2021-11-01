@@ -16,23 +16,23 @@ using namespace ::testing;
 
 namespace {
 
-    // struct flower {};
+    struct flower {};
 
-    // struct non_aggregate
-    // {
-    //     int x = 6;
+    struct non_aggregate
+    {
+        int x = 6;
 
-    //     explicit non_aggregate(float) {}
+        constexpr explicit non_aggregate(float) {}
 
-    //     static auto get_fields()
-    //     {
-    //         return flower{};
-    //     }
-    // };
+        // constexpr static auto get_fields()
+        // {
+        //     return std::tuple{&non_aggregate::x};
+        // }
+    };
 
-    // using xxx = vst::type<non_aggregate, vst::with_fields::from<non_aggregate>>;
+    using xxx = vst::type<non_aggregate, vst::with_fields::empty>;
 
-    // static_assert(xxx{2.f} == xxx{2.f});
+    static_assert(xxx{2.f} == xxx{2.f});
 
 // ##############
 // # simple_pod #
