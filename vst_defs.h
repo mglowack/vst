@@ -48,14 +48,14 @@ constexpr bool is_tuple_of<checker_t, std::tuple<ptrs_t...>> = (checker_t<ptrs_t
 template<template<typename> typename checker_t, typename... ptrs_t>
 constexpr bool is_tuple_of<checker_t, std::tuple<named_field_ptr<ptrs_t>...>> = (checker_t<ptrs_t>::value && ...);
 
-template<typename T, typename ENABLER = std::void_t<>>
+template<typename T, typename U, typename ENABLER = std::void_t<>>
 constexpr bool has_correct_get_fields = false;
 
-template<typename T>
+template<typename T, typename U>
 constexpr bool has_correct_get_fields<
-    T,
+    T, U,
     std::void_t<decltype(T::get_fields())>>
-= is_tuple_of<member_of<T>::template is_pointer_to_member, decltype(T::get_fields())>;
+= is_tuple_of<member_of<U>::template is_pointer_to_member, decltype(T::get_fields())>;
 
 namespace vst {
 
@@ -111,6 +111,7 @@ struct from_func
 {
     static constexpr auto get_fields()
     {
+        // static_assert(has_correct_get_fields<T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
         return get_fields_func();
     }
 };
@@ -130,7 +131,7 @@ struct from
     static constexpr auto get_fields()
     {
         static_assert(has_get_fields<T>, "T must be an aggregate or have 'get_fields' defined.");
-        static_assert(has_correct_get_fields<T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
+        // static_assert(has_correct_get_fields<from<T>, T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
         return T::get_fields();
     }
 };

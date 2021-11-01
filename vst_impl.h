@@ -365,7 +365,7 @@ struct trait<
     std::enable_if_t<is_fields_def<fields_def>>>
 : impl::trait<T, impl::described_vst_helper<fields_def>, ops...>
 {
-    // static_assert(has_correct_get_fields<fields_def>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
+    static_assert(has_correct_get_fields<fields_def, T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
 };
 
 } // namespace vst
