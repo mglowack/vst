@@ -16,6 +16,24 @@ using namespace ::testing;
 
 namespace {
 
+    // struct flower {};
+
+    // struct non_aggregate
+    // {
+    //     int x = 6;
+
+    //     explicit non_aggregate(float) {}
+
+    //     static auto get_fields()
+    //     {
+    //         return flower{};
+    //     }
+    // };
+
+    // using xxx = vst::type<non_aggregate, vst::with_fields::from<non_aggregate>>;
+
+    // static_assert(xxx{2.f} == xxx{2.f});
+
 // ##############
 // # simple_pod #
 // ##############

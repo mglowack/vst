@@ -15,19 +15,6 @@ struct type_identity
 
 namespace vst {
 
-// ##################
-// # has_get_fields #
-// ##################
-
-template<typename T, typename ENABLER = std::void_t<>>
-constexpr bool has_get_fields = false;
-
-template<typename T>
-constexpr bool has_get_fields<
-    T, 
-    std::void_t<decltype(T::get_fields())>>
-= true;
-
 // #################
 // # is_fields_def #
 // #################

@@ -84,22 +84,6 @@ bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const 
     return strcmp(lhs.value, rhs.value) < 0;
 }
 
-// ###################
-// # named_field_ptr #
-// ###################
-
-template<typename field_ptr_t>
-struct named_field_ptr
-{
-    const char* name;
-    field_ptr_t field_ptr;
-
-    constexpr explicit named_field_ptr(const char* name, field_ptr_t field_ptr) 
-    : name(name), field_ptr(field_ptr) {}
-};
-
-#define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
-
 // #############
 // # named_var #
 // #############
@@ -342,6 +326,7 @@ struct trait<
     std::enable_if_t<!has_get_fields<T>>>
 : trait<type<T, with_fields::from_aggregate, ops...>>
 {
+    static_assert(std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
 
 template<typename T, typename... ops>
@@ -356,6 +341,7 @@ template<typename T, typename... ops>
 struct trait<type<T, with_fields::from_aggregate, ops...>>
 : impl::trait<T, impl::aggregate_vst_helper, ops...>
 {
+    static_assert(std::is_aggregate_v<T>, "T must be an aggregate.");
 };
 
 template<typename T, typename first_op, typename... ops>
@@ -372,6 +358,7 @@ struct trait<
     std::enable_if_t<is_fields_def<fields_def>>>
 : impl::trait<T, impl::described_vst_helper<fields_def>, ops...>
 {
+    // static_assert(has_correct_get_fields<fields_def>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
 };
 
 } // namespace vst

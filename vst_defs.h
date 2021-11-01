@@ -5,6 +5,58 @@
 
 #include <tuple>
 
+// ###################
+// # named_field_ptr #
+// ###################
+
+template<typename field_ptr_t>
+struct named_field_ptr
+{
+    const char* name;
+    field_ptr_t field_ptr;
+
+    constexpr explicit named_field_ptr(const char* name, field_ptr_t field_ptr) 
+    : name(name), field_ptr(field_ptr) {}
+};
+
+#define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
+    
+
+// ##########################
+// # has_correct_get_fields #
+// ##########################
+
+template<typename T>
+struct member_of
+{
+    template<typename ptr_t>
+    struct is_pointer_to_member : std::false_type {};
+
+    template<typename X>
+    struct is_pointer_to_member<X (T::*)> : std::true_type {};
+
+    template<typename ptr_t>
+    static constexpr bool is_pointer_to_member_v = is_pointer_to_member<ptr_t>::value;
+};
+
+template<template<typename> typename checker_t, typename T, typename ENABLER = std::void_t<>>
+constexpr bool is_tuple_of = false;
+
+template<template<typename> typename checker_t, typename... ptrs_t>
+constexpr bool is_tuple_of<checker_t, std::tuple<ptrs_t...>> = (checker_t<ptrs_t>::value && ...);
+
+template<template<typename> typename checker_t, typename... ptrs_t>
+constexpr bool is_tuple_of<checker_t, std::tuple<named_field_ptr<ptrs_t>...>> = (checker_t<ptrs_t>::value && ...);
+
+template<typename T, typename ENABLER = std::void_t<>>
+constexpr bool has_correct_get_fields = false;
+
+template<typename T>
+constexpr bool has_correct_get_fields<
+    T,
+    std::void_t<decltype(T::get_fields())>>
+= is_tuple_of<member_of<T>::template is_pointer_to_member, decltype(T::get_fields())>;
+
 namespace vst {
 
 namespace op {
@@ -39,6 +91,19 @@ struct trait;
 template<typename T, typename ENABLER>
 struct hash;
 
+// ##################
+// # has_get_fields #
+// ##################
+
+template<typename T, typename ENABLER = std::void_t<>>
+constexpr bool has_get_fields = false;
+
+template<typename T>
+constexpr bool has_get_fields<
+    T, 
+    std::void_t<decltype(T::get_fields())>>
+= true;
+
 namespace with_fields {
 
 template<auto (*get_fields_func)()>
@@ -64,6 +129,7 @@ struct from
 {
     static constexpr auto get_fields()
     {
+        static_assert(has_get_fields<T>, "T must be an aggregate or have 'get_fields' defined.");
         return T::get_fields();
     }
 };
