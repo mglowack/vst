@@ -141,6 +141,16 @@ std::string stringify(const T& o)
 
 } // close anon namespace
 
+TEST(test_vst, empty)
+{
+    struct empty_pod {};
+    using empty = vst::type<empty_pod, vst::with_fields::empty>;
+
+    static_assert(empty{} == empty{});
+
+    EXPECT_TRUE((empty{} == empty{}));
+}
+
 template <typename T>
 class test_vst : public ::testing::Test {};
 
@@ -454,7 +464,6 @@ TEST(test_vst, manual_override)
     EXPECT_TRUE((vst::hash<manual_override>{}(manual_override{1, 2}) == 42));
     EXPECT_TRUE((std::hash<manual_override>{}(manual_override{1, 2}) == 42));
     EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
-    // EXPECT_TRUE((hash_value(manual_override{1, 2}) == 42));
 }
 
 // #######################
