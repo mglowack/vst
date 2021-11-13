@@ -46,9 +46,9 @@ struct named_type_pod
     using underlying_type = underlying_t;
 
     template<typename T>
-    static constexpr bool is_transparent_withX = is_transparent_with<ops_category, T>;
+    static constexpr bool is_transparent_with = is_transparent_with<ops_category, T>;
 
-    static constexpr bool is_transparent = is_transparent_withX<underlying_type>;
+    static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
 
     underlying_t value;
 
