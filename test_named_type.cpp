@@ -17,10 +17,12 @@ namespace
     using price = named_type<
         int, 
         struct price_tag, 
-        transparent_ops,
         vst::op::ordered, 
         vst::op::hashable, 
         vst::op::addable>;
+
+    static_assert( is_named_type<price>);
+    static_assert(!is_named_type<int>);
 
     // using price_relaxed = named_type<
     //     int, 
@@ -74,15 +76,12 @@ namespace
 
 TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_not_enabled)
 {
-    // static_assert(!is_comparable<price, int>);
-    // static_assert(!is_ordered<price, int>);
+    static_assert(!is_comparable<price, int>);
+    static_assert(!is_ordered<price, int>);
 
     // static_assert(price{4} == 4);
     // static_assert(std::equal_to<price>{}(price{4}, 4));
     // static_assert(!std::equal_to<price>{}(price{4}, 2));
-
-    static_assert( is_named_type<price>);
-    static_assert(!is_named_type<int>);
 
     // TODO MG: check for hashable, addable?
 }
