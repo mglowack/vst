@@ -272,20 +272,23 @@ namespace std {
     : transparent_less<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> {};
 }
 
-// namespace vst {
-//     template<typename underlying_t, typename tag_t, typename... ops>
-//     struct hash<
-//         named_type<underlying_t, tag_t, ops...>, 
-//         std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
-//     {
-//         size_t operator()(const named_type<underlying_t, tag_t, ops...>& o) const noexcept {
-//             return (*this)(o.get());
-//         }
-//         size_t operator()(const underlying_t& o) const noexcept {
-//             return std::hash<underlying_t>{}(o);
-//         }
-//     };
-// }
+namespace vst {
+    
+    template<typename T>
+    struct hash<T, std::enable_if_t<is_named_type<T> && T::is_transparent>>
+    // template<typename underlying_t, typename tag_t, typename... ops>
+    // struct hash<
+        // named_type<underlying_t, tag_t, ops...>, 
+        // std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
+    {
+        size_t operator()(const T& o) const noexcept {
+            return (*this)(o.get());
+        }
+        size_t operator()(const typename T::underlying_type& o) const noexcept {
+            return std::hash<typename T::underlying_type>{}(o);
+        }
+    };
+}
 
 // complementary operators
 template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>

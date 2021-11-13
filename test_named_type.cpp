@@ -87,6 +87,7 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
     static_assert(!is_comparable<price, int>);
     static_assert(!is_ordered<price, int>);
     static_assert(!is_hashable<price, int>);
+    static_assert(!is_addable<price, int>);
 }
 
 TEST(test_named_type, to_and_from_underlying_transparent_equality)
@@ -161,17 +162,40 @@ TEST(test_named_type, to_and_from_underlying_transparent_ordered)
     static_assert( lt(4, price_transparent{4}) || eq(4, price_transparent{4}));
     static_assert(!lt(4, price_transparent{4}));
 }
-    
-// TEST(test_named_type, to_and_from_underlying_transparent_hashable)
+//     TYPED_TEST(test_vst, hashable)
 // {
-//     // TODO MG: check for hashable, addable?
-//     static_assert( is_addable<price_transparent>);      // has explcit addable, price to price
-//     static_assert(!is_addable<price_transparent, int>); // but no implcit addable to underlying
+//     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
+
+//     static_assert(is_streamable<VST>);
+//     static_assert(is_comparable<VST>);
+//     static_assert(!is_ordered<VST>);
+//     static_assert(is_hashable<VST>);
+//     static_assert(!is_addable<VST>);
+
+//     auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
+//     auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
+//     auto bh = [](const VST& o) { return boost::hash<VST>{}(o); };
+
+//     EXPECT_TRUE((h(VST{1, 2.f}) == sh(VST{1, 2.f})));
+//     EXPECT_TRUE((h(VST{1, 2.f}) == bh(VST{1, 2.f})));
+
+//     EXPECT_TRUE((h(VST{1, 2.f}) == h(VST{1, 2.f})));
+//     EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{2, 2.f})));
+//     EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{1, 1.f})));
 // }
+
+TEST(test_named_type, to_and_from_underlying_transparent_hashable)
+{
+    static_assert(!is_hashable<price_transparent, int>);
+    auto h = [](const auto& o) { return vst::hash<price_transparent>{}(o); };
+    auto sh = [](const auto& o) { return std::hash<price_transparent>{}(o); };
+    auto bh = [](const auto& o) { return boost::hash<price_transparent>{}(o); };
+    
+    EXPECT_TRUE((h(price_transparent{1}) == h(1)));
+}
     
 TEST(test_named_type, to_and_from_underlying_transparent_addable)
 {
-    // TODO MG: check for hashable, addable?
     static_assert( is_addable<price_transparent>);      // has explcit addable, price to price
     static_assert(!is_addable<price_transparent, int>); // but no implcit addable to underlying
 }
