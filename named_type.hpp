@@ -214,14 +214,14 @@ constexpr bool operator==(const U& lhs, const T& rhs)
     return lhs == rhs.get();
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator<(const  T& lhs, const typename T::underlying_type& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator<(const T& lhs, const U& rhs)
 {
     return lhs.get() < rhs;
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator<(const typename T::underlying_type& lhs, const T& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator<(const U& lhs, const T& rhs)
 {
     return lhs < rhs.get();
 }
@@ -335,38 +335,38 @@ constexpr bool operator!=(const U& lhs, const T& rhs)
     return !(lhs == rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator>(const T& lhs, const typename T::underlying_type& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator>(const T& lhs, const U& rhs)
 {
     return !(lhs < rhs || lhs == rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator>(const typename T::underlying_type& lhs, const T& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator>(const U& lhs, const T& rhs)
 {
     return !(lhs < rhs || lhs == rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator>=(const T& lhs, const typename T::underlying_type& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator>=(const T& lhs, const U& rhs)
 {
     return !(lhs < rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator>=(const typename T::underlying_type& lhs, const T& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator>=(const U& lhs, const T& rhs)
 {
     return !(lhs < rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator<=(const T& lhs, const typename T::underlying_type& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator<=(const T& lhs, const U& rhs)
 {
     return !(lhs > rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator<=(const typename T::underlying_type& lhs, const T& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator<=(const U& lhs, const T& rhs)
 {
     return !(lhs > rhs);
 }

@@ -224,6 +224,77 @@ TEST(test_named_type, to_and_from_underlying_transparent_ordered)
     EXPECT_TRUE(( lt(4, price_transparent{4}) || eq(4, price_transparent{4})));
     EXPECT_TRUE((!lt(4, price_transparent{4})));
 }
+    
+TEST(test_named_type, to_and_from_T_transparent_ordered)
+{
+    using value = named_type<
+        int, 
+        struct to_and_from_T_transparent_ordered_test, 
+        transparent_ops_with<float>, 
+        vst::op::ordered>;
+
+    static_assert( is_comparable<value, float>);
+    static_assert( is_ordered<value, float>);
+
+    constexpr auto eq = std::equal_to<value>{};
+    constexpr auto lt = std::less<value>{};
+
+    static_assert(value{4} < 6.f);
+    static_assert(value{4} <= 6.f);
+    static_assert(value{4} > 2.f);
+    static_assert(value{4} >= 2.f);
+    static_assert(value{4} <= 4.f);
+    static_assert(value{4} >= 4.f);
+
+    static_assert(4.f < value{6});
+    static_assert(4.f <= value{6});
+    static_assert(4.f > value{2});
+    static_assert(4.f >= value{2});
+    static_assert(4.f <= value{4});
+    static_assert(4.f >= value{4});
+
+    EXPECT_TRUE((value{4} < 6.f));
+    EXPECT_TRUE((value{4} <= 6.f));
+    EXPECT_TRUE((value{4} > 2.f));
+    EXPECT_TRUE((value{4} >= 2.f));
+    EXPECT_TRUE((value{4} <= 4.f));
+    EXPECT_TRUE((value{4} >= 4.f));
+
+    EXPECT_TRUE((4.f < value{6}));
+    EXPECT_TRUE((4.f <= value{6}));
+    EXPECT_TRUE((4.f > value{2}));
+    EXPECT_TRUE((4.f >= value{2}));
+    EXPECT_TRUE((4.f <= value{4}));
+    EXPECT_TRUE((4.f >= value{4}));
+
+    static_assert( lt(value{4}, 6.f));
+    static_assert( lt(value{4}, 6.f) || eq(value{4}, 6.f));
+    static_assert(!lt(value{4}, 2.f) && !eq(value{4}, 2.f));
+    static_assert(!lt(value{4}, 2.f));
+    static_assert( lt(value{4}, 4.f) || eq(value{4}, 4.f));
+    static_assert(!lt(value{4}, 4.f));
+
+    static_assert( lt(4.f, value{6}));
+    static_assert( lt(4.f, value{6}) || eq(4.f, value{6}));
+    static_assert(!lt(4.f, value{2}) && !eq(4.f, value{2}));
+    static_assert(!lt(4.f, value{2}));
+    static_assert( lt(4.f, value{4}) || eq(4.f, value{4}));
+    static_assert(!lt(4.f, value{4}));
+
+    EXPECT_TRUE(( lt(value{4}, 6.f)));
+    EXPECT_TRUE(( lt(value{4}, 6.f) || eq(value{4}, 6.f)));
+    EXPECT_TRUE((!lt(value{4}, 2.f) && !eq(value{4}, 2.f)));
+    EXPECT_TRUE((!lt(value{4}, 2.f)));
+    EXPECT_TRUE(( lt(value{4}, 4.f) || eq(value{4}, 4.f)));
+    EXPECT_TRUE((!lt(value{4}, 4.f)));
+
+    EXPECT_TRUE(( lt(4.f, value{6})));
+    EXPECT_TRUE(( lt(4.f, value{6}) || eq(4.f, value{6})));
+    EXPECT_TRUE((!lt(4.f, value{2}) && !eq(4.f, value{2})));
+    EXPECT_TRUE((!lt(4.f, value{2})));
+    EXPECT_TRUE(( lt(4.f, value{4}) || eq(4.f, value{4})));
+    EXPECT_TRUE((!lt(4.f, value{4})));
+}
 
 TEST(test_named_type, to_and_from_underlying_transparent_hashable)
 {
