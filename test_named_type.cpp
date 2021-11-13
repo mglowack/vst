@@ -152,6 +152,8 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
     static_assert(!lt(4, price_transparent{4}));
 
     // TODO MG: check for hashable, addable?
+    static_assert( is_addable<price_transparent>);      // has explcit addable, price to price
+    static_assert(!is_addable<price_transparent, int>); // but no implcit addable to underlying
 }
 
 // TEST(test_named_type, to_and_from_underlying)
