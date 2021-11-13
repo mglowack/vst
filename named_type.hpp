@@ -14,13 +14,42 @@ struct transparent_ops;
 template<typename T>
 struct transparent_ops_with;
 
+template<typename op_category_t, typename T, typename ENABLER = void>
+constexpr bool is_transparent_with = false;
+
+template<typename T>
+constexpr bool is_transparent_with<transparent_ops_with<T>, T> = true;
+
+static_assert( is_transparent_with<transparent_ops_with<int>, int>);
+static_assert(!is_transparent_with<transparent_ops_with<int>, float>);
+static_assert(!is_transparent_with<transparent_ops, int>);
+static_assert(!is_transparent_with<default_ops, int>);
+static_assert(!is_transparent_with<strict_ops, int>);
+
+template<typename T, typename ENABLER = void>
+constexpr bool is_ops_category = type_list_contains_v<type_list<default_ops, strict_ops, transparent_ops>, T>;
+
+template<typename T>
+constexpr bool is_ops_category<transparent_ops_with<T>> = true;
+
+static_assert( is_ops_category<default_ops>);
+static_assert( is_ops_category<strict_ops>);
+static_assert( is_ops_category<transparent_ops>);
+static_assert( is_ops_category<transparent_ops_with<int>>);
+static_assert(!is_ops_category<int>);
+static_assert(!is_ops_category<struct foo>);
+
 template<typename underlying_t, typename tag_t, typename ops_category>
 struct named_type_pod
 {
-    using underlying_type = underlying_t;
-    static constexpr bool is_transparent = std::is_same_v<ops_category, transparent_ops>;
-
     using self = named_type_pod<underlying_t, tag_t, ops_category>;
+    using underlying_type = underlying_t;
+
+    template<typename T>
+    static constexpr bool is_transparent_withX = is_transparent_with<ops_category, T>;
+
+    static constexpr bool is_transparent = is_transparent_withX<underlying_type>;
+
     underlying_t value;
 
     explicit constexpr named_type_pod(underlying_t value) : value(value) {}
@@ -82,41 +111,34 @@ struct named_type_pod
 //     using type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
 // };
 
-template<typename T>
-constexpr bool is_ops_category = type_list_contains_v<type_list<default_ops, strict_ops, transparent_ops>, T>;
-
-static_assert( is_ops_category<default_ops>);
-static_assert( is_ops_category<strict_ops>);
-static_assert( is_ops_category<transparent_ops>);
-static_assert(!is_ops_category<int>);
-static_assert(!is_ops_category<struct foo>);
-
-template<typename... ops>
+template<typename underlying_t, typename... ops>
 struct ops_category;
 
-template<typename... ops>
-using ops_category_t = typename ops_category<ops...>::type;
+template<typename underlying_t, typename... ops>
+using ops_category_t = typename ops_category<underlying_t, ops...>::type;
 
-template<typename... ops>
+template<typename underlying_t, typename... ops>
 struct ops_category
 {
-    using type = ops_category_t<default_ops, ops...>; // covers empty and not specified
+    using type = ops_category_t<underlying_t, default_ops, ops...>; // covers empty and not specified
 };
 
-template<typename category, typename... ops>
-struct ops_category<category, ops...>
+template<typename underlying_t, typename category, typename... ops>
+struct ops_category<underlying_t, category, ops...>
 {
     using type = std::conditional_t<
         is_ops_category<category> && !std::is_same_v<category, default_ops>, 
-        category, 
+        std::conditional_t<std::is_same_v<category, transparent_ops>,
+            transparent_ops_with<underlying_t>,
+            category>, 
         strict_ops>;
 };
 
-static_assert(std::is_same_v<ops_category_t<>, strict_ops>);
-static_assert(std::is_same_v<ops_category_t<strict_ops>, strict_ops>);
-static_assert(std::is_same_v<ops_category_t<transparent_ops>, transparent_ops>);
-static_assert(std::is_same_v<ops_category_t<strict_ops, vst::op::ordered, vst::op::addable>, strict_ops>);
-static_assert(std::is_same_v<ops_category_t<transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops>);
+static_assert(std::is_same_v<ops_category_t<int>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<int, strict_ops>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<int, transparent_ops>, transparent_ops_with<int>>);
+static_assert(std::is_same_v<ops_category_t<int, strict_ops, vst::op::ordered, vst::op::addable>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<int, transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops_with<int>>);
 
 template<typename... ops>
 struct without_ops_category
@@ -145,7 +167,7 @@ template<typename underlying_t, typename tag_t, typename... ops>
 // using named_type = typename named_type_impl<underlying_t, tag_t, type_list<ops...>>::type;
 // using named_type = named_type_alias<underlying_t, tag_t, type_list<ops...>>;
 using named_type = vst::impl::type<
-    named_type_pod<underlying_t, tag_t, ops_category_t<ops...>>, 
+    named_type_pod<underlying_t, tag_t, ops_category_t<underlying_t, ops...>>, 
     without_ops_category_t<ops...>>;
 
 template<typename T>
