@@ -29,6 +29,8 @@ namespace
         vst::op::hashable, 
         vst::op::addable>;
 
+    static_assert(price_transparent::is_transparent);
+
     static_assert( is_named_type<price>);
     static_assert(!is_named_type<int>);
 
@@ -40,6 +42,13 @@ namespace
     //     vst::op::hashable, 
     //     vst::op::addable>;
 }
+
+// clang-format off
+static_assert(!named_type<int, struct default_test                          >::is_transparent);
+static_assert(!named_type<int, struct explicit_default_test, default_ops    >::is_transparent);
+static_assert(!named_type<int, struct strict_test,           strict_ops     >::is_transparent);
+static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent);
+// clang-format on
 
 TEST(test_named_type, basic)
 {
