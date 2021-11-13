@@ -296,7 +296,8 @@ struct transparent_less<T, std::enable_if_t<is_named_type<T>>>
     }
 };
 
-namespace std {
+namespace std 
+{
     template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
     struct equal_to<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>>
     : transparent_equal_to<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> {};
@@ -306,8 +307,8 @@ namespace std {
     : transparent_less<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> {};
 }
 
-namespace vst {
-    
+namespace vst 
+{
     template<typename T>
     struct hash<T, std::enable_if_t<is_named_type<T>>>
     {
@@ -317,7 +318,7 @@ namespace vst {
 
         template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
         size_t operator()(const U& o) const noexcept {
-            return std::hash<typename T::underlying_type>{}(o);
+            return std::hash<U>{}(o);
         }
     };
 }
