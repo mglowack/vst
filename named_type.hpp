@@ -309,12 +309,14 @@ namespace std {
 namespace vst {
     
     template<typename T>
-    struct hash<T, std::enable_if_t<is_named_type<T> && T::is_transparent>>
+    struct hash<T, std::enable_if_t<is_named_type<T>>>
     {
         size_t operator()(const T& o) const noexcept {
             return (*this)(o.get());
         }
-        size_t operator()(const typename T::underlying_type& o) const noexcept {
+
+        template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+        size_t operator()(const U& o) const noexcept {
             return std::hash<typename T::underlying_type>{}(o);
         }
     };
