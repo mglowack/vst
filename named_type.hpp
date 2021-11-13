@@ -7,10 +7,15 @@
 // # named_type #
 // ##############
 
-template<typename underlying_t, typename tag_t>
+struct strict_ops;
+struct transparent_ops;
+
+template<typename underlying_t, typename tag_t, typename ops_category>
 struct named_type_pod
 {
-    using self = named_type_pod<underlying_t, tag_t>;
+    static constexpr bool is_transparent = std::is_same_v<ops_category, transparent_ops>;
+
+    using self = named_type_pod<underlying_t, tag_t, ops_category>;
     underlying_t value;
 
     explicit constexpr named_type_pod(underlying_t value) : value(value) {}
@@ -28,7 +33,7 @@ struct named_type_pod
 };
 
 template<typename underlying_t, typename tag_t, typename... ops>
-using named_type = vst::type<named_type_pod<underlying_t, tag_t>, ops...>;
+using named_type = vst::type<named_type_pod<underlying_t, tag_t, transparent_ops>, ops...>;
 
 // template<typename underlying_t, typename tag_t, typename props_t>
 // struct named_type_pod
@@ -85,10 +90,12 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
 }
 
 template<typename T, typename ENABLER = void>
-struct transparent_equal_to;
+struct transparent_equal_to : std::equal_to<T> {};
 
 template<typename underlying_t, typename tag_t, typename... ops>
-struct transparent_equal_to<named_type<underlying_t, tag_t, ops...>>
+struct transparent_equal_to<
+    named_type<underlying_t, tag_t, ops...>, 
+    std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
 {
     using is_transparent = void;
     
@@ -115,10 +122,12 @@ struct transparent_equal_to<named_type<underlying_t, tag_t, ops...>>
 };
 
 template<typename T, typename ENABLER = void>
-struct transparent_less;
+struct transparent_less : std::less<T> {};
 
 template<typename underlying_t, typename tag_t, typename... ops>
-struct transparent_less<named_type<underlying_t, tag_t, ops...>>
+struct transparent_less<
+    named_type<underlying_t, tag_t, ops...>, 
+    std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
 {
     using is_transparent = void;
 
@@ -156,7 +165,9 @@ namespace std {
 
 namespace vst {
     template<typename underlying_t, typename tag_t, typename... ops>
-    struct hash<named_type<underlying_t, tag_t, ops...>>
+    struct hash<
+        named_type<underlying_t, tag_t, ops...>, 
+        std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
     {
         size_t operator()(const named_type<underlying_t, tag_t, ops...>& o) const noexcept {
             return (*this)(o.get());

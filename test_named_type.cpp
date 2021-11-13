@@ -71,6 +71,14 @@ TEST(test_named_type, basic)
     EXPECT_TRUE((p == price{8}));
 }
 
+TEST(test_named_type, to_and_from_underlying_no_operators_when_not_transparent_ops_enabled)
+{
+    static_assert(!is_comparable<price, int>);
+    static_assert(!is_ordered<price, int>);
+
+    // TODO MG: check for hashable, addable?
+}
+
 TEST(test_named_type, to_and_from_underlying)
 {
     static_assert(is_comparable<price, int>);

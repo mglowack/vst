@@ -111,7 +111,6 @@ struct from_func
 {
     static constexpr auto get_fields()
     {
-        // static_assert(has_correct_get_fields<T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
         return get_fields_func();
     }
 };
@@ -131,7 +130,6 @@ struct from
     static constexpr auto get_fields()
     {
         static_assert(has_get_fields<T>, "T must be an aggregate or have 'get_fields' defined.");
-        // static_assert(has_correct_get_fields<from<T>, T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
         return T::get_fields();
     }
 };
