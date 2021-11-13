@@ -41,46 +41,46 @@ namespace
     //     vst::op::addable>;
 }
 
-// TEST(test_named_type, basic)
-// {
-//     static_assert(is_comparable<price>);
+TEST(test_named_type, basic)
+{
+    static_assert(is_comparable<price>);
 
-//     static_assert(price{4} == price{4});
-//     static_assert(price{4} != price{2});
+    static_assert(price{4} == price{4});
+    static_assert(price{4} != price{2});
 
-//     EXPECT_TRUE((price{4} == price{4}));
-//     EXPECT_TRUE((price{4} != price{2}));
+    EXPECT_TRUE((price{4} == price{4}));
+    EXPECT_TRUE((price{4} != price{2}));
 
-//     static_assert(is_ordered<price>);
+    static_assert(is_ordered<price>);
 
-//     static_assert(price{4} < price{6});
-//     static_assert(price{4} <= price{6});
-//     static_assert(price{4} > price{2});
-//     static_assert(price{4} >= price{2});
-//     static_assert(price{4} <= price{4});
-//     static_assert(price{4} >= price{4});
+    static_assert(price{4} < price{6});
+    static_assert(price{4} <= price{6});
+    static_assert(price{4} > price{2});
+    static_assert(price{4} >= price{2});
+    static_assert(price{4} <= price{4});
+    static_assert(price{4} >= price{4});
 
-//     EXPECT_TRUE((price{4} < price{6}));
-//     EXPECT_TRUE((price{4} <= price{6}));
-//     EXPECT_TRUE((price{4} > price{2}));
-//     EXPECT_TRUE((price{4} >= price{2}));
-//     EXPECT_TRUE((price{4} <= price{4}));
-//     EXPECT_TRUE((price{4} >= price{4}));
+    EXPECT_TRUE((price{4} < price{6}));
+    EXPECT_TRUE((price{4} <= price{6}));
+    EXPECT_TRUE((price{4} > price{2}));
+    EXPECT_TRUE((price{4} >= price{2}));
+    EXPECT_TRUE((price{4} <= price{4}));
+    EXPECT_TRUE((price{4} >= price{4}));
 
-//     static_assert(is_addable<price>);
+    static_assert(is_addable<price>);
 
-//     static_assert(price{4} + price{1} == price{5});
-//     static_assert(price{4} - price{1} == price{3});
+    static_assert(price{4} + price{1} == price{5});
+    static_assert(price{4} - price{1} == price{3});
 
-//     EXPECT_TRUE((price{4} + price{1} == price{5}));
-//     EXPECT_TRUE((price{4} - price{1} == price{3}));
+    EXPECT_TRUE((price{4} + price{1} == price{5}));
+    EXPECT_TRUE((price{4} - price{1} == price{3}));
 
-//     price p{4};
-//     p += price{7};
-//     EXPECT_TRUE((p == price{11}));
-//     p -= price{3};
-//     EXPECT_TRUE((p == price{8}));
-// }
+    price p{4};
+    p += price{7};
+    EXPECT_TRUE((p == price{11}));
+    p -= price{3};
+    EXPECT_TRUE((p == price{8}));
+}
 
 TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_not_enabled)
 {
