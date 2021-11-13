@@ -186,7 +186,7 @@ TEST(test_named_type, to_and_from_underlying_transparent_ordered)
 
 TEST(test_named_type, to_and_from_underlying_transparent_hashable)
 {
-    static_assert(!is_hashable<price_transparent, int>);
+    static_assert( is_hashable<price_transparent, int>);
     auto h = [](const auto& o) { return vst::hash<price_transparent>{}(o); };
     auto sh = [](const auto& o) { return std::hash<price_transparent>{}(o); };
     auto bh = [](const auto& o) { return boost::hash<price_transparent>{}(o); };
