@@ -20,6 +20,14 @@ namespace
         vst::op::ordered, 
         vst::op::hashable, 
         vst::op::addable>;
+        
+    using price_transparent = named_type<
+        int, 
+        struct price_transparent_tag, 
+        transparent_ops,
+        vst::op::ordered, 
+        vst::op::hashable, 
+        vst::op::addable>;
 
     static_assert( is_named_type<price>);
     static_assert(!is_named_type<int>);
@@ -78,10 +86,15 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
 {
     static_assert(!is_comparable<price, int>);
     static_assert(!is_ordered<price, int>);
+    
+    static_assert( is_comparable<price_transparent, int>);
+    static_assert( is_ordered<price_transparent, int>);
 
     // static_assert(price{4} == 4);
-    // static_assert(std::equal_to<price>{}(price{4}, 4));
-    // static_assert(!std::equal_to<price>{}(price{4}, 2));
+    static_assert(price_transparent{4} == 4);
+    static_assert(price_transparent{4} != 2);
+    static_assert(std::equal_to<price_transparent>{}(price_transparent{4}, 4));
+    static_assert(!std::equal_to<price_transparent>{}(price_transparent{4}, 2));
 
     // TODO MG: check for hashable, addable?
 }

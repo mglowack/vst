@@ -288,50 +288,50 @@ namespace std {
 // }
 
 // complementary operators
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator!=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator!=(const T& lhs, const typename T::underlying_type& rhs)
 {
     return !(lhs == rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator!=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator!=(const typename T::underlying_type& lhs, const T& rhs)
 {
     return !(lhs == rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator>(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator>(const T& lhs, const typename T::underlying_type& rhs)
 {
     return !(lhs < rhs || lhs == rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator>(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator>(const typename T::underlying_type& lhs, const T& rhs)
 {
     return !(lhs < rhs || lhs == rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator>=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator>=(const T& lhs, const typename T::underlying_type& rhs)
 {
     return !(lhs < rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator>=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator>=(const typename T::underlying_type& lhs, const T& rhs)
 {
     return !(lhs < rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator<=(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator<=(const T& lhs, const typename T::underlying_type& rhs)
 {
     return !(lhs > rhs);
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator<=(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator<=(const typename T::underlying_type& lhs, const T& rhs)
 {
     return !(lhs > rhs);
 }
