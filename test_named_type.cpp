@@ -48,6 +48,8 @@ static_assert(!named_type<int, struct default_test                          >::i
 static_assert(!named_type<int, struct explicit_default_test, default_ops    >::is_transparent);
 static_assert(!named_type<int, struct strict_test,           strict_ops     >::is_transparent);
 static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent);
+static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<int>);
+static_assert(!named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<float>);
 // clang-format on
 
 TEST(test_named_type, basic)
