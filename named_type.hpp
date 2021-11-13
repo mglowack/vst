@@ -33,6 +33,7 @@ struct named_type_pod
 };
 
 template<typename underlying_t, typename tag_t, typename... ops>
+// using named_type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
 using named_type = vst::type<named_type_pod<underlying_t, tag_t, transparent_ops>, ops...>;
 
 // template<typename underlying_t, typename tag_t, typename props_t>
@@ -90,7 +91,13 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
 }
 
 template<typename T, typename ENABLER = void>
-struct transparent_equal_to : std::equal_to<T> {};
+struct transparent_equal_to 
+{
+    constexpr bool operator()( const T& lhs,  const T& rhs) const
+    {
+        return lhs == rhs;
+    }
+};
 
 template<typename underlying_t, typename tag_t, typename... ops>
 struct transparent_equal_to<
@@ -122,7 +129,13 @@ struct transparent_equal_to<
 };
 
 template<typename T, typename ENABLER = void>
-struct transparent_less : std::less<T> {};
+struct transparent_less
+{
+    constexpr bool operator()( const T& lhs,  const T& rhs) const
+    {
+        return lhs < rhs;
+    }
+};
 
 template<typename underlying_t, typename tag_t, typename... ops>
 struct transparent_less<
