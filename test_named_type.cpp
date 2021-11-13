@@ -125,6 +125,11 @@ TEST(test_named_type, to_and_from_underlying_transparent_equality)
     static_assert(!eq(price_transparent{4}, 2));
     static_assert( eq(4, price_transparent{4}));
     static_assert(!eq(2, price_transparent{4}));
+    
+    EXPECT_TRUE(( eq(price_transparent{4}, 4)));
+    EXPECT_TRUE((!eq(price_transparent{4}, 2)));
+    EXPECT_TRUE(( eq(4, price_transparent{4})));
+    EXPECT_TRUE((!eq(2, price_transparent{4})));
 }
 
 TEST(test_named_type, to_and_from_T_transparent_equality)
@@ -144,10 +149,15 @@ TEST(test_named_type, to_and_from_T_transparent_equality)
     EXPECT_TRUE((4.f == value{4}));
     EXPECT_TRUE((2.f != value{4}));
     
-    // static_assert( eq(value{4}, 4.f));
-    // static_assert(!eq(value{4}, 2.f));
-    // static_assert( eq(4.f, value{4}));
-    // static_assert(!eq(2.f, value{4}));
+    static_assert( eq(value{4}, 4.f));
+    static_assert(!eq(value{4}, 2.f));
+    static_assert( eq(4.f, value{4}));
+    static_assert(!eq(2.f, value{4}));
+    
+    EXPECT_TRUE(( eq(value{4}, 4.f)));
+    EXPECT_TRUE((!eq(value{4}, 2.f)));
+    EXPECT_TRUE(( eq(4.f, value{4})));
+    EXPECT_TRUE((!eq(2.f, value{4})));
 }
     
 TEST(test_named_type, to_and_from_underlying_transparent_ordered)
@@ -199,6 +209,20 @@ TEST(test_named_type, to_and_from_underlying_transparent_ordered)
     static_assert(!lt(4, price_transparent{2}));
     static_assert( lt(4, price_transparent{4}) || eq(4, price_transparent{4}));
     static_assert(!lt(4, price_transparent{4}));
+
+    EXPECT_TRUE(( lt(price_transparent{4}, 6)));
+    EXPECT_TRUE(( lt(price_transparent{4}, 6) || eq(price_transparent{4}, 6)));
+    EXPECT_TRUE((!lt(price_transparent{4}, 2) && !eq(price_transparent{4}, 2)));
+    EXPECT_TRUE((!lt(price_transparent{4}, 2)));
+    EXPECT_TRUE(( lt(price_transparent{4}, 4) || eq(price_transparent{4}, 4)));
+    EXPECT_TRUE((!lt(price_transparent{4}, 4)));
+
+    EXPECT_TRUE(( lt(4, price_transparent{6})));
+    EXPECT_TRUE(( lt(4, price_transparent{6}) || eq(4, price_transparent{6})));
+    EXPECT_TRUE((!lt(4, price_transparent{2}) && !eq(4, price_transparent{2})));
+    EXPECT_TRUE((!lt(4, price_transparent{2})));
+    EXPECT_TRUE(( lt(4, price_transparent{4}) || eq(4, price_transparent{4})));
+    EXPECT_TRUE((!lt(4, price_transparent{4})));
 }
 
 TEST(test_named_type, to_and_from_underlying_transparent_hashable)

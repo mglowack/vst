@@ -273,9 +273,8 @@ struct transparent_less
     }
 };
 
-
 template<typename T>
-struct transparent_less<T, std::enable_if_t<T::is_transparent>>
+struct transparent_less<T, std::enable_if_t<is_named_type<T>>>
 {
     using is_transparent = void;
     
@@ -284,12 +283,14 @@ struct transparent_less<T, std::enable_if_t<T::is_transparent>>
         return lhs < rhs;
     }
     
-    constexpr bool operator()(const typename T::underlying_type& lhs, const T& rhs) const
+    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    constexpr bool operator()(const U& lhs, const T& rhs) const
     {
         return lhs < rhs;
     }
     
-    constexpr bool operator()(const T& lhs, const typename T::underlying_type& rhs) const
+    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    constexpr bool operator()(const T& lhs, const U& rhs) const
     {
         return lhs < rhs;
     }
