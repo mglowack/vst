@@ -329,9 +329,9 @@ TEST(test_named_type, to_and_from_T_transparent_hashable)
     
     auto test = [](const auto& h)
     {
-        EXPECT_TRUE((h(value{1}) == h(1.f)));
-        EXPECT_TRUE((h(value{1}) != h(2.f)));
-        EXPECT_TRUE((h(value{2}) != h(1.f)));
+        EXPECT_THAT(h(value{1}), Eq(h(1.f)));
+        EXPECT_THAT(h(value{1}), Ne(h(2.f)));
+        EXPECT_THAT(h(value{2}), Ne(h(1.f)));
     };
     std::apply([&test](const auto&&... f) {
         (test(f), ...);

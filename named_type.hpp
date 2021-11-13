@@ -318,7 +318,7 @@ namespace vst
 
         template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
         size_t operator()(const U& o) const noexcept {
-            return std::hash<U>{}(o);
+            return std::hash<typename T::underlying_type>{}(o);
         }
     };
 }
