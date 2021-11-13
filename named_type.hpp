@@ -313,7 +313,7 @@ namespace vst
     struct hash<T, std::enable_if_t<is_named_type<T>>>
     {
         size_t operator()(const T& o) const noexcept {
-            return (*this)(o.get());
+            return std::hash<typename T::underlying_type>{}(o.get());
         }
 
         template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>

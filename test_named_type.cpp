@@ -313,6 +313,30 @@ TEST(test_named_type, to_and_from_underlying_transparent_hashable)
         (test(f), ...);
     }, std::tuple{vh, sh, bh});
 }
+
+TEST(test_named_type, to_and_from_T_transparent_hashable)
+{
+    using value = named_type<
+        int, 
+        struct to_and_from_T_transparent_ordered_test, 
+        transparent_ops_with<float>, 
+        vst::op::hashable>;
+
+    static_assert( is_hashable<value, float>);
+    auto vh = [](const auto& o) { return vst::hash<value>{}(o); };
+    auto sh = [](const auto& o) { return std::hash<value>{}(o); };
+    auto bh = [](const auto& o) { return boost::hash<value>{}(o); };
+    
+    auto test = [](const auto& h)
+    {
+        EXPECT_TRUE((h(value{1}) == h(1.f)));
+        EXPECT_TRUE((h(value{1}) != h(2.f)));
+        EXPECT_TRUE((h(value{2}) != h(1.f)));
+    };
+    std::apply([&test](const auto&&... f) {
+        (test(f), ...);
+    }, std::tuple{vh, sh, bh});
+}
     
 TEST(test_named_type, to_and_from_underlying_transparent_addable)
 {
