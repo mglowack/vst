@@ -2,6 +2,7 @@
 #define NAMED_TYPE_H
 
 #include "vst.hpp"
+#include "type_list.h"
 
 // ##############
 // # named_type #
@@ -13,6 +14,7 @@ struct transparent_ops;
 template<typename underlying_t, typename tag_t, typename ops_category>
 struct named_type_pod
 {
+    using underlying_type = underlying_t;
     static constexpr bool is_transparent = std::is_same_v<ops_category, transparent_ops>;
 
     using self = named_type_pod<underlying_t, tag_t, ops_category>;
@@ -32,9 +34,112 @@ struct named_type_pod
     }
 };
 
+
+// template<typename underlying_t, typename tag_t, typename ops_list_t, typename ENABLER = void>
+// struct named_type_impl;
+
+// template<typename underlying_t, typename tag_t>
+// struct named_type_impl<
+//     underlying_t, tag_t, type_list<>>
+// {
+//     // TODO MG: use default tag
+//     using type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>>;
+// };
+
+// template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
+// struct named_type_impl<
+//     underlying_t, tag_t, type_list<ops_category, ops...>,
+//     std::enable_if_t<type_list_contains_v<type_list<strict_ops, transparent_ops>, ops_category>>>
+// {
+//     using type = vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>;
+// };
+
+// template<typename underlying_t, typename tag_t, typename first_op, typename... ops>
+// struct named_type_impl<
+//     underlying_t, tag_t, type_list<first_op, ops...>,
+//     std::enable_if_t<!type_list_contains_v<type_list<strict_ops, transparent_ops>, first_op>>>
+// {
+//     using type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, first_op, ops...>;
+// };
+
+// template<typename underlying_t, typename tag_t, typename ops_list, typename ENABLER = void>
+// using named_type_alias
+// = vst::impl::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops_list>;
+
+// template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
+// using named_type_alias<
+//     underlying_t, tag_t, type_list<ops_category, ops...>,
+//     std::enable_if_t<type_list_contains_v<type_list<strict_ops, transparent_ops>, ops_category>>>
+// = vst::impl::type<named_type_pod<underlying_t, tag_t, ops_category>, type_list<ops...>>;
+
+// template<typename underlying_t, typename tag_t, typename... ops>
+// struct named_type_impl<
+//     underlying_t, tag_t, type_list<ops...>>
+// {
+//     using type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
+// };
+
+template<typename T>
+constexpr bool is_ops_category = type_list_contains_v<type_list<strict_ops, transparent_ops>, T>;
+
+template<typename... ops>
+struct ops_category
+{
+    using type = strict_ops; // covers empty
+};
+
+template<typename category, typename... ops>
+struct ops_category<category, ops...>
+{
+    using type = std::conditional_t<is_ops_category<category>, category, strict_ops>;
+};
+
+template<typename... ops>
+using ops_category_t = typename ops_category<ops...>::type;
+
+static_assert(std::is_same_v<ops_category_t<>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<strict_ops>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<transparent_ops>, transparent_ops>);
+static_assert(std::is_same_v<ops_category_t<strict_ops, vst::op::ordered, vst::op::addable>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops>);
+
+template<typename... ops>
+struct without_ops_category
+{
+    using type = type_list<ops...>; // covers empty
+};
+
+template<typename category, typename... ops>
+struct without_ops_category<category, ops...>
+{
+    using type = std::conditional_t<is_ops_category<category>, type_list<ops...>, type_list<category, ops...>>;
+};
+
+template<typename... ops>
+using without_ops_category_t = typename without_ops_category<ops...>::type;
+
+static_assert(std::is_same_v<without_ops_category_t<>, type_list<>>);
+static_assert(std::is_same_v<without_ops_category_t<strict_ops>, type_list<>>);
+static_assert(std::is_same_v<without_ops_category_t<transparent_ops>, type_list<>>);
+static_assert(std::is_same_v<without_ops_category_t<strict_ops, vst::op::ordered, vst::op::addable>, type_list<vst::op::ordered, vst::op::addable>>);
+static_assert(std::is_same_v<without_ops_category_t<transparent_ops, vst::op::ordered, vst::op::addable>, type_list<vst::op::ordered, vst::op::addable>>);
+
 template<typename underlying_t, typename tag_t, typename... ops>
 // using named_type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
-using named_type = vst::type<named_type_pod<underlying_t, tag_t, transparent_ops>, ops...>;
+// using named_type = vst::type<named_type_pod<underlying_t, tag_t, transparent_ops>, ops...>;
+// using named_type = typename named_type_impl<underlying_t, tag_t, type_list<ops...>>::type;
+// using named_type = named_type_alias<underlying_t, tag_t, type_list<ops...>>;
+using named_type = vst::impl::type<
+    named_type_pod<underlying_t, tag_t, ops_category_t<ops...>>, 
+    without_ops_category_t<ops...>>;
+
+template<typename T>
+struct is_named_type : std::false_type {};
+
+template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
+struct is_named_type<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> : std::true_type {};
+// struct is_named_type<typename named_type_impl<underlying_t, tag_t, type_list<ops...>>::type> : std::true_type {};
+// struct is_named_type<vst::impl::type<named_type<underlying_t, tag_t, ops_category>, type_list<ops...>>> : std::true_type {};
 
 // template<typename underlying_t, typename tag_t, typename props_t>
 // struct named_type_pod
@@ -99,30 +204,22 @@ struct transparent_equal_to
     }
 };
 
-template<typename underlying_t, typename tag_t, typename... ops>
-struct transparent_equal_to<
-    named_type<underlying_t, tag_t, ops...>, 
-    std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
+template<typename T>
+struct transparent_equal_to<T, std::enable_if_t<T::is_transparent>>
 {
     using is_transparent = void;
     
-    constexpr bool operator()(
-        const named_type<underlying_t, tag_t, ops...>& lhs, 
-        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    constexpr bool operator()(const T& lhs, const T& rhs) const
     {
         return lhs == rhs;
     }
-
-    constexpr bool operator()(
-        const named_type<underlying_t, tag_t, ops...>& lhs, 
-        const underlying_t& rhs) const
+    
+    constexpr bool operator()(const typename T::underlying_type& lhs, const T& rhs) const
     {
         return lhs == rhs;
     }
-
-    constexpr bool operator()(
-        const underlying_t& lhs, 
-        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    
+    constexpr bool operator()(const T& lhs, const typename T::underlying_type& rhs) const
     {
         return lhs == rhs;
     }
@@ -137,59 +234,58 @@ struct transparent_less
     }
 };
 
-template<typename underlying_t, typename tag_t, typename... ops>
-struct transparent_less<
-    named_type<underlying_t, tag_t, ops...>, 
-    std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
+
+template<typename T>
+struct transparent_less<T, std::enable_if_t<T::is_transparent>>
 {
     using is_transparent = void;
-
-    constexpr bool operator()(
-        const named_type<underlying_t, tag_t, ops...>& lhs, 
-        const named_type<underlying_t, tag_t, ops...>& rhs) const
-    {
-        return lhs < rhs;
-    }
-
-    constexpr bool operator()(
-        const named_type<underlying_t, tag_t, ops...>& lhs, 
-        const underlying_t& rhs) const
+    
+    constexpr bool operator()(const T& lhs, const T& rhs) const
     {
         return lhs < rhs;
     }
     
-    constexpr bool operator()(
-        const underlying_t& lhs, 
-        const named_type<underlying_t, tag_t, ops...>& rhs) const
+    constexpr bool operator()(const typename T::underlying_type& lhs, const T& rhs) const
+    {
+        return lhs < rhs;
+    }
+    
+    constexpr bool operator()(const T& lhs, const typename T::underlying_type& rhs) const
     {
         return lhs < rhs;
     }
 };
 
 namespace std {
-    template<typename underlying_t, typename tag_t, typename... ops>
-    struct equal_to<named_type<underlying_t, tag_t, ops...>>
-    : transparent_equal_to<named_type<underlying_t, tag_t, ops...>> {};
+    // template<typename underlying_t, typename tag_t, typename... ops>
+    // struct equal_to<named_type<underlying_t, tag_t, ops...>>
+    // : transparent_equal_to<named_type<underlying_t, tag_t, ops...>> {};
+    template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
+    struct equal_to<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>>
+    : transparent_equal_to<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> {};
 
-    template<typename underlying_t, typename tag_t, typename... ops>
-    struct less<named_type<underlying_t, tag_t, ops...>>
-    : transparent_less<named_type<underlying_t, tag_t, ops...>> {};
+    // template<typename underlying_t, typename tag_t, typename... ops>
+    // struct less<named_type<underlying_t, tag_t, ops...>>
+    // : transparent_less<named_type<underlying_t, tag_t, ops...>> {};
+    template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
+    struct less<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>>
+    : transparent_less<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> {};
 }
 
-namespace vst {
-    template<typename underlying_t, typename tag_t, typename... ops>
-    struct hash<
-        named_type<underlying_t, tag_t, ops...>, 
-        std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
-    {
-        size_t operator()(const named_type<underlying_t, tag_t, ops...>& o) const noexcept {
-            return (*this)(o.get());
-        }
-        size_t operator()(const underlying_t& o) const noexcept {
-            return std::hash<underlying_t>{}(o);
-        }
-    };
-}
+// namespace vst {
+//     template<typename underlying_t, typename tag_t, typename... ops>
+//     struct hash<
+//         named_type<underlying_t, tag_t, ops...>, 
+//         std::enable_if_t<named_type<underlying_t, tag_t, ops...>::is_transparent>>
+//     {
+//         size_t operator()(const named_type<underlying_t, tag_t, ops...>& o) const noexcept {
+//             return (*this)(o.get());
+//         }
+//         size_t operator()(const underlying_t& o) const noexcept {
+//             return std::hash<underlying_t>{}(o);
+//         }
+//     };
+// }
 
 // complementary operators
 template<typename T, typename tag_t, typename... ops>
