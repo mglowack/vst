@@ -86,9 +86,12 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
 {
     static_assert(!is_comparable<price, int>);
     static_assert(!is_ordered<price, int>);
-    
+    static_assert(!is_hashable<price, int>);
+}
+
+TEST(test_named_type, to_and_from_underlying_transparent_equality)
+{
     static_assert( is_comparable<price_transparent, int>);
-    static_assert( is_ordered<price_transparent, int>);
 
     constexpr auto eq = std::equal_to<price_transparent>{};
 
@@ -106,7 +109,14 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
     static_assert(!eq(price_transparent{4}, 2));
     static_assert( eq(4, price_transparent{4}));
     static_assert(!eq(2, price_transparent{4}));
+}
+    
+TEST(test_named_type, to_and_from_underlying_transparent_ordered)
+{
+    static_assert( is_comparable<price_transparent, int>);
+    static_assert( is_ordered<price_transparent, int>);
 
+    constexpr auto eq = std::equal_to<price_transparent>{};
     constexpr auto lt = std::less<price_transparent>{};
 
     static_assert(price_transparent{4} < 6);
@@ -150,7 +160,17 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
     static_assert(!lt(4, price_transparent{2}));
     static_assert( lt(4, price_transparent{4}) || eq(4, price_transparent{4}));
     static_assert(!lt(4, price_transparent{4}));
-
+}
+    
+// TEST(test_named_type, to_and_from_underlying_transparent_hashable)
+// {
+//     // TODO MG: check for hashable, addable?
+//     static_assert( is_addable<price_transparent>);      // has explcit addable, price to price
+//     static_assert(!is_addable<price_transparent, int>); // but no implcit addable to underlying
+// }
+    
+TEST(test_named_type, to_and_from_underlying_transparent_addable)
+{
     // TODO MG: check for hashable, addable?
     static_assert( is_addable<price_transparent>);      // has explcit addable, price to price
     static_assert(!is_addable<price_transparent, int>); // but no implcit addable to underlying

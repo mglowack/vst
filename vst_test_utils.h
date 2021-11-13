@@ -100,18 +100,22 @@ constexpr bool is_streamable<
 // # is_hashable #
 // ###############
 
-template<typename T, typename ENABLER = void>
-constexpr bool is_hashable = false;
+template<typename T, typename U, typename ENABLER = void>
+constexpr bool is_hashable_impl = false;
 
-template<typename T>
-constexpr bool is_hashable<
-    T, 
+template<typename T, typename U>
+constexpr bool is_hashable_impl<
+    T, U,
     std::void_t<
-        decltype(std::declval<vst::hash<T>>()(std::declval<T>()))
-      , decltype(std::declval<std::hash<T>>()(std::declval<T>()))
-      , decltype(std::declval<boost::hash<T>>()(std::declval<T>()))
+        decltype(std::declval<vst::hash<T>>()(std::declval<U>()))
+      , decltype(std::declval<std::hash<T>>()(std::declval<U>()))
+      , decltype(std::declval<boost::hash<T>>()(std::declval<U>()))
     >
 >
 = true;
+
+template<typename T, typename U = T>
+constexpr bool is_hashable = is_hashable_impl<T, U>;
+
 
 #endif
