@@ -126,6 +126,29 @@ TEST(test_named_type, to_and_from_underlying_transparent_equality)
     static_assert( eq(4, price_transparent{4}));
     static_assert(!eq(2, price_transparent{4}));
 }
+
+TEST(test_named_type, to_and_from_T_transparent_equality)
+{
+    using value = named_type<int, struct to_and_from_T_transparent_equality_test, transparent_ops_with<float>>;
+    static_assert( is_comparable<value, float>);
+
+    constexpr auto eq = std::equal_to<value>{};
+
+    static_assert(value{4} == 4.f);
+    static_assert(value{4} != 2.f);
+    static_assert(4.f == value{4});
+    static_assert(2.f != value{4});
+
+    EXPECT_TRUE((value{4} == 4.f));
+    EXPECT_TRUE((value{4} != 2.f));
+    EXPECT_TRUE((4.f == value{4}));
+    EXPECT_TRUE((2.f != value{4}));
+    
+    // static_assert( eq(value{4}, 4.f));
+    // static_assert(!eq(value{4}, 2.f));
+    // static_assert( eq(4.f, value{4}));
+    // static_assert(!eq(2.f, value{4}));
+}
     
 TEST(test_named_type, to_and_from_underlying_transparent_ordered)
 {

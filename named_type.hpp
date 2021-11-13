@@ -202,14 +202,14 @@ constexpr bool is_named_type<vst::type<named_type_pod<underlying_t, tag_t, ops_c
 // template<typename underlying_t, typename tag_t, typename props_t typename... ops>
 // using named_type = vst::type<named_type_pod<underlying_t, tag_t, props_t>, ops...>;
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator==(const T& lhs, const typename T::underlying_type& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator==(const T& lhs, const U& rhs)
 {
     return lhs.get() == rhs;
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator==(const typename T::underlying_type& lhs, const T& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator==(const U& lhs, const T& rhs)
 {
     return lhs == rhs.get();
 }
@@ -242,7 +242,7 @@ struct transparent_equal_to
 };
 
 template<typename T>
-struct transparent_equal_to<T, std::enable_if_t<T::is_transparent>>
+struct transparent_equal_to<T, std::enable_if_t<is_named_type<T>>>
 {
     using is_transparent = void;
     
@@ -251,12 +251,14 @@ struct transparent_equal_to<T, std::enable_if_t<T::is_transparent>>
         return lhs == rhs;
     }
     
-    constexpr bool operator()(const typename T::underlying_type& lhs, const T& rhs) const
+    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    constexpr bool operator()(const U& lhs, const T& rhs) const
     {
         return lhs == rhs;
     }
     
-    constexpr bool operator()(const T& lhs, const typename T::underlying_type& rhs) const
+    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    constexpr bool operator()(const T& lhs, const U& rhs) const
     {
         return lhs == rhs;
     }
@@ -318,14 +320,14 @@ namespace vst {
 }
 
 // complementary operators
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator!=(const T& lhs, const typename T::underlying_type& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator!=(const T& lhs, const U& rhs)
 {
     return !(lhs == rhs);
 }
 
-template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
-constexpr bool operator!=(const typename T::underlying_type& lhs, const T& rhs)
+template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+constexpr bool operator!=(const U& lhs, const T& rhs)
 {
     return !(lhs == rhs);
 }
