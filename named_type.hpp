@@ -134,10 +134,10 @@ using named_type = vst::impl::type<
     without_ops_category_t<ops...>>;
 
 template<typename T>
-struct is_named_type : std::false_type {};
+constexpr bool is_named_type = false;
 
 template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
-struct is_named_type<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> : std::true_type {};
+constexpr bool is_named_type<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> = true;
 // struct is_named_type<typename named_type_impl<underlying_t, tag_t, type_list<ops...>>::type> : std::true_type {};
 // struct is_named_type<vst::impl::type<named_type<underlying_t, tag_t, ops_category>, type_list<ops...>>> : std::true_type {};
 
@@ -165,26 +165,26 @@ struct is_named_type<vst::type<named_type_pod<underlying_t, tag_t, ops_category>
 // template<typename underlying_t, typename tag_t, typename props_t typename... ops>
 // using named_type = vst::type<named_type_pod<underlying_t, tag_t, props_t>, ops...>;
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator==(const named_type<T, tag_t, ops...>& lhs, const T& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator==(const T& lhs, const typename T::underlying_type& rhs)
 {
     return lhs.get() == rhs;
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator==(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator==(const typename T::underlying_type& lhs, const T& rhs)
 {
     return lhs == rhs.get();
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator<(const  named_type<T, tag_t, ops...>& lhs, const T& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator<(const  T& lhs, const typename T::underlying_type& rhs)
 {
     return lhs.get() < rhs;
 }
 
-template<typename T, typename tag_t, typename... ops>
-constexpr bool operator<(const T& lhs, const named_type<T, tag_t, ops...>& rhs)
+template<typename T, std::enable_if_t<is_named_type<T> && T::is_transparent, int> = 0>
+constexpr bool operator<(const typename T::underlying_type& lhs, const T& rhs)
 {
     return lhs < rhs.get();
 }
