@@ -39,7 +39,7 @@ struct transparent_type_traits
     template<typename op_category_t>
     static constexpr bool is_transparent_with_v = is_transparent_with_t<op_category_t>::value;
 };
-
+// clang-format off
 static_assert( is_transparent_with<transparent_ops_with<int>, int>);
 static_assert(!is_transparent_with<transparent_ops_with<int>, float>);
 static_assert(!is_transparent_with<transparent_ops, int>);
@@ -52,20 +52,21 @@ static_assert(!named_type_traits<transparent_ops>::is_transparent_with_v<int>);
 static_assert(!named_type_traits<default_ops>::is_transparent_with_v<int>);
 static_assert(!named_type_traits<strict_ops>::is_transparent_with_v<int>);
 
-static_assert( transparent_type_traits<int>::is_transparent_with_v<transparent_ops_with<int>>);
+static_assert( transparent_type_traits<int>  ::is_transparent_with_v<transparent_ops_with<int>>);
 static_assert(!transparent_type_traits<float>::is_transparent_with_v<transparent_ops_with<int>>);
-static_assert(!transparent_type_traits<int>::is_transparent_with_v<transparent_ops>);
-static_assert(!transparent_type_traits<int>::is_transparent_with_v<default_ops>);
-static_assert(!transparent_type_traits<int>::is_transparent_with_v<strict_ops>);
+static_assert(!transparent_type_traits<int>  ::is_transparent_with_v<transparent_ops>);
+static_assert(!transparent_type_traits<int>  ::is_transparent_with_v<default_ops>);
+static_assert(!transparent_type_traits<int>  ::is_transparent_with_v<strict_ops>);
 
-static_assert(!type_list_any_v<type_list<>, transparent_type_traits<int>::is_transparent_with_t>);
-static_assert( type_list_any_v<type_list<transparent_ops_with<int>>, transparent_type_traits<int>::is_transparent_with_t>);
-static_assert(!type_list_any_v<type_list<transparent_ops_with<int>>, transparent_type_traits<float>::is_transparent_with_t>);
-static_assert( type_list_any_v<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, transparent_type_traits<int>::is_transparent_with_t>);
+static_assert(!type_list_any_v<type_list<>,                                                       transparent_type_traits<int>::  is_transparent_with_t>);
+static_assert( type_list_any_v<type_list<transparent_ops_with<int>>,                              transparent_type_traits<int>::  is_transparent_with_t>);
+static_assert(!type_list_any_v<type_list<transparent_ops_with<int>>,                              transparent_type_traits<float>::is_transparent_with_t>);
+static_assert( type_list_any_v<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, transparent_type_traits<int>::  is_transparent_with_t>);
 static_assert( type_list_any_v<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, transparent_type_traits<float>::is_transparent_with_t>);
-static_assert(!type_list_any_v<type_list<transparent_ops>, transparent_type_traits<int>::is_transparent_with_t>);
-static_assert(!type_list_any_v<type_list<default_ops>, transparent_type_traits<int>::is_transparent_with_t>);
-static_assert(!type_list_any_v<type_list<strict_ops>, transparent_type_traits<int>::is_transparent_with_t>);
+static_assert(!type_list_any_v<type_list<transparent_ops>,                                        transparent_type_traits<int>::  is_transparent_with_t>);
+static_assert(!type_list_any_v<type_list<default_ops>,                                            transparent_type_traits<int>::  is_transparent_with_t>);
+static_assert(!type_list_any_v<type_list<strict_ops>,                                             transparent_type_traits<int>::  is_transparent_with_t>);
+// clang-format on
 
 template<typename T>
 struct is_ops_category : type_list_contains<type_list<default_ops, strict_ops, transparent_ops>, T> {};
