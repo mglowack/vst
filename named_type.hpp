@@ -66,6 +66,19 @@ static_assert( type_list_any_v<type_list<transparent_ops_with<int>, transparent_
 static_assert(!type_list_any_v<type_list<transparent_ops>,                                        transparent_type_traits<int>::  is_transparent_with_t>);
 static_assert(!type_list_any_v<type_list<default_ops>,                                            transparent_type_traits<int>::  is_transparent_with_t>);
 static_assert(!type_list_any_v<type_list<strict_ops>,                                             transparent_type_traits<int>::  is_transparent_with_t>);
+
+// template<typename ops_categories, typename T>
+// constexpr bool yae_or_nay = type_list_any_v<ops_categories, transparent_type_traits<T>::template is_transparent_with_t>;
+
+// static_assert(!yae_or_nay<type_list<>,                                                       int>);
+// static_assert( yae_or_nay<type_list<transparent_ops_with<int>>,                              int>);
+// static_assert(!yae_or_nay<type_list<transparent_ops_with<int>>,                              float>);
+// static_assert( yae_or_nay<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, int>);
+// static_assert( yae_or_nay<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, float>);
+// static_assert(!yae_or_nay<type_list<transparent_ops>,                                        int>);
+// static_assert(!yae_or_nay<type_list<default_ops>,                                            int>);
+// static_assert(!yae_or_nay<type_list<strict_ops>,                                             int>);
+
 // clang-format on
 
 template<typename T>
@@ -93,9 +106,8 @@ struct named_type_pod
     using ops_categories = type_list<ops_category_t>;
 
     template<typename T>
-    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
-    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
-    static constexpr bool is_transparent_with = is_transparent_with<ops_category_t, T>;
+    static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::template is_transparent_with_t>;
+    // static constexpr bool is_transparent_with = is_transparent_with<ops_category_t, T>;
 
     static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
 
