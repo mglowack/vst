@@ -66,6 +66,16 @@ static_assert(std::is_same_v<transparent_ops_with<int>,   named_type<int, struct
 static_assert(std::is_same_v<transparent_ops_with<float>, named_type<int, struct transparent_test, transparent_ops_with<float>>::ops_category>);
 // clang-format on
 
+// clang-format off
+static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct default_test                          >::ops_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct explicit_default_test, default_ops    >::ops_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct strict_test,           strict_ops     >::ops_categories>);
+
+static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops>::ops_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops_with<int>>::ops_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type<int, struct transparent_test, transparent_ops_with<float>>::ops_categories>);
+// clang-format on
+
 TEST(test_named_type, basic)
 {
     static_assert(is_comparable<price>);
