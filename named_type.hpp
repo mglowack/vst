@@ -58,8 +58,10 @@ static_assert(!transparent_type_traits<int>::is_transparent_with_v<transparent_o
 static_assert(!transparent_type_traits<int>::is_transparent_with_v<default_ops>);
 static_assert(!transparent_type_traits<int>::is_transparent_with_v<strict_ops>);
 
+static_assert(!type_list_any_v<type_list<>, transparent_type_traits<int>::is_transparent_with_t>);
 static_assert( type_list_any_v<type_list<transparent_ops_with<int>>, transparent_type_traits<int>::is_transparent_with_t>);
 static_assert(!type_list_any_v<type_list<transparent_ops_with<int>>, transparent_type_traits<float>::is_transparent_with_t>);
+static_assert( type_list_any_v<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, transparent_type_traits<int>::is_transparent_with_t>);
 static_assert( type_list_any_v<type_list<transparent_ops_with<int>, transparent_ops_with<float>>, transparent_type_traits<float>::is_transparent_with_t>);
 static_assert(!type_list_any_v<type_list<transparent_ops>, transparent_type_traits<int>::is_transparent_with_t>);
 static_assert(!type_list_any_v<type_list<default_ops>, transparent_type_traits<int>::is_transparent_with_t>);
