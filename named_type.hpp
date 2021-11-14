@@ -242,21 +242,8 @@ struct ops_category<
     std::enable_if_t<is_ops_category_v<category_t>>>
 {
     using type = transform_op_category_x_t<underlying_t, category_t>;
-    // using type = transparent_type_traits<underlying_t>::template transform_t<category_t>>;
-    // using type = std::conditional_t<
-    //     is_ops_category_v<category>,
-    //     transparent_type_traits<underlying_t>::template transform_t<category>
-    //     std::conditional_t<std::is_same_v<category, transparent_ops>,
-    //         transparent_ops_with<underlying_t>,
-    //         category>, 
-    //     strict_ops>;
-
-    // using type = std::conditional_t<
-    //     is_ops_category_v<category> && !std::is_same_v<category, default_ops>, 
-    //     std::conditional_t<std::is_same_v<category, transparent_ops>,
-    //         transparent_ops_with<underlying_t>,
-    //         category>, 
-    //     strict_ops>;
+    using filtered_list_type = type_list_filter_t<type_list<category_t, ops...>, is_ops_category>;
+    using transformed_list_type = type_list_transform_t<filtered_list_type, transparent_type_traits<underlying_t>::template transform_t>;
 };
 
 template<typename underlying_t>
@@ -279,6 +266,38 @@ static_assert(std::is_same_v<ops_category_t<int, type_list<strict_ops>>,        
 static_assert(std::is_same_v<ops_category_t<int, type_list<strict_ops, vst::op::ordered, vst::op::addable>>,      strict_ops>);
 static_assert(std::is_same_v<ops_category_t<int, type_list<transparent_ops>>,                                     transparent_ops_with<int>>);
 static_assert(std::is_same_v<ops_category_t<int, type_list<transparent_ops, vst::op::ordered, vst::op::addable>>, transparent_ops_with<int>>);
+
+static_assert(std::is_same_v<
+    type_list_filter_t<
+        type_list<strict_ops, transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::addable>, 
+        is_ops_category
+    >, 
+    type_list<strict_ops, transparent_ops, transparent_ops_with<float>>
+>);
+
+static_assert(std::is_same_v<
+    typename ops_category<
+        int,
+        type_list<strict_ops, transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::addable>
+    >::filtered_list_type,
+    type_list<strict_ops, transparent_ops, transparent_ops_with<float>>
+>);
+
+static_assert(std::is_same_v<
+    type_list_transform_t<
+        type_list<strict_ops, transparent_ops, transparent_ops_with<float>>,
+        transparent_type_traits<int>::transform_t
+    >, 
+    type_list<strict_ops, transparent_ops_with<int>, transparent_ops_with<float>>
+>);
+
+static_assert(std::is_same_v<
+    typename ops_category<
+        int,
+        type_list<strict_ops, transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::addable>
+    >::transformed_list_type,
+    type_list<strict_ops, transparent_ops_with<int>, transparent_ops_with<float>>
+>);
 
 // ########################
 // # without_ops_category #
