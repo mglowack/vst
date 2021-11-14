@@ -54,19 +54,7 @@ static_assert(!named_type<int, struct transparent_test,      transparent_ops>::i
 static_assert( named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<int>);
 static_assert(!named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<float>);
 static_assert( named_type<int, struct transparent_test, transparent_ops_with<float>>::is_transparent_with<float>);
-// clang-format on
 
-// clang-format off
-static_assert(std::is_same_v<strict_ops, named_type<int, struct default_test                          >::ops_category>);
-static_assert(std::is_same_v<strict_ops, named_type<int, struct explicit_default_test, default_ops    >::ops_category>);
-static_assert(std::is_same_v<strict_ops, named_type<int, struct strict_test,           strict_ops     >::ops_category>);
-
-static_assert(std::is_same_v<transparent_ops_with<int>,   named_type<int, struct transparent_test, transparent_ops>::ops_category>);
-static_assert(std::is_same_v<transparent_ops_with<int>,   named_type<int, struct transparent_test, transparent_ops_with<int>>::ops_category>);
-static_assert(std::is_same_v<transparent_ops_with<float>, named_type<int, struct transparent_test, transparent_ops_with<float>>::ops_category>);
-// clang-format on
-
-// clang-format off
 static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct default_test                          >::ops_categories>);
 static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct explicit_default_test, default_ops    >::ops_categories>);
 static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct strict_test,           strict_ops     >::ops_categories>);
@@ -178,6 +166,24 @@ TEST(test_named_type, to_and_from_T_transparent_equality)
     EXPECT_TRUE((!eq(value{4}, 2.f)));
     EXPECT_TRUE(( eq(4.f, value{4})));
     EXPECT_TRUE((!eq(2.f, value{4})));
+}
+
+TEST(test_named_type, to_and_from_multiple_T_transparent_equality)
+{
+    using value = named_type<
+        int, 
+        struct to_and_from_multiple_T_transparent_equality_test, 
+        transparent_ops_with<float>, 
+        transparent_ops_with<int>>;
+    static_assert( is_comparable<value, int>);
+    static_assert( is_comparable<value, float>);
+
+    constexpr auto eq = std::equal_to<value>{};
+
+    static_assert(value{4} == 4);
+    static_assert(value{4} == 4.f);
+    static_assert(eq(value{4}, 4));
+    static_assert(eq(value{4}, 4.f));
 }
     
 TEST(test_named_type, to_and_from_underlying_transparent_ordered)

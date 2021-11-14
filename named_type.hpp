@@ -133,13 +133,13 @@ static_assert( is_ops_category_v<transparent_ops_with<int>>);
 static_assert(!is_ops_category_v<int>);
 static_assert(!is_ops_category_v<struct foo>);
 
-template<typename underlying_t, typename tag_t, typename ops_category_t>
+template<typename underlying_t, typename tag_t, typename ops_categories_t>
 struct named_type_pod
 {
-    using self = named_type_pod<underlying_t, tag_t, ops_category_t>;
+    using self = named_type_pod<underlying_t, tag_t, ops_categories_t>;
     using underlying_type = underlying_t;
-    using ops_category = ops_category_t;
-    using ops_categories = type_list<ops_category_t>;
+    // using ops_category = ops_category_t;
+    using ops_categories = ops_categories_t;
 
     template<typename T>
     static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::template is_transparent_with_t>;
@@ -299,6 +299,22 @@ static_assert(std::is_same_v<
     type_list<strict_ops, transparent_ops_with<int>, transparent_ops_with<float>>
 >);
 
+static_assert(std::is_same_v<
+    typename ops_category<
+        int,
+        type_list<>
+    >::transformed_list_type,
+    type_list<strict_ops>
+>);
+
+static_assert(std::is_same_v<
+    typename ops_category<
+        int,
+        type_list<vst::op::ordered, vst::op::addable>
+    >::transformed_list_type,
+    type_list<strict_ops>
+>);
+
 // ########################
 // # without_ops_category #
 // ########################
@@ -319,7 +335,14 @@ template<typename underlying_t, typename tag_t, typename... ops>
 // using named_type = typename named_type_impl<underlying_t, tag_t, type_list<ops...>>::type;
 // using named_type = named_type_alias<underlying_t, tag_t, type_list<ops...>>;
 using named_type = vst::impl::type<
-    named_type_pod<underlying_t, tag_t, ops_category_t<underlying_t, type_list<ops...>>>, 
+    named_type_pod<
+        underlying_t, 
+        tag_t, 
+        typename ops_category<
+            underlying_t, 
+            type_list<ops...>
+        >::transformed_list_type
+    >, 
     without_ops_category_t<ops...>>;
 
 template<typename T>
