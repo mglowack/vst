@@ -14,7 +14,7 @@ struct transparent_ops;
 template<typename T>
 struct transparent_ops_with;
 
-template<typename op_category_t, typename T, typename ENABLER = void>
+template<typename op_category_t, typename T>
 constexpr bool is_transparent_with = false;
 
 template<typename T>
@@ -26,7 +26,7 @@ static_assert(!is_transparent_with<transparent_ops, int>);
 static_assert(!is_transparent_with<default_ops, int>);
 static_assert(!is_transparent_with<strict_ops, int>);
 
-template<typename T, typename ENABLER = void>
+template<typename T>
 constexpr bool is_ops_category = type_list_contains_v<type_list<default_ops, strict_ops, transparent_ops>, T>;
 
 template<typename T>
@@ -141,6 +141,7 @@ static_assert(std::is_same_v<ops_category_t<int, strict_ops, vst::op::ordered, v
 static_assert(std::is_same_v<ops_category_t<int, transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops_with<int>>);
 
 template<typename... ops>
+// struct without_ops_category : type_list_filter<type_list<ops...>, is_ops_category> {};
 struct without_ops_category
 {
     using type = type_list<ops...>; // covers empty
