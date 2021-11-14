@@ -102,11 +102,15 @@ static_assert( is_int_v<int>);
 static_assert(!is_int_v<float>);
 static_assert(!is_int_v<double>);
 
-// template<template<typename> typename T
-// struct trait_op
-// {
-//     using negate = 
-// };
+template<template<typename> typename trait_t>
+struct trait_op
+{
+    template<typename T>
+    using negate = std::negation<trait_t<T>>;
+
+    template<typename T>
+    static constexpr bool negate_v = negate<T>::value;
+};
 
 // template<template<typename> typename T, typename U>
 // struct negate : std::is_same<T, int> {};
@@ -118,6 +122,10 @@ static_assert(!is_int_v<double>);
 static_assert(!std::negation_v<is_int<int>>);
 static_assert( std::negation_v<is_int<float>>);
 static_assert( std::negation_v<is_int<double>>);
+
+static_assert(!trait_op<is_int>::negate_v<int>);
+static_assert( trait_op<is_int>::negate_v<float>);
+static_assert( trait_op<is_int>::negate_v<double>);
 
 static_assert(
     std::is_same_v<
@@ -135,7 +143,15 @@ static_assert(
             is_int
         >, 
         type_list<int>
-        // type_list<>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<int>, 
+            trait_op<is_int>::negate
+        >, 
+        type_list<>
     >);
 
 static_assert(
@@ -150,10 +166,28 @@ static_assert(
 static_assert(
     std::is_same_v<
         type_list_filter_t<
+            type_list<float>, 
+            trait_op<is_int>::negate
+        >, 
+        type_list<float>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
             type_list<float, double>, 
             is_int
         >, 
         type_list<>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<float, double>, 
+            trait_op<is_int>::negate
+        >, 
+        type_list<float, double>
     >);
 
 static_assert(
@@ -165,13 +199,13 @@ static_assert(
         type_list<int, int>
     >);
 
-// static_assert(
-//     std::is_same_v<
-//         type_list_filter_t<
-//             type_list<int, float, int, double>, 
-//             std::negation<is_int>
-//         >, 
-//         type_list<float, double>
-//     >);
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<int, float, int, double>, 
+            trait_op<is_int>::negate
+        >, 
+        type_list<float, double>
+    >);
 
 #endif
