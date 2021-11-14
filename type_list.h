@@ -201,4 +201,30 @@ static_assert(
         type_list<float, double>
     >);
 
+// #################
+// # type_list_any #
+// #################
+
+template<typename list_t, template<typename> typename pred_t>
+struct type_list_any;
+
+template<typename list_t, template<typename> typename pred_t>
+constexpr bool type_list_any_v = type_list_any<list_t, pred_t>::value;
+
+template<template<typename> typename pred_t>
+struct type_list_any<type_list<>, pred_t> : std::false_type {};
+
+template<template<typename> typename pred_t, typename first_t, typename... the_rest_t>
+struct type_list_any<type_list<first_t, the_rest_t...>, pred_t>
+: std::bool_constant<pred_t<first_t>::value || type_list_any_v<type_list<the_rest_t...>, pred_t>>
+{};
+
+static_assert(!type_list_any_v<type_list<>, is_int>);
+static_assert(!type_list_any_v<type_list<float>, is_int>);
+static_assert(!type_list_any_v<type_list<float, double>, is_int>);
+static_assert( type_list_any_v<type_list<int>, is_int>);
+static_assert( type_list_any_v<type_list<float, double, int>, is_int>);
+static_assert( type_list_any_v<type_list<float, int, float, int>, is_int>);
+
+
 #endif
