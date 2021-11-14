@@ -112,13 +112,6 @@ struct trait_op
     static constexpr bool negate_v = negate<T>::value;
 };
 
-// template<template<typename> typename T, typename U>
-// struct negate : std::is_same<T, int> {};
-
-// template<typename T>
-// constexpr bool negate_v = negate<T>::value;
-
-
 static_assert(!std::negation_v<is_int<int>>);
 static_assert( std::negation_v<is_int<float>>);
 static_assert( std::negation_v<is_int<double>>);
