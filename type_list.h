@@ -3,8 +3,17 @@
 
 #include <type_traits>
 
+// #############
+// # type_list #
+// #############
+
 template<typename... args_t>
 struct type_list{};
+
+
+// #####################
+// # type_list_conains #
+// #####################
 
 template<typename list_t, typename item_t>
 struct type_list_contains : std::false_type {};
@@ -23,6 +32,11 @@ struct type_list_contains<type_list<item_t, the_rest_t...>, item_t> : std::true_
 
 template<typename list_t, typename item_t>
 constexpr bool type_list_contains_v = type_list_contains<list_t, item_t>::value;
+
+
+// ####################
+// # type_list_concat #
+// ####################
 
 template<typename list_a_t, typename list_b_t>
 struct type_list_concat;
@@ -43,20 +57,33 @@ static_assert(std::is_same_v<type_list_concat_t<type_list<int>, type_list<int>>,
 static_assert(std::is_same_v<type_list_concat_t<type_list<int>, type_list<float, double>>, type_list<int, float, double>>);
 static_assert(std::is_same_v<type_list_concat_t<type_list<float, int>, type_list<float, double>>, type_list<float, int, float, double>>);
 
+// ####################
+// # type_list_filter #
+// ####################
+
 template<typename list_t, template<typename> typename pred_t>
 struct type_list_filter;
 
 template<typename list_t, template<typename> typename pred_t>
 using type_list_filter_t = typename type_list_filter<list_t, pred_t>::type;
 
+template<template<typename> typename pred_t>
+struct type_list_filter<type_list<>, pred_t>
+{
+    using type = type_list<>;
+};
+
 template<template<typename> typename pred_t, typename first_t, typename... the_rest_t>
 struct type_list_filter<type_list<first_t, the_rest_t...>, pred_t>
 {
     using type = std::conditional_t<
         pred_t<first_t>::value,
-        type_list_concat<
+        type_list_concat_t<
             type_list<first_t>, 
-            type_list_filter_t<type_list<the_rest_t...>, pred_t>
+            type_list_filter_t<
+                type_list<the_rest_t...>, 
+                pred_t
+            >
         >,
         type_list_filter_t<
             type_list<the_rest_t...>, 
@@ -75,6 +102,76 @@ static_assert( is_int_v<int>);
 static_assert(!is_int_v<float>);
 static_assert(!is_int_v<double>);
 
-// static_assert(std::is_same_v<type_list_filter<type_list<int, float, double>, is_int>, type_list<float, double>);
+// template<template<typename> typename T
+// struct trait_op
+// {
+//     using negate = 
+// };
+
+// template<template<typename> typename T, typename U>
+// struct negate : std::is_same<T, int> {};
+
+// template<typename T>
+// constexpr bool negate_v = negate<T>::value;
+
+
+static_assert(!std::negation_v<is_int<int>>);
+static_assert( std::negation_v<is_int<float>>);
+static_assert( std::negation_v<is_int<double>>);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<>, 
+            is_int
+        >, 
+        type_list<>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<int>, 
+            is_int
+        >, 
+        type_list<int>
+        // type_list<>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<float>, 
+            is_int
+        >, 
+        type_list<>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<float, double>, 
+            is_int
+        >, 
+        type_list<>
+    >);
+
+static_assert(
+    std::is_same_v<
+        type_list_filter_t<
+            type_list<int, float, int, double>, 
+            is_int
+        >, 
+        type_list<int, int>
+    >);
+
+// static_assert(
+//     std::is_same_v<
+//         type_list_filter_t<
+//             type_list<int, float, int, double>, 
+//             std::negation<is_int>
+//         >, 
+//         type_list<float, double>
+//     >);
 
 #endif
