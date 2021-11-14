@@ -81,17 +81,18 @@ static_assert( is_ops_category_v<transparent_ops_with<int>>);
 static_assert(!is_ops_category_v<int>);
 static_assert(!is_ops_category_v<struct foo>);
 
-template<typename underlying_t, typename tag_t, typename ops_category>
+template<typename underlying_t, typename tag_t, typename ops_category_t>
 struct named_type_pod
 {
-    using self = named_type_pod<underlying_t, tag_t, ops_category>;
+    using self = named_type_pod<underlying_t, tag_t, ops_category_t>;
     using underlying_type = underlying_t;
-    using ops_categories = type_list<ops_category>;
+    using ops_category = ops_category_t;
+    using ops_categories = type_list<ops_category_t>;
 
     template<typename T>
     // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
     // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
-    static constexpr bool is_transparent_with = is_transparent_with<ops_category, T>;
+    static constexpr bool is_transparent_with = is_transparent_with<ops_category_t, T>;
 
     static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
 
@@ -110,7 +111,6 @@ struct named_type_pod
         return std::tuple{&self::value};
     }
 };
-
 
 // template<typename underlying_t, typename tag_t, typename ops_list_t, typename ENABLER = void>
 // struct named_type_impl;
