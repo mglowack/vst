@@ -30,6 +30,16 @@ struct named_type_traits
     static constexpr bool is_transparent_with_v = is_transparent_with_t<T>::value;
 };
 
+template<typename T>
+struct transparent_type_traits
+{
+    template<typename op_category_t>
+    struct is_transparent_with_t : std::bool_constant<is_transparent_with<op_category_t, T>> {};
+    
+    template<typename op_category_t>
+    static constexpr bool is_transparent_with_v = is_transparent_with_t<op_category_t>::value;
+};
+
 static_assert( is_transparent_with<transparent_ops_with<int>, int>);
 static_assert(!is_transparent_with<transparent_ops_with<int>, float>);
 static_assert(!is_transparent_with<transparent_ops, int>);
@@ -41,6 +51,12 @@ static_assert(!named_type_traits<transparent_ops_with<int>>::is_transparent_with
 static_assert(!named_type_traits<transparent_ops>::is_transparent_with_v<int>);
 static_assert(!named_type_traits<default_ops>::is_transparent_with_v<int>);
 static_assert(!named_type_traits<strict_ops>::is_transparent_with_v<int>);
+
+static_assert( transparent_type_traits<int>::is_transparent_with_v<transparent_ops_with<int>>);
+static_assert(!transparent_type_traits<float>::is_transparent_with_v<transparent_ops_with<int>>);
+static_assert(!transparent_type_traits<int>::is_transparent_with_v<transparent_ops>);
+static_assert(!transparent_type_traits<int>::is_transparent_with_v<default_ops>);
+static_assert(!transparent_type_traits<int>::is_transparent_with_v<strict_ops>);
 
 template<typename T>
 struct is_ops_category : type_list_contains<type_list<default_ops, strict_ops, transparent_ops>, T> {};
@@ -66,7 +82,7 @@ struct named_type_pod
     using ops_categories = type_list<ops_category>;
 
     template<typename T>
-    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, is_transparent_with<T>>;
+    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, named_type_funcs<is_transparent_with<T>>;
     static constexpr bool is_transparent_with = is_transparent_with<ops_category, T>;
 
     static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
