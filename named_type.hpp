@@ -144,40 +144,10 @@ static_assert(std::is_same_v<ops_category_t<int, strict_ops, vst::op::ordered, v
 static_assert(std::is_same_v<ops_category_t<int, transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops_with<int>>);
 
 template<typename... ops>
-// struct without_ops_category : type_list_filter<type_list<ops...>, is_ops_category> {};
-struct without_ops_category
-{
-    using type = type_list<ops...>; // covers empty
-};
-
-template<typename category, typename... ops>
-struct without_ops_category<category, ops...>
-{
-    using type = std::conditional_t<is_ops_category_v<category>, type_list<ops...>, type_list<category, ops...>>;
-};
+struct without_ops_category : type_list_filter<type_list<ops...>, trait_op<is_ops_category>::negate> {};
 
 template<typename... ops>
 using without_ops_category_t = typename without_ops_category<ops...>::type;
-
-static_assert(std::is_same_v<without_ops_category_t<>, type_list<>>);
-static_assert(std::is_same_v<without_ops_category_t<strict_ops>, type_list<>>);
-static_assert(std::is_same_v<without_ops_category_t<transparent_ops>, type_list<>>);
-static_assert(std::is_same_v<without_ops_category_t<strict_ops, vst::op::ordered, vst::op::addable>, type_list<vst::op::ordered, vst::op::addable>>);
-static_assert(std::is_same_v<without_ops_category_t<transparent_ops, vst::op::ordered, vst::op::addable>, type_list<vst::op::ordered, vst::op::addable>>);
-
-static_assert(std::is_same_v<
-    type_list_filter_t<
-        type_list<transparent_ops, vst::op::ordered, vst::op::addable>, 
-        trait_op<is_ops_category>::negate
-    >,
-    type_list<vst::op::ordered, vst::op::addable>>);
-
-static_assert(std::is_same_v<
-    type_list_filter_t<
-        type_list<transparent_ops, vst::op::ordered, vst::op::addable>, 
-        is_ops_category
-    >,
-    type_list<transparent_ops>>);
 
 template<typename underlying_t, typename tag_t, typename... ops>
 // using named_type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
