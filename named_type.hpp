@@ -181,6 +181,26 @@ struct get_op_categories;
 template<typename underlying_t, typename list_t>
 using get_op_categories_t = typename get_op_categories<underlying_t, list_t>::type;
 
+// template<typename underlying_t, typename... args_t>
+// struct get_op_categories<underlying, type_list<args_t>, std::enable_if_t<>>
+// {
+//     template<typename T>
+//     using is_general = std::disjunction<std::is_same_v<T, strict_ops>, std::is_same_v<T, use_default>>;
+//     static_assert(type_list_any_v<type_list<args_t...>, is_general> && type_list_len<type_list<args_t...>::value == 1, )
+// }
+
+template<typename T>
+struct transform_op_category
+{
+    using type = T;
+};
+
+template<>
+struct transform_op_category<default_ops>
+{
+    using type = strict_ops;
+};
+
 // ################
 // # ops_category #
 // ################
@@ -208,10 +228,10 @@ struct ops_category<underlying_t, category, ops...>
         strict_ops>;
 };
 
-static_assert(std::is_same_v<ops_category_t<int>, strict_ops>);
-static_assert(std::is_same_v<ops_category_t<int, strict_ops>, strict_ops>);
-static_assert(std::is_same_v<ops_category_t<int, transparent_ops>, transparent_ops_with<int>>);
-static_assert(std::is_same_v<ops_category_t<int, strict_ops, vst::op::ordered, vst::op::addable>, strict_ops>);
+static_assert(std::is_same_v<ops_category_t<int>,                                                      strict_ops>);
+static_assert(std::is_same_v<ops_category_t<int, strict_ops>,                                          strict_ops>);
+static_assert(std::is_same_v<ops_category_t<int, transparent_ops>,                                     transparent_ops_with<int>>);
+static_assert(std::is_same_v<ops_category_t<int, strict_ops, vst::op::ordered, vst::op::addable>,      strict_ops>);
 static_assert(std::is_same_v<ops_category_t<int, transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops_with<int>>);
 
 // ########################
