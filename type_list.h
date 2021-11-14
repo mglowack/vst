@@ -206,7 +206,7 @@ static_assert(
 // #################
 
 template<typename list_t, template<typename> typename pred_t>
-struct type_list_any;
+struct type_list_any; // TODO MG: simplify
 
 template<typename list_t, template<typename> typename pred_t>
 constexpr bool type_list_any_v = type_list_any<list_t, pred_t>::value;

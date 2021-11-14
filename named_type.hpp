@@ -24,7 +24,10 @@ template<typename op_category_t>
 struct named_type_traits
 {
     template<typename T>
-    static constexpr bool is_transparent_with = is_transparent_with<op_category_t, T>;
+    struct is_transparent_with_t : std::bool_constant<is_transparent_with<op_category_t, T>> {};
+    
+    template<typename T>
+    static constexpr bool is_transparent_with_v = is_transparent_with_t<T>::value;
 };
 
 static_assert( is_transparent_with<transparent_ops_with<int>, int>);
@@ -32,6 +35,12 @@ static_assert(!is_transparent_with<transparent_ops_with<int>, float>);
 static_assert(!is_transparent_with<transparent_ops, int>);
 static_assert(!is_transparent_with<default_ops, int>);
 static_assert(!is_transparent_with<strict_ops, int>);
+
+static_assert( named_type_traits<transparent_ops_with<int>>::is_transparent_with_v<int>);
+static_assert(!named_type_traits<transparent_ops_with<int>>::is_transparent_with_v<float>);
+static_assert(!named_type_traits<transparent_ops>::is_transparent_with_v<int>);
+static_assert(!named_type_traits<default_ops>::is_transparent_with_v<int>);
+static_assert(!named_type_traits<strict_ops>::is_transparent_with_v<int>);
 
 template<typename T>
 struct is_ops_category : type_list_contains<type_list<default_ops, strict_ops, transparent_ops>, T> {};
