@@ -226,7 +226,7 @@ static_assert( type_list_any_v<type_list<float, int, float, int>, is_int>);
 // #################
 
 template<typename list_t, template<typename> typename pred_t>
-struct type_list_all; // TODO MG: simplify
+struct type_list_all;
 
 template<template<typename> typename pred_t, typename... Ts>
 struct type_list_all<type_list<Ts...>, pred_t> : std::conjunction<pred_t<Ts>...> {};
@@ -241,5 +241,24 @@ static_assert( type_list_all_v<type_list<int>, is_int>);
 static_assert(!type_list_all_v<type_list<float, double, int>, is_int>);
 static_assert( type_list_all_v<type_list<int, int>, is_int>);
 
+// #######################
+// # type_list_transform #
+// #######################
+
+template<typename list_t, template<typename> typename op_t>
+struct type_list_transform;
+
+template<template<typename> typename op_t, typename... Ts>
+struct type_list_transform<type_list<Ts...>, op_t>
+{
+    using type = type_list<op_t<Ts>...>;
+};
+
+template<typename list_t, template<typename> typename op_t>
+using type_list_transform_t = typename type_list_transform<list_t, op_t>::type;
+
+static_assert(std::is_same_v<type_list_transform_t<type_list<>, std::add_const_t>, type_list<>>);
+static_assert(std::is_same_v<type_list_transform_t<type_list<int>, std::add_const_t>, type_list<const int>>);
+static_assert(std::is_same_v<type_list_transform_t<type_list<int, double>, std::add_const_t>, type_list<const int, const double>>);
 
 #endif
