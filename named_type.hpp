@@ -90,6 +90,7 @@ struct named_type_pod
 
     template<typename T>
     // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
+    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
     static constexpr bool is_transparent_with = is_transparent_with<ops_category, T>;
 
     static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
