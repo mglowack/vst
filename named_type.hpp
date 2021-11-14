@@ -171,6 +171,20 @@ struct named_type_pod
 //     using type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
 // };
 
+// #####################
+// # get_op_categories #
+// #####################
+
+template<typename underlying_t, typename list_t, typename ENABLER = void>
+struct get_op_categories;
+
+template<typename underlying_t, typename list_t>
+using get_op_categories_t = typename get_op_categories<underlying_t, list_t>::type;
+
+// ################
+// # ops_category #
+// ################
+
 template<typename underlying_t, typename... ops>
 struct ops_category;
 
@@ -200,11 +214,19 @@ static_assert(std::is_same_v<ops_category_t<int, transparent_ops>, transparent_o
 static_assert(std::is_same_v<ops_category_t<int, strict_ops, vst::op::ordered, vst::op::addable>, strict_ops>);
 static_assert(std::is_same_v<ops_category_t<int, transparent_ops, vst::op::ordered, vst::op::addable>, transparent_ops_with<int>>);
 
+// ########################
+// # without_ops_category #
+// ########################
+
 template<typename... ops>
 struct without_ops_category : type_list_filter<type_list<ops...>, trait_op<is_ops_category>::negate> {};
 
 template<typename... ops>
 using without_ops_category_t = typename without_ops_category<ops...>::type;
+
+// ##############
+// # named_type #
+// ##############
 
 template<typename underlying_t, typename tag_t, typename... ops>
 // using named_type = vst::type<named_type_pod<underlying_t, tag_t, strict_ops>, ops...>;
