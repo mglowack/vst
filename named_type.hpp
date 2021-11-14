@@ -58,6 +58,12 @@ static_assert(!transparent_type_traits<int>::is_transparent_with_v<transparent_o
 static_assert(!transparent_type_traits<int>::is_transparent_with_v<default_ops>);
 static_assert(!transparent_type_traits<int>::is_transparent_with_v<strict_ops>);
 
+static_assert( type_list_any_v<type_list<transparent_ops_with<int>>, transparent_type_traits<int>::is_transparent_with_t>);
+static_assert(!type_list_any_v<type_list<transparent_ops_with<int>>, transparent_type_traits<float>::is_transparent_with_t>);
+// static_assert(!type_list_any_v<type_list<transparent_ops>, transparent_type_traits<int>::is_transparent_with_v>);
+// static_assert(!type_list_any_v<type_list<default_ops>, transparent_type_traits<int>::is_transparent_with_v>);
+// static_assert(!type_list_any_v<type_list<strict_ops>, transparent_type_traits<int>::is_transparent_with_v>);
+
 template<typename T>
 struct is_ops_category : type_list_contains<type_list<default_ops, strict_ops, transparent_ops>, T> {};
 
@@ -82,7 +88,7 @@ struct named_type_pod
     using ops_categories = type_list<ops_category>;
 
     template<typename T>
-    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, named_type_funcs<is_transparent_with<T>>;
+    // static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::is_transparent_with_t>;
     static constexpr bool is_transparent_with = is_transparent_with<ops_category, T>;
 
     static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
