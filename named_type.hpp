@@ -14,10 +14,10 @@ struct transparent_ops;
 template<typename T>
 struct transparent_ops_with;
 
-template<typename T>
+template<typename op_category_t>
 struct transform_op_category
 {
-    using type = T;
+    using type = op_category_t;
 };
 
 template<>
@@ -26,13 +26,29 @@ struct transform_op_category<default_ops>
     using type = strict_ops;
 };
 
+template<typename op_category_t>
+using transform_op_category_t = typename transform_op_category<op_category_t>::type;
+
+template<typename T, typename op_category_t>
+struct transform_op_category_x : transform_op_category<op_category_t> {};
+    
 template<typename T>
-using transform_op_category_t = typename transform_op_category<T>::type;
+struct transform_op_category_x<T, transparent_ops> {
+    using type = transparent_ops_with<T>;
+};
+
+template<typename T, typename op_category_t>
+using transform_op_category_x_t = typename transform_op_category_x<T, op_category_t>::type;
 
 static_assert(std::is_same_v<transform_op_category_t<default_ops>, strict_ops>);
 static_assert(std::is_same_v<transform_op_category_t<strict_ops>, strict_ops>);
 static_assert(std::is_same_v<transform_op_category_t<transparent_ops>, transparent_ops>);
 static_assert(std::is_same_v<transform_op_category_t<transparent_ops_with<int>>, transparent_ops_with<int>>);
+
+static_assert(std::is_same_v<transform_op_category_x_t<int, default_ops>, strict_ops>);
+static_assert(std::is_same_v<transform_op_category_x_t<int, strict_ops>, strict_ops>);
+static_assert(std::is_same_v<transform_op_category_x_t<int, transparent_ops>, transparent_ops_with<int>>);
+static_assert(std::is_same_v<transform_op_category_x_t<int, transparent_ops_with<int>>, transparent_ops_with<int>>);
 
 template<typename op_category_t, typename T>
 constexpr bool is_transparent_with = false;
@@ -58,7 +74,18 @@ struct transparent_type_traits
     
     template<typename op_category_t>
     static constexpr bool is_transparent_with_v = is_transparent_with_t<op_category_t>::value;
+    
+    template<typename op_category_t>
+    struct transform : transform_op_category<op_category_t> {};
+    
+    template<typename op_category_t>
+    using transform_t = typename transform<op_category_t>::type;
 };
+
+// static_assert(std::is_same_v<transparent_type_traits<int>::transform_t<default_ops>, strict_ops>);
+// static_assert(std::is_same_v<transparent_type_traits<int>::transform_t<strict_ops>, strict_ops>);
+// static_assert(std::is_same_v<transparent_type_traits<int>::transform_t<transparent_ops>, transparent_ops_with<int>>);
+// static_assert(std::is_same_v<transparent_type_traits<int>::transform_t<transparent_ops_with<int>>, transparent_ops_with<int>>);
 
 // clang-format off
 static_assert( is_transparent_with<transparent_ops_with<int>, int>);
