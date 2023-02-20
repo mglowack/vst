@@ -11,4 +11,5 @@ if(GTEST_FOUND)
     target_include_directories(test PUBLIC
         ${GTEST_INCLUDE_DIRS}
     )
+    target_compile_options(test PUBLIC -Wall -Wextra -Werror -Wno-missing-braces)
 endif()
