@@ -273,27 +273,27 @@ TYPED_TEST(test_vst, ordered)
 //         VST{2, 2.f}));
 // }
 
-// TYPED_TEST(test_vst, hashable)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
+TYPED_TEST(test_vst, hashable)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
-//     static_assert(is_streamable<VST>);
-//     static_assert(is_comparable<VST>);
-//     static_assert(!is_ordered<VST>);
-//     static_assert(is_hashable<VST>);
-//     static_assert(!is_addable<VST>);
+    static_assert(is_streamable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(!is_ordered<VST>);
+    static_assert(is_hashable<VST>);
+    static_assert(!is_addable<VST>);
 
-//     auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
-//     auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
-//     auto bh = [](const VST& o) { return boost::hash<VST>{}(o); };
+    auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
+    auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
+    auto bh = [](const VST& o) { return boost::hash<VST>{}(o); };
 
-//     EXPECT_TRUE((h(VST{1, 2.f}) == sh(VST{1, 2.f})));
-//     EXPECT_TRUE((h(VST{1, 2.f}) == bh(VST{1, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) == sh(VST{1, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) == bh(VST{1, 2.f})));
 
-//     EXPECT_TRUE((h(VST{1, 2.f}) == h(VST{1, 2.f})));
-//     EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{2, 2.f})));
-//     EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{1, 1.f})));
-// }
+    EXPECT_TRUE((h(VST{1, 2.f}) == h(VST{1, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{2, 2.f})));
+    EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{1, 1.f})));
+}
 
 // TYPED_TEST(test_vst, unordered_set)
 // {
