@@ -1,5 +1,5 @@
 #include <vst.hpp>
-// #include "vst_test_utils.h"
+#include "vst_test_utils.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -14,140 +14,114 @@
 
 using namespace ::testing;
 
-// namespace {
+namespace {
 
-//     // struct flower {};
+// ##############
+// # simple_pod #
+// ##############
 
-//     // struct non_aggregate
-//     // {
-//     //     int x = 6;
+struct simple_pod {
+    int x;
+    float y;
+};
 
-//     //     constexpr explicit non_aggregate(float) {}
+constexpr auto get_simple_pod_fields() {
+    return std::tuple{
+        MEMBER(simple_pod, x), 
+        MEMBER(simple_pod, y)};
+}
 
-//     //     // constexpr static auto get_fields()
-//     //     // {
-//     //     //     return std::tuple{&non_aggregate::x};
-//     //     // }
+constexpr auto k_simple_pod_fields = get_simple_pod_fields();
+
+// ########################
+// # simple_just_ptrs_pod #
+// ########################
+
+struct simple_just_ptrs_pod {
+    int x;
+    float y;
+
+    static constexpr auto get_fields() {
+        return std::tuple{
+            &simple_just_ptrs_pod::x,
+            &simple_just_ptrs_pod::y};
+    }
+};
         
-//     //     // constexpr static auto get_fields()
-//     //     // {
-//     //     //     return flower{};
-//     //     // }
-//     // };
+// #############################
+// # simple_self_described_pod #
+// #############################
 
-//     // constexpr int random_func() { return 5; }
+struct simple_self_described_pod {
+    int x;
+    float y;
 
-//     // // using xxx = vst::type<non_aggregate, vst::with_fields::from<non_aggregate>>;
-//     // using xxx = vst::type<non_aggregate, vst::with_fields::from_func<random_func>>;
-
-//     // static_assert(xxx{2.f} == xxx{2.f});
-
-// // ##############
-// // # simple_pod #
-// // ##############
-
-// struct simple_pod {
-//     int x;
-//     float y;
-// };
-
-// constexpr auto get_simple_pod_fields() {
-//     return std::tuple{
-//         MEMBER(simple_pod, x), 
-//         MEMBER(simple_pod, y)};
-// }
-
-// constexpr auto k_simple_pod_fields = get_simple_pod_fields();
-
-// // ########################
-// // # simple_just_ptrs_pod #
-// // ########################
-
-// struct simple_just_ptrs_pod {
-//     int x;
-//     float y;
-
-//     static constexpr auto get_fields() {
-//         return std::tuple{
-//             &simple_just_ptrs_pod::x,
-//             &simple_just_ptrs_pod::y};
-//     }
-// };
+    static constexpr auto get_fields() {
+        return std::tuple{
+            MEMBER(simple_self_described_pod, x), 
+            MEMBER(simple_self_described_pod, y)};
+    }
+};
         
-// // #############################
-// // # simple_self_described_pod #
-// // #############################
+// #################
+// # composite_pod #
+// #################
 
-// struct simple_self_described_pod {
-//     int x;
-//     float y;
+// leveraging aggregate initialization to support all typed tests
+struct float_pod {
+    float f;
+};
 
-//     static constexpr auto get_fields() {
-//         return std::tuple{
-//             MEMBER(simple_self_described_pod, x), 
-//             MEMBER(simple_self_described_pod, y)};
-//     }
-// };
-        
-// // #################
-// // # composite_pod #
-// // #################
+struct composite_pod {
+    int x;
+    vst::type<float_pod, vst::op::ordered, vst::op::hashable, vst::op::addable> y; // to support all typed tests
+};
 
-// // leveraging aggregate initialization to support all typed tests
-// struct float_pod {
-//     float f;
-// };
+// ########
+// # vsts #
+// ########
 
-// struct composite_pod {
-//     int x;
-//     vst::type<float_pod, vst::op::ordered, vst::op::hashable, vst::op::addable> y; // to support all typed tests
-// };
+template<typename... ops>
+using simple                = vst::type<simple_pod, ops...>;
+template<typename... ops>
+using simple_just_ptrs      = vst::type<simple_just_ptrs_pod, ops...>;
+template<typename... ops>
+using simple_self_described = vst::type<simple_self_described_pod, ops...>;
+template<typename... ops>
+using simple_explicit_default = vst::type<simple_self_described_pod, vst::with_fields::use_default, ops...>;
+template<typename... ops>
+using custom_from_func      = vst::type<simple_pod, 
+                                        vst::with_fields::from_func<get_simple_pod_fields>,
+                                        ops...>;
+template<typename... ops>
+using custom_from_var       = vst::type<simple_pod,
+                                        vst::with_fields::from_var<&k_simple_pod_fields>,
+                                        ops...>;
+template<typename... ops>                            
+using composite = vst::type<composite_pod, ops...>;
 
-// // ########
-// // # vsts #
-// // ########
+// #########
+// # utils #
+// #########
 
-// template<typename... ops>
-// using simple                = vst::type<simple_pod, ops...>;
-// template<typename... ops>
-// using simple_just_ptrs      = vst::type<simple_just_ptrs_pod, ops...>;
-// template<typename... ops>
-// using simple_self_described = vst::type<simple_self_described_pod, ops...>;
-// template<typename... ops>
-// using simple_explicit_default = vst::type<simple_self_described_pod, vst::with_fields::use_default, ops...>;
-// template<typename... ops>
-// using custom_from_func      = vst::type<simple_pod, 
-//                                         vst::with_fields::from_func<get_simple_pod_fields>,
-//                                         ops...>;
-// template<typename... ops>
-// using custom_from_var       = vst::type<simple_pod,
-//                                         vst::with_fields::from_var<&k_simple_pod_fields>,
-//                                         ops...>;
-// template<typename... ops>                            
-// using composite = vst::type<composite_pod, ops...>;
+template<typename T, typename... extra_args_t>
+struct append_template_args;
 
-// // #########
-// // # utils #
-// // #########
+template<typename T, typename... args_t, typename... extra_args_t>
+struct append_template_args<vst::impl::type<T, type_list<args_t...>>, extra_args_t...>
+{
+    using type = vst::impl::type<T, type_list<args_t..., extra_args_t...>>;
+};
 
-// template<typename T, typename... extra_args_t>
-// struct append_template_args;
+template<typename T>
+std::string stringify(const T& o)
+{
+    std::ostringstream oss;
+    oss << o;
+    return oss.str();
+}
 
-// template<typename T, typename... args_t, typename... extra_args_t>
-// struct append_template_args<vst::impl::type<T, type_list<args_t...>>, extra_args_t...>
-// {
-//     using type = vst::impl::type<T, type_list<args_t..., extra_args_t...>>;
-// };
-
-// template<typename T>
-// std::string stringify(const T& o)
-// {
-//     std::ostringstream oss;
-//     oss << o;
-//     return oss.str();
-// }
-
-// } // close anon namespace
+} // close anon namespace
 
 TEST(test_vst, empty)
 {
@@ -159,70 +133,70 @@ TEST(test_vst, empty)
     EXPECT_TRUE((empty{} == empty{}));
 }
 
-// template <typename T>
-// class test_vst : public ::testing::Test {};
+template <typename T>
+class test_vst : public ::testing::Test {};
 
-// using all_types = ::testing::Types<
-//     simple<>,
-//     simple_just_ptrs<>,
-//     simple_self_described<>,
-//     simple_explicit_default<>,
-//     custom_from_func<>,
-//     custom_from_var<>,
-//     composite<>
-// >;
+using all_types = ::testing::Types<
+    simple<>,
+    simple_just_ptrs<>,
+    simple_self_described<>,
+    simple_explicit_default<>,
+    custom_from_func<>,
+    custom_from_var<>,
+    composite<>
+>;
 
-// TYPED_TEST_SUITE(test_vst, all_types);
+TYPED_TEST_SUITE(test_vst, all_types);
 
-// TYPED_TEST(test_vst, comparable)
-// {
-//     using VST = TypeParam;
+TYPED_TEST(test_vst, comparable)
+{
+    using VST = TypeParam;
 
-//     static_assert(is_streamable<VST>);
-//     static_assert(is_comparable<VST>);
-//     static_assert(!is_ordered<VST>);
-//     static_assert(!is_hashable<VST>);
-//     static_assert(!is_addable<VST>);
+    static_assert(is_streamable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(!is_ordered<VST>);
+    static_assert(!is_hashable<VST>);
+    static_assert(!is_addable<VST>);
 
-//     static_assert(VST{1, 2.f} == VST{1, 2.f});
-//     static_assert(VST{2, 2.f} == VST{2, 2.f});
-//     static_assert(VST{2, 2.f} != VST{3, 2.f});
-//     static_assert(VST{2, 2.f} != VST{2, 1.f});
+    static_assert(VST{1, 2.f} == VST{1, 2.f});
+    static_assert(VST{2, 2.f} == VST{2, 2.f});
+    static_assert(VST{2, 2.f} != VST{3, 2.f});
+    static_assert(VST{2, 2.f} != VST{2, 1.f});
 
-//     EXPECT_TRUE((VST{1, 2.f} == VST{1, 2.f}));
-//     EXPECT_TRUE((VST{2, 2.f} == VST{2, 2.f}));
-//     EXPECT_TRUE((VST{2, 2.f} != VST{3, 2.f}));
-//     EXPECT_TRUE((VST{2, 2.f} != VST{2, 1.f}));
-// }
+    EXPECT_TRUE((VST{1, 2.f} == VST{1, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} == VST{2, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} != VST{3, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} != VST{2, 1.f}));
+}
 
-// TYPED_TEST(test_vst, ordered)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
+TYPED_TEST(test_vst, ordered)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
-//     static_assert(is_streamable<VST>);
-//     static_assert(is_comparable<VST>);
-//     static_assert(is_ordered<VST>);
-//     static_assert(!is_hashable<VST>);
-//     static_assert(!is_addable<VST>);
+    static_assert(is_streamable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(is_ordered<VST>);
+    static_assert(!is_hashable<VST>);
+    static_assert(!is_addable<VST>);
 
-//     static_assert(VST{1, 2.f} <= VST{1, 2.f});
-//     static_assert(VST{1, 2.f} >= VST{1, 2.f});
-//     static_assert(VST{2, 2.f} < VST{3, 2.f});
-//     static_assert(VST{2, 2.f} < VST{2, 3.f});
-//     static_assert(VST{2, 2.f} < VST{3, 3.f});
-//     static_assert(VST{2, 2.f} > VST{2, 1.f});
-//     static_assert(VST{2, 2.f} > VST{1, 2.f});
-//     static_assert(VST{2, 2.f} > VST{1, 1.f});
+    static_assert(VST{1, 2.f} <= VST{1, 2.f});
+    static_assert(VST{1, 2.f} >= VST{1, 2.f});
+    static_assert(VST{2, 2.f} < VST{3, 2.f});
+    static_assert(VST{2, 2.f} < VST{2, 3.f});
+    static_assert(VST{2, 2.f} < VST{3, 3.f});
+    static_assert(VST{2, 2.f} > VST{2, 1.f});
+    static_assert(VST{2, 2.f} > VST{1, 2.f});
+    static_assert(VST{2, 2.f} > VST{1, 1.f});
     
-//     EXPECT_TRUE((VST{1, 2.f} <= VST{1, 2.f}));
-//     EXPECT_TRUE((VST{1, 2.f} >= VST{1, 2.f}));
-//     EXPECT_TRUE((VST{2, 2.f} < VST{3, 2.f}));
-//     EXPECT_TRUE((VST{2, 2.f} < VST{2, 3.f}));
-//     EXPECT_TRUE((VST{2, 2.f} < VST{3, 3.f}));
-//     EXPECT_TRUE((VST{2, 2.f} > VST{2, 1.f}));
-//     EXPECT_TRUE((VST{2, 2.f} > VST{1, 2.f}));
-//     EXPECT_TRUE((VST{2, 2.f} > VST{1, 1.f}));
-// }
+    EXPECT_TRUE((VST{1, 2.f} <= VST{1, 2.f}));
+    EXPECT_TRUE((VST{1, 2.f} >= VST{1, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} < VST{3, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} < VST{2, 3.f}));
+    EXPECT_TRUE((VST{2, 2.f} < VST{3, 3.f}));
+    EXPECT_TRUE((VST{2, 2.f} > VST{2, 1.f}));
+    EXPECT_TRUE((VST{2, 2.f} > VST{1, 2.f}));
+    EXPECT_TRUE((VST{2, 2.f} > VST{1, 1.f}));
+}
 
 // TYPED_TEST(test_vst, set)
 // {
