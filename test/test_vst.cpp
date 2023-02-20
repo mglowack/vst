@@ -149,15 +149,15 @@ using namespace ::testing;
 
 // } // close anon namespace
 
-// TEST(test_vst, empty)
-// {
-//     struct empty_pod {};
-//     using empty = vst::type<empty_pod, vst::with_fields::empty>;
+TEST(test_vst, empty)
+{
+    struct empty_pod {};
+    using empty = vst::type<empty_pod, vst::with_fields::empty>;
 
-//     static_assert(empty{} == empty{});
+    static_assert(empty{} == empty{});
 
-//     EXPECT_TRUE((empty{} == empty{}));
-// }
+    EXPECT_TRUE((empty{} == empty{}));
+}
 
 // template <typename T>
 // class test_vst : public ::testing::Test {};
