@@ -165,13 +165,13 @@ template <typename T>
 class test_vst : public ::testing::Test {};
 
 using all_types = ::testing::Types<
-    // simple<>,
-    // simple_just_ptrs<>,
-    simple_self_described<>
-    // simple_explicit_default<>,
-    // custom_from_func<>,
-    // custom_from_var<>,
-    // composite<>
+    simple<>,
+    simple_just_ptrs<>,
+    simple_self_described<>,
+    simple_explicit_default<>,
+    custom_from_func<>,
+    custom_from_var<>,
+    composite<>
 >;
 
 TYPED_TEST_SUITE(test_vst, all_types);
@@ -423,58 +423,58 @@ TYPED_TEST(test_vst, addable)
     EXPECT_TRUE((obj == VST{2, 1.f}));
 }
 
-// // #############
-// // # streaming #
-// // #############
+// #############
+// # streaming #
+// #############
 
-// TEST(test_vst, streaming)
-// {
-//     EXPECT_THAT(stringify(simple<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
-//     EXPECT_THAT(stringify(simple_just_ptrs<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
-//     EXPECT_THAT(stringify(simple_self_described<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
-//     EXPECT_THAT(stringify(custom_from_func<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
-//     EXPECT_THAT(stringify(custom_from_var<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
-//     EXPECT_THAT(stringify(composite<>{1, 1.f}), Eq("[ field1=1 field2=[ field1=1 ] ]"));
-// }
+TEST(test_vst, streaming)
+{
+    EXPECT_THAT(stringify(simple<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
+    EXPECT_THAT(stringify(simple_just_ptrs<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
+    EXPECT_THAT(stringify(simple_self_described<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(stringify(custom_from_func<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(stringify(custom_from_var<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(stringify(composite<>{1, 1.f}), Eq("[ field1=1 field2=[ field1=1 ] ]"));
+}
 
-// // ###################################
-// // # manual overloading of operators #
-// // ###################################
-// namespace {
+// ###################################
+// # manual overloading of operators #
+// ###################################
+namespace {
 
-// struct manual_override_pod {
-//     int x, y;
-// };
-// using manual_override = vst::type<manual_override_pod, vst::op::hashable>;
+struct manual_override_pod {
+    int x, y;
+};
+using manual_override = vst::type<manual_override_pod, vst::op::hashable>;
 
-// constexpr bool operator==(const manual_override&, const manual_override&) {
-//     return true;
-// }
+constexpr bool operator==(const manual_override&, const manual_override&) {
+    return true;
+}
 
-// } // close anon namespace
+} // close anon namespace
 
-// namespace vst 
-// {
+namespace vst 
+{
 
-// template <>
-// struct hash<manual_override>
-// {
-//     size_t operator()(const manual_override&) const noexcept
-//     {
-//         return 42;
-//     }
-// };
+template <>
+struct hash<manual_override>
+{
+    size_t operator()(const manual_override&) const noexcept
+    {
+        return 42;
+    }
+};
 
-// }
+}
 
-// TEST(test_vst, manual_override)
-// {
-//     EXPECT_TRUE((manual_override{1, 2} == manual_override{1, 1}));
-//     EXPECT_FALSE((manual_override{1, 2} != manual_override{1, 1}));
-//     EXPECT_TRUE((vst::hash<manual_override>{}(manual_override{1, 2}) == 42));
-//     EXPECT_TRUE((std::hash<manual_override>{}(manual_override{1, 2}) == 42));
-//     EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
-// }
+TEST(test_vst, manual_override)
+{
+    EXPECT_TRUE((manual_override{1, 2} == manual_override{1, 1}));
+    EXPECT_FALSE((manual_override{1, 2} != manual_override{1, 1}));
+    EXPECT_TRUE((vst::hash<manual_override>{}(manual_override{1, 2}) == 42));
+    EXPECT_TRUE((std::hash<manual_override>{}(manual_override{1, 2}) == 42));
+    EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
+}
 
 // // #######################
 // // # custom constructors #

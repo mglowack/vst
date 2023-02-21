@@ -167,7 +167,7 @@ struct indexed_tie_helper
     static constexpr auto tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
-            [](const auto&... elem) { 
+            [](auto... elem) { 
                 return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
             }, 
             fields);
