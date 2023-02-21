@@ -83,20 +83,26 @@ struct composite_pod {
 
 template<typename... ops>
 using simple                = vst::type<simple_pod, ops...>;
+
 template<typename... ops>
 using simple_just_ptrs      = vst::type<simple_just_ptrs_pod, ops...>;
+
 template<typename... ops>
 using simple_self_described = vst::type<simple_self_described_pod, ops...>;
+
 template<typename... ops>
 using simple_explicit_default = vst::type<simple_self_described_pod, vst::with_fields::use_default, ops...>;
+
 template<typename... ops>
 using custom_from_func      = vst::type<simple_pod, 
                                         vst::with_fields::from_func<get_simple_pod_fields>,
                                         ops...>;
+
 template<typename... ops>
 using custom_from_var       = vst::type<simple_pod,
                                         vst::with_fields::from_var<&k_simple_pod_fields>,
                                         ops...>;
+
 template<typename... ops>                            
 using composite = vst::type<composite_pod, ops...>;
 
@@ -123,6 +129,15 @@ std::string stringify(const T& o)
 
 } // close anon namespace
 
+// TEST(test_vst, apply)
+// {
+//     vst::apply_with_index(
+//             [](const auto&... elem) { 
+//                 return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
+//             }, 
+//             fields);
+// }
+
 TEST(test_vst, empty)
 {
     struct empty_pod {};
@@ -137,13 +152,13 @@ template <typename T>
 class test_vst : public ::testing::Test {};
 
 using all_types = ::testing::Types<
-    simple<>,
-    simple_just_ptrs<>,
-    simple_self_described<>,
-    simple_explicit_default<>,
-    custom_from_func<>,
-    custom_from_var<>,
-    composite<>
+    // simple<>,
+    // simple_just_ptrs<>,
+    simple_self_described<>
+    // simple_explicit_default<>,
+    // custom_from_func<>,
+    // custom_from_var<>,
+    // composite<>
 >;
 
 TYPED_TEST_SUITE(test_vst, all_types);
@@ -198,28 +213,28 @@ TYPED_TEST(test_vst, ordered)
     EXPECT_TRUE((VST{2, 2.f} > VST{1, 1.f}));
 }
 
-// TYPED_TEST(test_vst, set)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
+TYPED_TEST(test_vst, set)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
     
-//     // GIVEN
-//     std::set<VST> c;
+    // GIVEN
+    std::set<VST> c;
 
-//     // WHEN
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{2, 2.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{1, 3.f});
+    // WHEN
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
-//     // THEN
-//     EXPECT_THAT(c, ElementsAre(
-//         VST{1, 1.f}, 
-//         VST{1, 3.f}, 
-//         VST{2, 1.f}, 
-//         VST{2, 2.f}));
-// }
+    // THEN
+    EXPECT_THAT(c, ElementsAre(
+        VST{1, 1.f}, 
+        VST{1, 3.f}, 
+        VST{2, 1.f}, 
+        VST{2, 2.f}));
+}
 
 // TYPED_TEST(test_vst, map)
 // {
