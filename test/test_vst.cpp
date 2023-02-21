@@ -129,14 +129,27 @@ std::string stringify(const T& o)
 
 } // close anon namespace
 
-// TEST(test_vst, apply)
-// {
-//     vst::apply_with_index(
-//             [](const auto&... elem) { 
-//                 return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
-//             }, 
-//             fields);
-// }
+TEST(test_vst, apply)
+{
+    std::tuple<int, int> a{1, 2};
+    std::tuple<int, int> b{3, 4};
+
+    const auto res = vst::apply_with_index(
+            [b](auto... elem) { 
+                // (std::cout << elem.index << ...);
+                ((std::cout << elem.index << " = " << elem.value << '\n'), ...);
+                ((std::cout << elem.index << " = " << std::get<elem.index>(b) << '\n'), ...);
+                return std::tuple((elem.value + std::get<elem.index>(b))...);
+                // return std::tuple(std::get<elem.index>(b)...);
+            }, 
+            a);
+    EXPECT_THAT(res, (std::tuple<int, int>{4, 6}));
+
+    // int x = 7;
+    // const auto& e = vst::value_with_index<0, int>{x};
+    // std::cout << e.index << " = " << e.value << '\n';
+    // std::cout << e.index << " = " << std::get<e.index>(b) << '\n';
+}
 
 TEST(test_vst, empty)
 {
@@ -385,30 +398,30 @@ TYPED_TEST(test_vst, boost_hashed)
         VST{1, 3.f}));
 }
 
-// TYPED_TEST(test_vst, addable)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::addable>::type;
+TYPED_TEST(test_vst, addable)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::addable>::type;
 
-//     static_assert(is_streamable<VST>);
-//     static_assert(is_comparable<VST>);
-//     static_assert(!is_ordered<VST>);
-//     static_assert(!is_hashable<VST>);
-//     static_assert(is_addable<VST>);
+    static_assert(is_streamable<VST>);
+    static_assert(is_comparable<VST>);
+    static_assert(!is_ordered<VST>);
+    static_assert(!is_hashable<VST>);
+    static_assert(is_addable<VST>);
 
-//     static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
-//     static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});
+    static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
+    static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});
     
-//     EXPECT_TRUE((VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f}));
-//     EXPECT_TRUE((VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f}));
+    EXPECT_TRUE((VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f}));
+    EXPECT_TRUE((VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f}));
 
-//     VST obj{0, 0.f};
-//     obj += VST{1, 1.f};
-//     EXPECT_TRUE((obj == VST{1, 1.f}));
-//     obj += VST{1, 1.f};
-//     EXPECT_TRUE((obj == VST{2, 2.f}));
-//     obj -= VST{0, 1.f};
-//     EXPECT_TRUE((obj == VST{2, 1.f}));
-// }
+    VST obj{0, 0.f};
+    obj += VST{1, 1.f};
+    EXPECT_TRUE((obj == VST{1, 1.f}));
+    obj += VST{1, 1.f};
+    EXPECT_TRUE((obj == VST{2, 2.f}));
+    obj -= VST{0, 1.f};
+    EXPECT_TRUE((obj == VST{2, 1.f}));
+}
 
 // // #############
 // // # streaming #
