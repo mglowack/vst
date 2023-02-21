@@ -129,27 +129,27 @@ std::string stringify(const T& o)
 
 } // close anon namespace
 
-TEST(test_vst, apply)
-{
-    std::tuple<int, int> a{1, 2};
-    std::tuple<int, int> b{3, 4};
+// TEST(test_vst, apply)
+// {
+//     std::tuple<int, int> a{1, 2};
+//     std::tuple<int, int> b{3, 4};
 
-    const auto res = vst::apply_with_index(
-            [b](auto... elem) { 
-                // (std::cout << elem.index << ...);
-                ((std::cout << elem.index << " = " << elem.value << '\n'), ...);
-                ((std::cout << elem.index << " = " << std::get<elem.index>(b) << '\n'), ...);
-                return std::tuple((elem.value + std::get<elem.index>(b))...);
-                // return std::tuple(std::get<elem.index>(b)...);
-            }, 
-            a);
-    EXPECT_THAT(res, (std::tuple<int, int>{4, 6}));
+//     const auto res = vst::apply_with_index(
+//             [b](auto... elem) { 
+//                 // (std::cout << elem.index << ...);
+//                 ((std::cout << elem.index << " = " << elem.value << '\n'), ...);
+//                 ((std::cout << elem.index << " = " << std::get<elem.index>(b) << '\n'), ...);
+//                 return std::tuple((elem.value + std::get<elem.index>(b))...);
+//                 // return std::tuple(std::get<elem.index>(b)...);
+//             }, 
+//             a);
+//     EXPECT_THAT(res, (std::tuple<int, int>{4, 6}));
 
-    // int x = 7;
-    // const auto& e = vst::value_with_index<0, int>{x};
-    // std::cout << e.index << " = " << e.value << '\n';
-    // std::cout << e.index << " = " << std::get<e.index>(b) << '\n';
-}
+//     // int x = 7;
+//     // const auto& e = vst::value_with_index<0, int>{x};
+//     // std::cout << e.index << " = " << e.value << '\n';
+//     // std::cout << e.index << " = " << std::get<e.index>(b) << '\n';
+// }
 
 TEST(test_vst, empty)
 {
@@ -476,165 +476,165 @@ TEST(test_vst, manual_override)
     EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
 }
 
-// // #######################
-// // # custom constructors #
-// // #######################
+// #######################
+// # custom constructors #
+// #######################
 
-// TEST(test_vst, custom_ctor)
-// {
-//     struct custom_ctor_pod {
-//         int x, y;
+TEST(test_vst, custom_ctor)
+{
+    struct custom_ctor_pod {
+        int x, y;
 
-//         // NOTE: default ctor *not required*
-//         explicit custom_ctor_pod(int z) : x(z), y(2*z) {}
-//     };
-//     using custom_ctor = vst::type<custom_ctor_pod>;
+        // NOTE: default ctor *not required*
+        explicit custom_ctor_pod(int z) : x(z), y(2*z) {}
+    };
+    using custom_ctor = vst::type<custom_ctor_pod>;
 
-//     custom_ctor obj(5);
+    custom_ctor obj(5);
 
-//     EXPECT_THAT(obj.x, Eq(5));
-//     EXPECT_THAT(obj.y, Eq(10));
-// }
+    EXPECT_THAT(obj.x, Eq(5));
+    EXPECT_THAT(obj.y, Eq(10));
+}
 
-// // ########################################
-// // # custom operators on a per type basis #
-// // ########################################
+// ########################################
+// # custom operators on a per type basis #
+// ########################################
 
-// namespace 
-// {
-//     struct string_int {
-//         std::string number;
-//     };
+namespace 
+{
+    struct string_int {
+        std::string number;
+    };
     
-//     bool operator==(const string_int& lhs, const string_int& rhs)
-//     {
-//         return lhs.number == rhs.number;
-//     }
+    bool operator==(const string_int& lhs, const string_int& rhs)
+    {
+        return lhs.number == rhs.number;
+    }
     
-//     bool operator<(const string_int& lhs, const string_int& rhs)
-//     {
-//         return lhs.number < rhs.number;
-//     }
+    bool operator<(const string_int& lhs, const string_int& rhs)
+    {
+        return lhs.number < rhs.number;
+    }
 
-//     std::ostream& operator<<(std::ostream& os, const string_int& rhs)
-//     {
-//         return os << rhs.number;
-//     }
+    std::ostream& operator<<(std::ostream& os, const string_int& rhs)
+    {
+        return os << rhs.number;
+    }
 
-//     // NOTE: 'string_int' already has operators defined, 
-//     // but we want to have different semantics in our code base 
-//     // for that specific type e.g. we want to use the string 
-//     // as if it was an integer like so:
-//     bool operator<(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
-//     {
-//         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
-//     }
+    // NOTE: 'string_int' already has operators defined, 
+    // but we want to have different semantics in our code base 
+    // for that specific type e.g. we want to use the string 
+    // as if it was an integer like so:
+    bool operator<(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
+    {
+        return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
+    }
 
-//     // NOTE: this overrides the stream operator of 'string_int'
-//     //       but ONLY WHEN printed as part of ANY vst
-//     std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
-//     {
-//         return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
-//     }
+    // NOTE: this overrides the stream operator of 'string_int'
+    //       but ONLY WHEN printed as part of ANY vst
+    std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
+    {
+        return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
     
-//     struct specific_data_pod {
-//         string_int s;
-//     };
-//     static constexpr auto specific_data_pod_fields = std::tuple{MEMBER(specific_data_pod, s)};
-//     using specific_data = vst::type<specific_data_pod, vst::op::ordered>;
-//     using specific_data_named = vst::type<
-//         specific_data_pod, 
-//         vst::with_fields::from_var<&specific_data_pod_fields>,
-//         vst::op::ordered>;
+    struct specific_data_pod {
+        string_int s;
+    };
+    static constexpr auto specific_data_pod_fields = std::tuple{MEMBER(specific_data_pod, s)};
+    using specific_data = vst::type<specific_data_pod, vst::op::ordered>;
+    using specific_data_named = vst::type<
+        specific_data_pod, 
+        vst::with_fields::from_var<&specific_data_pod_fields>,
+        vst::op::ordered>;
 
-//     // NOTE: this overrides the stream operator of 'string_int' 
-//     //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
-//     std::ostream& operator<<(std::ostream& os,
-//                              const wrapped_value_of<specific_data, string_int>& rhs)
-//     {
-//         return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
-//     }
+    // NOTE: this overrides the stream operator of 'string_int' 
+    //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
+    std::ostream& operator<<(std::ostream& os,
+                             const wrapped_value_of<specific_data, string_int>& rhs)
+    {
+        return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
 
-//     bool operator<(const wrapped_value_of<specific_data, string_int>& lhs, 
-//                    const wrapped_value_of<specific_data, string_int>& rhs)
-//     {
-//         // fall back to the original operator
-//         return lhs.value < rhs.value;
-//     }
+    bool operator<(const wrapped_value_of<specific_data, string_int>& lhs, 
+                   const wrapped_value_of<specific_data, string_int>& rhs)
+    {
+        // fall back to the original operator
+        return lhs.value < rhs.value;
+    }
 
-//     std::ostream& operator<<(std::ostream& os,
-//                              const wrapped_value_of<specific_data_named, string_int>& rhs)
-//     {
-//         return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
-//     }
+    std::ostream& operator<<(std::ostream& os,
+                             const wrapped_value_of<specific_data_named, string_int>& rhs)
+    {
+        return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
 
-//     bool operator<(const wrapped_value_of<specific_data_named, string_int>& lhs, 
-//                    const wrapped_value_of<specific_data_named, string_int>& rhs)
-//     {
-//         // fall back to the original operator
-//         return lhs.value < rhs.value;
-//     }
-// }
+    bool operator<(const wrapped_value_of<specific_data_named, string_int>& lhs, 
+                   const wrapped_value_of<specific_data_named, string_int>& rhs)
+    {
+        // fall back to the original operator
+        return lhs.value < rhs.value;
+    }
+}
 
-// TEST(test_vst, custom_operators_for_string_int)
-// {
-//     struct pod {
-//         string_int s;
-//     };
-//     static constexpr auto pod_fields = std::tuple{MEMBER(pod, s)};
-//     using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
-//     using data = vst::type<pod, vst::op::ordered>;
+TEST(test_vst, custom_operators_for_string_int)
+{
+    struct pod {
+        string_int s;
+    };
+    static constexpr auto pod_fields = std::tuple{MEMBER(pod, s)};
+    using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
+    using data = vst::type<pod, vst::op::ordered>;
 
-//     ASSERT_THAT(stringify(string_int{"10"}), Eq("10"));
-//     EXPECT_THAT(stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
-//     EXPECT_THAT(stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
-//     EXPECT_THAT(stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
-//     EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
+    ASSERT_THAT(stringify(string_int{"10"}), Eq("10"));
+    EXPECT_THAT(stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
+    EXPECT_THAT(stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
+    EXPECT_THAT(stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
+    EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
 
-//     ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
-//     EXPECT_THAT((data{"10"}), Gt(data{"4"}));
-//     EXPECT_THAT((data_named{"10"}), Gt(data_named{"4"}));
-//     EXPECT_THAT((specific_data{"10"}), Lt(specific_data{"4"}));
-//     EXPECT_THAT((specific_data_named{"10"}), Lt(specific_data_named{"4"}));
-// }
+    ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
+    EXPECT_THAT((data{"10"}), Gt(data{"4"}));
+    EXPECT_THAT((data_named{"10"}), Gt(data_named{"4"}));
+    EXPECT_THAT((specific_data{"10"}), Lt(specific_data{"4"}));
+    EXPECT_THAT((specific_data_named{"10"}), Lt(specific_data_named{"4"}));
+}
 
-// TEST(test_vst, built_in_comparison_for_const_char)
-// {
-//     struct pod {
-//         int x;
-//         const char* s;
-//     };
-//     using data = vst::type<pod, vst::op::ordered>;
+TEST(test_vst, built_in_comparison_for_const_char)
+{
+    struct pod {
+        int x;
+        const char* s;
+    };
+    using data = vst::type<pod, vst::op::ordered>;
 
-//     std::string s1 = "aaa";
-//     std::string s2 = "bbb";
+    std::string s1 = "aaa";
+    std::string s2 = "bbb";
 
-//     // make sure the one with lower address has the lexicographically higher value
-//     if (s1.c_str() < s2.c_str())
-//     {
-//         // needs swapping
-//         s1 = "bbb";
-//         s2 = "aaa";
+    // make sure the one with lower address has the lexicographically higher value
+    if (s1.c_str() < s2.c_str())
+    {
+        // needs swapping
+        s1 = "bbb";
+        s2 = "aaa";
         
-//         // make sure pointer arithmetic would give the wrong answer lexicographically
-//         ASSERT_TRUE((s1.c_str() < s2.c_str() && s1 > s2));
-//         EXPECT_THAT((data{4, s1.c_str()}), Gt(data{4, s2.c_str()}));
-//     }
-//     else
-//     {
-//         // make sure pointer arithmetic would give the wrong answer lexicographically
-//         ASSERT_TRUE((s1.c_str() > s2.c_str() && s1 < s2));
-//         EXPECT_THAT((data{4, s1.c_str()}), Lt(data{4, s2.c_str()}));
-//     }
-// }
+        // make sure pointer arithmetic would give the wrong answer lexicographically
+        ASSERT_TRUE((s1.c_str() < s2.c_str() && s1 > s2));
+        EXPECT_THAT((data{4, s1.c_str()}), Gt(data{4, s2.c_str()}));
+    }
+    else
+    {
+        // make sure pointer arithmetic would give the wrong answer lexicographically
+        ASSERT_TRUE((s1.c_str() > s2.c_str() && s1 < s2));
+        EXPECT_THAT((data{4, s1.c_str()}), Lt(data{4, s2.c_str()}));
+    }
+}
 
-// // TODO MG:
-// //  * tests for composition with std containers, optionals, variants etc
-// //  * add static asserts to help with debugging compiler errors
-// //  * test ADL?
-// //  * tags to allow re-using PODs?
-// //
-// // TODO MG cleanup:
-// //  * move operators (plus_assign, minus_assign) to utils
-// //  * move var classes to right namespace
-// //  * use wrapped version on modyfying operators to allow customizing (maybe not possible)
+// TODO MG:
+//  * tests for composition with std containers, optionals, variants etc
+//  * add static asserts to help with debugging compiler errors
+//  * test ADL?
+//  * tags to allow re-using PODs?
+//
+// TODO MG cleanup:
+//  * move operators (plus_assign, minus_assign) to utils
+//  * move var classes to right namespace
+//  * use wrapped version on modyfying operators to allow customizing (maybe not possible)
