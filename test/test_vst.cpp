@@ -236,28 +236,28 @@ TYPED_TEST(test_vst, set)
         VST{2, 2.f}));
 }
 
-// TYPED_TEST(test_vst, map)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
+TYPED_TEST(test_vst, map)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
-//     // GIVEN
-//     std::map<VST, int> c;
+    // GIVEN
+    std::map<VST, int> c;
 
-//     // WHEN
-//     c.insert(std::make_pair(VST{1, 1.f}, 1));
-//     c.insert(std::make_pair(VST{1, 1.f}, 2));
-//     c.insert(std::make_pair(VST{2, 2.f}, 3));
-//     c.insert(std::make_pair(VST{2, 1.f}, 4));
-//     c.insert(std::make_pair(VST{2, 1.f}, 5));
-//     c.insert(std::make_pair(VST{1, 3.f}, 6));
+    // WHEN
+    c.insert(std::make_pair(VST{1, 1.f}, 1));
+    c.insert(std::make_pair(VST{1, 1.f}, 2));
+    c.insert(std::make_pair(VST{2, 2.f}, 3));
+    c.insert(std::make_pair(VST{2, 1.f}, 4));
+    c.insert(std::make_pair(VST{2, 1.f}, 5));
+    c.insert(std::make_pair(VST{1, 3.f}, 6));
     
-//     // THEN
-//     EXPECT_THAT(c, UnorderedElementsAre(
-//         Pair(VST{1, 1.f}, 1), 
-//         Pair(VST{1, 3.f}, 6),
-//         Pair(VST{2, 1.f}, 4), 
-//         Pair(VST{2, 2.f}, 3)));
-// }
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        Pair(VST{1, 1.f}, 1), 
+        Pair(VST{1, 3.f}, 6),
+        Pair(VST{2, 1.f}, 4), 
+        Pair(VST{2, 2.f}, 3)));
+}
 
 // TYPED_TEST(test_vst, boost_ordered)
 // {
