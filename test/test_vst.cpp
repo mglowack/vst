@@ -4,13 +4,13 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-// #include <boost/multi_index_container.hpp>
-// #include <boost/multi_index/indexed_by.hpp>
-// #include <boost/multi_index/hashed_index.hpp>
-// #include <boost/multi_index/ordered_index.hpp>
-// #include <boost/multi_index/member.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/indexed_by.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/member.hpp>
 
-// #include <sstream>
+#include <sstream>
 
 using namespace ::testing;
 
@@ -259,34 +259,34 @@ TYPED_TEST(test_vst, map)
         Pair(VST{2, 2.f}, 3)));
 }
 
-// TYPED_TEST(test_vst, boost_ordered)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
+TYPED_TEST(test_vst, boost_ordered)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
-//     // GIVEN
-//     namespace bmi = boost::multi_index;
+    // GIVEN
+    namespace bmi = boost::multi_index;
 
-//     using index_t = boost::multi_index_container<
-//         VST,
-//         bmi::indexed_by<bmi::ordered_unique<bmi::identity<VST>>>>;
+    using index_t = boost::multi_index_container<
+        VST,
+        bmi::indexed_by<bmi::ordered_unique<bmi::identity<VST>>>>;
 
-//     index_t c;
+    index_t c;
 
-//     // WHEN
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{2, 2.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{1, 3.f});
+    // WHEN
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
-//     // THEN
-//     EXPECT_THAT(c, ElementsAre(
-//         VST{1, 1.f}, 
-//         VST{1, 3.f}, 
-//         VST{2, 1.f}, 
-//         VST{2, 2.f}));
-// }
+    // THEN
+    EXPECT_THAT(c, ElementsAre(
+        VST{1, 1.f}, 
+        VST{1, 3.f}, 
+        VST{2, 1.f}, 
+        VST{2, 2.f}));
+}
 
 TYPED_TEST(test_vst, hashable)
 {
