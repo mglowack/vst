@@ -310,80 +310,80 @@ TYPED_TEST(test_vst, hashable)
     EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{1, 1.f})));
 }
 
-// TYPED_TEST(test_vst, unordered_set)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
+TYPED_TEST(test_vst, unordered_set)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
-//     // GIVEN
-//     std::unordered_set<VST> c;
+    // GIVEN
+    std::unordered_set<VST> c;
 
-//     // WHEN
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{2, 2.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{1, 3.f});
+    // WHEN
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
-//     // THEN
-//     EXPECT_THAT(c, UnorderedElementsAre(
-//         VST{1, 1.f}, 
-//         VST{2, 2.f}, 
-//         VST{2, 1.f}, 
-//         VST{1, 3.f}));
-// }
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        VST{1, 1.f}, 
+        VST{2, 2.f}, 
+        VST{2, 1.f}, 
+        VST{1, 3.f}));
+}
 
-// TYPED_TEST(test_vst, unordered_map)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
+TYPED_TEST(test_vst, unordered_map)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
     
-//     // GIVEN
-//     std::unordered_map<VST, int> c;
+    // GIVEN
+    std::unordered_map<VST, int> c;
 
-//     // WHEN
-//     c.insert(std::make_pair(VST{1, 1.f}, 1));
-//     c.insert(std::make_pair(VST{1, 1.f}, 2));
-//     c.insert(std::make_pair(VST{2, 2.f}, 3));
-//     c.insert(std::make_pair(VST{2, 1.f}, 4));
-//     c.insert(std::make_pair(VST{2, 1.f}, 5));
-//     c.insert(std::make_pair(VST{1, 3.f}, 6));
+    // WHEN
+    c.insert(std::make_pair(VST{1, 1.f}, 1));
+    c.insert(std::make_pair(VST{1, 1.f}, 2));
+    c.insert(std::make_pair(VST{2, 2.f}, 3));
+    c.insert(std::make_pair(VST{2, 1.f}, 4));
+    c.insert(std::make_pair(VST{2, 1.f}, 5));
+    c.insert(std::make_pair(VST{1, 3.f}, 6));
     
-//     // THEN
-//     EXPECT_THAT(c, UnorderedElementsAre(
-//         Pair(VST{1, 1.f}, 1), 
-//         Pair(VST{2, 2.f}, 3),
-//         Pair(VST{2, 1.f}, 4), 
-//         Pair(VST{1, 3.f}, 6)));
-// }
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        Pair(VST{1, 1.f}, 1), 
+        Pair(VST{2, 2.f}, 3),
+        Pair(VST{2, 1.f}, 4), 
+        Pair(VST{1, 3.f}, 6)));
+}
 
-// TYPED_TEST(test_vst, boost_hashed)
-// {
-//     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
+TYPED_TEST(test_vst, boost_hashed)
+{
+    using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
     
-//     // GIVEN
-//     namespace bmi = boost::multi_index;
+    // GIVEN
+    namespace bmi = boost::multi_index;
 
-//     using index_t = boost::multi_index_container<
-//         VST,
-//         bmi::indexed_by<bmi::hashed_unique<bmi::identity<VST>>>>;
+    using index_t = boost::multi_index_container<
+        VST,
+        bmi::indexed_by<bmi::hashed_unique<bmi::identity<VST>>>>;
 
-//     index_t c;
+    index_t c;
 
-//     // WHEN
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{1, 1.f});
-//     c.insert(VST{2, 2.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{2, 1.f});
-//     c.insert(VST{1, 3.f});
+    // WHEN
+    c.insert(VST{1, 1.f});
+    c.insert(VST{1, 1.f});
+    c.insert(VST{2, 2.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{2, 1.f});
+    c.insert(VST{1, 3.f});
     
-//     // THEN
-//     EXPECT_THAT(c, UnorderedElementsAre(
-//         VST{1, 1.f}, 
-//         VST{2, 2.f}, 
-//         VST{2, 1.f}, 
-//         VST{1, 3.f}));
-// }
+    // THEN
+    EXPECT_THAT(c, UnorderedElementsAre(
+        VST{1, 1.f}, 
+        VST{2, 2.f}, 
+        VST{2, 1.f}, 
+        VST{1, 3.f}));
+}
 
 // TYPED_TEST(test_vst, addable)
 // {
