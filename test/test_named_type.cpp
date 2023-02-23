@@ -438,51 +438,6 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
     EXPECT_THAT(c.find(5), Ne(std::end(c)));
 }
 
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
-// }
-
-// // TODO MG:
-// //  * configurable comparisons to underlying?
-// //  * ref-types
+// TODO MG:
+//  * configurable comparisons to underlying?
+//  * ref-types

@@ -131,24 +131,13 @@ std::string stringify(const T& o)
 
 TEST(test_vst, apply)
 {
-    std::tuple<int, int> a{1, 2};
-    std::tuple<int, int> b{3, 4};
+    std::tuple t{3, 4, 5};
 
     const auto res = vst::apply_with_index(
-            [b](auto... elem) { 
-                // (std::cout << elem.index << ...);
-                ((std::cout << elem.index << " = " << elem.value << '\n'), ...);
-                ((std::cout << elem.index << " = " << std::get<elem.index>(b) << '\n'), ...);
-                return std::tuple((elem.value + std::get<elem.index>(b))...);
-                // return std::tuple(std::get<elem.index>(b)...);
-            }, 
-            a);
-    EXPECT_THAT(res, (std::tuple<int, int>{4, 6}));
-
-    // int x = 7;
-    // const auto& e = vst::value_with_index<0, int>{x};
-    // std::cout << e.index << " = " << e.value << '\n';
-    // std::cout << e.index << " = " << std::get<e.index>(b) << '\n';
+            [](const auto... elem) { return (elem.index + ...) + (elem.value + ...); }, 
+            t);
+    
+    EXPECT_THAT(res, Eq(0+3+1+4+2+5));
 }
 
 TEST(test_vst, apply_with_index)
