@@ -77,7 +77,7 @@ template<typename F, typename Tuple, std::size_t... I>
 constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
 {
     return std::forward<F>(f)(
-        value_with_index<I, decltype(std::get<I>(tuple))>{std::get<I>(tuple)}...);
+        value_with_index<I, std::remove_reference_t<decltype(std::get<I>(tuple))>>{std::get<I>(tuple)}...);
 }
 
 template<typename F, typename Tuple>

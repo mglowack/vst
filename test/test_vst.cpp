@@ -152,12 +152,12 @@ TEST(test_vst, apply)
 }
 TEST(test_vst, apply_with_index)
 {
-    MockFunction<void(vst::value_with_index<0, const int&>, vst::value_with_index<1, const float&>)> mock;
+    MockFunction<void(vst::value_with_index<0, const int>, vst::value_with_index<1, const float>)> mock;
     const std::tuple<int, float> a{1, 2.f};
 
     EXPECT_CALL(mock, Call(
-        vst::value_with_index<0, const int&>{1}, 
-        vst::value_with_index<1, const float&>{2.f}));
+        vst::value_with_index<0, const int>{1}, 
+        vst::value_with_index<1, const float>{2.f}));
     
     vst::apply_with_index(mock.AsStdFunction(), a);
 }
