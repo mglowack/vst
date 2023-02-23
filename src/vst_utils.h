@@ -55,6 +55,24 @@ struct value_with_index
     T& value;
 };
 
+template <std::size_t I, typename T>
+constexpr bool operator==(const value_with_index<I, T>& lhs, const value_with_index<I, T>& rhs)
+{
+    return lhs.value == rhs.value;
+}
+
+template <std::size_t I, std::size_t J, typename T, typename U>
+constexpr bool operator==(const value_with_index<I, T>& lhs, const value_with_index<J, U>& rhs)
+{
+    return false;
+}
+
+template <std::size_t I, std::size_t J, typename T, typename U>
+constexpr bool operator!=(const value_with_index<I, T>& lhs, const value_with_index<J, U>& rhs)
+{
+    return !(lhs == rhs);
+}
+
 template<typename F, typename Tuple, std::size_t... I>
 constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
 {

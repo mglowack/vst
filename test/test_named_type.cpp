@@ -1,16 +1,16 @@
-// #include "named_type.hpp"
+// #include <named_type.hpp>
 // #include "vst_test_utils.h"
 
-// #include <boost/multi_index_container.hpp>
-// #include <boost/multi_index/indexed_by.hpp>
-// #include <boost/multi_index/hashed_index.hpp>
-// #include <boost/multi_index/ordered_index.hpp>
-// #include <boost/multi_index/member.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/indexed_by.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/member.hpp>
 
-// #include <gtest/gtest.h>
-// #include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-// using namespace ::testing;
+using namespace ::testing;
 
 // namespace 
 // {

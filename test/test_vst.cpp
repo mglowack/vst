@@ -129,27 +129,38 @@ std::string stringify(const T& o)
 
 } // close anon namespace
 
-// TEST(test_vst, apply)
-// {
-//     std::tuple<int, int> a{1, 2};
-//     std::tuple<int, int> b{3, 4};
+TEST(test_vst, apply)
+{
+    std::tuple<int, int> a{1, 2};
+    std::tuple<int, int> b{3, 4};
 
-//     const auto res = vst::apply_with_index(
-//             [b](auto... elem) { 
-//                 // (std::cout << elem.index << ...);
-//                 ((std::cout << elem.index << " = " << elem.value << '\n'), ...);
-//                 ((std::cout << elem.index << " = " << std::get<elem.index>(b) << '\n'), ...);
-//                 return std::tuple((elem.value + std::get<elem.index>(b))...);
-//                 // return std::tuple(std::get<elem.index>(b)...);
-//             }, 
-//             a);
-//     EXPECT_THAT(res, (std::tuple<int, int>{4, 6}));
+    const auto res = vst::apply_with_index(
+            [b](auto... elem) { 
+                // (std::cout << elem.index << ...);
+                ((std::cout << elem.index << " = " << elem.value << '\n'), ...);
+                ((std::cout << elem.index << " = " << std::get<elem.index>(b) << '\n'), ...);
+                return std::tuple((elem.value + std::get<elem.index>(b))...);
+                // return std::tuple(std::get<elem.index>(b)...);
+            }, 
+            a);
+    EXPECT_THAT(res, (std::tuple<int, int>{4, 6}));
 
-//     // int x = 7;
-//     // const auto& e = vst::value_with_index<0, int>{x};
-//     // std::cout << e.index << " = " << e.value << '\n';
-//     // std::cout << e.index << " = " << std::get<e.index>(b) << '\n';
-// }
+    // int x = 7;
+    // const auto& e = vst::value_with_index<0, int>{x};
+    // std::cout << e.index << " = " << e.value << '\n';
+    // std::cout << e.index << " = " << std::get<e.index>(b) << '\n';
+}
+TEST(test_vst, apply_with_index)
+{
+    MockFunction<void(vst::value_with_index<0, const int&>, vst::value_with_index<1, const float&>)> mock;
+    const std::tuple<int, float> a{1, 2.f};
+
+    EXPECT_CALL(mock, Call(
+        vst::value_with_index<0, const int&>{1}, 
+        vst::value_with_index<1, const float&>{2.f}));
+    
+    vst::apply_with_index(mock.AsStdFunction(), a);
+}
 
 TEST(test_vst, empty)
 {

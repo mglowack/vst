@@ -167,7 +167,7 @@ struct indexed_tie_helper
     static constexpr auto tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
-            [](auto... elem) { 
+            [](const auto... elem) { 
                 return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
             }, 
             fields);
@@ -446,7 +446,7 @@ struct minus_assign
 template <typename op_t, typename vst_t>
 constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
 {
-    apply_with_index([rhs_tie = helper::tie(rhs)](auto... a) {
+    apply_with_index([rhs_tie = helper::tie(rhs)](const auto... a) {
         (op_t{}(
             a.value,
             std::get<a.index>(rhs_tie)), ...);
@@ -458,7 +458,7 @@ template <typename op_t, typename vst_t>
 constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
 {
     return apply_with_index(
-        [rhs_tie = helper::tie(rhs)](auto... a) {
+        [rhs_tie = helper::tie(rhs)](const auto... a) {
         return vst_t{op_t{}(
             a.value,
             std::get<a.index>(rhs_tie))...};
