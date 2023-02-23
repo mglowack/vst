@@ -241,8 +241,11 @@ static_assert( type_list_all_v<type_list<>, is_int>);
 static_assert(!type_list_all_v<type_list<float>, is_int>);
 static_assert(!type_list_all_v<type_list<float, double>, is_int>);
 static_assert( type_list_all_v<type_list<int>, is_int>);
+static_assert( type_list_all_v<type_list<int, int, int>, is_int>);
 static_assert(!type_list_all_v<type_list<float, double, int>, is_int>);
 static_assert( type_list_all_v<type_list<int, int>, is_int>);
+static_assert(!type_list_all_v<type_list<float, int, float, int>, trait_op<is_int>::negate>);
+static_assert( type_list_all_v<type_list<float, float, double>, trait_op<is_int>::negate>);
 
 // #######################
 // # type_list_transform #
