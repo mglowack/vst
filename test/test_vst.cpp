@@ -151,8 +151,6 @@ TEST(test_vst, apply_with_index)
         vst::value_with_index<1, const float>{2.f}));
     
     vst::apply_with_index(mock.AsStdFunction(), a);
-    // TODO MG: make a test of it
-    // vst::apply_with_index(mock.AsStdFunction(), std::tuple<int, float>{1, 2.f});
 }
 
 TEST(test_vst, apply_with_index_non_const)
@@ -164,9 +162,10 @@ TEST(test_vst, apply_with_index_non_const)
     float f = 2.f;
     EXPECT_CALL(mock, Call(
         vst::value_with_index<0, int>{i}, 
-        vst::value_with_index<1, float>{f}));
+        vst::value_with_index<1, float>{f})).Times(2);
     
     vst::apply_with_index(mock.AsStdFunction(), a);
+    vst::apply_with_index(mock.AsStdFunction(), std::tuple<int, float>{1, 2.f});
 }
 
 TEST(test_vst, empty)
