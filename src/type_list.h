@@ -217,9 +217,12 @@ constexpr bool type_list_any_v = type_list_any<list_t, pred_t>::value;
 static_assert(!type_list_any_v<type_list<>, is_int>);
 static_assert(!type_list_any_v<type_list<float>, is_int>);
 static_assert(!type_list_any_v<type_list<float, double>, is_int>);
+static_assert( type_list_any_v<type_list<float, double>, trait_op<is_int>::negate>);
+static_assert(!type_list_any_v<type_list<int, int, int>, trait_op<is_int>::negate>);
 static_assert( type_list_any_v<type_list<int>, is_int>);
 static_assert( type_list_any_v<type_list<float, double, int>, is_int>);
 static_assert( type_list_any_v<type_list<float, int, float, int>, is_int>);
+static_assert( type_list_any_v<type_list<float, int, float, int>, trait_op<is_int>::negate>);
 
 // #################
 // # type_list_all #
