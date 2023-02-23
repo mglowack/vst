@@ -104,8 +104,11 @@ std::ostream& operator<<(std::ostream& os, const value_with_index<I, T>& rhs)
 template<typename F, std::size_t... I, typename... args_t>
 constexpr decltype(auto) apply_with_index_impl(F&& f, std::index_sequence<I...>, args_t&&... a)
 {
-    return std::forward<F>(f)(
-        value_with_index<I, std::remove_reference_t<args_t>>{std::forward<args_t>(a)}...);
+    return std::forward<F>(f)(value_with_index<I, std::remove_reference_t<args_t>>{a}...);
+
+    // does it change anything? has trouble accepting temporaries
+    // return std::forward<F>(f)(
+    //     value_with_index<I, std::remove_reference_t<args_t>>{std::forward<args_t>(a)}...);
 }
 
 template<typename F, typename Tuple>

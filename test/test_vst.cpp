@@ -131,13 +131,14 @@ std::string stringify(const T& o)
 
 TEST(test_vst, apply)
 {
-    std::tuple t{3, 4, 5};
-
-    const auto res = vst::apply_with_index(
-            [](const auto... elem) { return (elem.index + ...) + (elem.value + ...); }, 
-            t);
+    auto add_indices_and_values = [](const auto... elem) { return (elem.index + ...) + (elem.value + ...); };
     
-    EXPECT_THAT(res, Eq(0+3+1+4+2+5));
+    const std::tuple t_const{3, 4, 5};
+    std::tuple t_non_const{3, 4, 5};
+
+    EXPECT_THAT(vst::apply_with_index(add_indices_and_values, std::tuple{3, 4, 5}), Eq(0+3+1+4+2+5));
+    EXPECT_THAT(vst::apply_with_index(add_indices_and_values, t_const),             Eq(0+3+1+4+2+5));
+    EXPECT_THAT(vst::apply_with_index(add_indices_and_values, t_non_const),         Eq(0+3+1+4+2+5));
 }
 
 TEST(test_vst, apply_with_index)
@@ -150,6 +151,8 @@ TEST(test_vst, apply_with_index)
         vst::value_with_index<1, const float>{2.f}));
     
     vst::apply_with_index(mock.AsStdFunction(), a);
+    // TODO MG: make a test of it
+    // vst::apply_with_index(mock.AsStdFunction(), std::tuple<int, float>{1, 2.f});
 }
 
 TEST(test_vst, apply_with_index_non_const)
