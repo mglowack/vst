@@ -68,16 +68,10 @@ static_assert(std::is_same_v<type_list_concat_t<type_list<float, int>, type_list
 // ####################
 
 template<typename list_t, template<typename> typename pred_t>
-struct type_list_filter;
+struct type_list_filter : std::type_identity<type_list<>> {};
 
 template<typename list_t, template<typename> typename pred_t>
 using type_list_filter_t = typename type_list_filter<list_t, pred_t>::type;
-
-template<template<typename> typename pred_t>
-struct type_list_filter<type_list<>, pred_t>
-{
-    using type = type_list<>;
-};
 
 template<template<typename> typename pred_t, typename first_t, typename... the_rest_t>
 struct type_list_filter<type_list<first_t, the_rest_t...>, pred_t>
