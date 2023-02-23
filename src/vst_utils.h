@@ -4,6 +4,7 @@
 #include "vst_defs.h"
 
 #include <type_traits>
+#include <ostream>
 
 namespace vst {
 
@@ -73,6 +74,14 @@ constexpr bool operator!=(const value_with_index<I, T>& lhs, const value_with_in
     return !(lhs == rhs);
 }
 
+
+template <std::size_t I, typename T>
+std::ostream& operator<<(std::ostream& os, const value_with_index<I, T>& rhs)
+{
+    return os << "[ index = " << rhs.index << ", value=" << rhs.value << " ]";
+}
+
+
 // template<typename F, typename Tuple, std::size_t... I>
 // constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
 // {
@@ -90,20 +99,21 @@ constexpr bool operator!=(const value_with_index<I, T>& lhs, const value_with_in
 // }
 
 // TODO MG: figure out if better and why does not work in constexpr even though: https://godbolt.org/z/rfrs5bnjf
+// EDIT: seems to be working on clang 14 arm-64bit, probably didn't work on some different compiler
 
 template<typename F, std::size_t... I, typename... args_t>
 constexpr decltype(auto) apply_with_index_impl(F&& f, std::index_sequence<I...>, args_t&&... a)
 {
     return std::forward<F>(f)(
-        value_with_index<I, std::remove_reference_t<args_t>>{std::forward<decltype(a)>(a)}...);
+        value_with_index<I, std::remove_reference_t<args_t>>{std::forward<args_t>(a)}...);
 }
 
 template<typename F, typename Tuple>
 constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
 {
-    return std::apply([f = std::forward<F>(f)](auto&&... a) {
+    return std::apply([&f](auto&&... a) {
         return apply_with_index_impl(
-            std::move(f), 
+            std::forward<F>(f), 
             std::make_index_sequence<sizeof...(a)>{},
             std::forward<decltype(a)>(a)...);
     }, std::forward<Tuple>(tuple));
