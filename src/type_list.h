@@ -11,9 +11,9 @@ template<typename... args_t>
 struct type_list{};
 
 
-// #####################
-// # type_list_conains #
-// #####################
+// ######################
+// # type_list_contains #
+// ######################
 
 template<typename list_t, typename item_t>
 struct type_list_contains : std::false_type {};
@@ -32,6 +32,12 @@ struct type_list_contains<type_list<item_t, the_rest_t...>, item_t> : std::true_
 
 template<typename list_t, typename item_t>
 constexpr bool type_list_contains_v = type_list_contains<list_t, item_t>::value;
+
+static_assert(!type_list_contains_v<type_list<>, int>);
+static_assert(!type_list_contains_v<type_list<float, double>, int>);
+static_assert( type_list_contains_v<type_list<int>, int>);
+static_assert( type_list_contains_v<type_list<int, float>, int>);
+static_assert( type_list_contains_v<type_list<float, int>, int>);
 
 
 // ####################
