@@ -1,5 +1,5 @@
-// #include <named_type.hpp>
-// #include "vst_test_utils.h"
+#include <named_type.hpp>
+#include "vst_test_utils.h"
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/indexed_by.hpp>
@@ -12,98 +12,98 @@
 
 using namespace ::testing;
 
-// namespace 
-// {
-//     using price = named_type<
-//         int, 
-//         struct price_tag, 
-//         vst::op::ordered, 
-//         vst::op::hashable, 
-//         vst::op::addable>;
+namespace 
+{
+    using price = named_type<
+        int, 
+        struct price_tag, 
+        vst::op::ordered, 
+        vst::op::hashable, 
+        vst::op::addable>;
         
-//     using price_transparent = named_type<
-//         int, 
-//         struct price_transparent_tag, 
-//         transparent_ops,
-//         vst::op::ordered, 
-//         vst::op::hashable, 
-//         vst::op::addable>;
+    using price_transparent = named_type<
+        int, 
+        struct price_transparent_tag, 
+        transparent_ops,
+        vst::op::ordered, 
+        vst::op::hashable, 
+        vst::op::addable>;
 
-//     static_assert(price_transparent::is_transparent);
+    static_assert(price_transparent::is_transparent);
 
-//     static_assert( is_named_type<price>);
-//     static_assert(!is_named_type<int>);
+    static_assert( is_named_type<price>);
+    static_assert(!is_named_type<int>);
 
-//     // using price_relaxed = named_type<
-//     //     int, 
-//     //     struct price_tag, 
-//     //     type_list<implicitly_convertible_to<int>, transparently_>,
-//     //     vst::op::ordered, 
-//     //     vst::op::hashable, 
-//     //     vst::op::addable>;
-// }
+    // using price_relaxed = named_type<
+    //     int, 
+    //     struct price_tag, 
+    //     type_list<implicitly_convertible_to<int>, transparently_>,
+    //     vst::op::ordered, 
+    //     vst::op::hashable, 
+    //     vst::op::addable>;
+}
 
-// // clang-format off
-// static_assert(!named_type<int, struct default_test                          >::is_transparent);
-// static_assert(!named_type<int, struct explicit_default_test, default_ops    >::is_transparent);
-// static_assert(!named_type<int, struct strict_test,           strict_ops     >::is_transparent);
-// static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent);
-// static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<int>);
-// static_assert(!named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<float>);
+// clang-format off
+static_assert(!named_type<int, struct default_test                          >::is_transparent);
+static_assert(!named_type<int, struct explicit_default_test, default_ops    >::is_transparent);
+static_assert(!named_type<int, struct strict_test,           strict_ops     >::is_transparent);
+static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent);
+static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<int>);
+static_assert(!named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<float>);
 
-// static_assert( named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<int>);
-// static_assert(!named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<float>);
-// static_assert( named_type<int, struct transparent_test, transparent_ops_with<float>>::is_transparent_with<float>);
+static_assert( named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<int>);
+static_assert(!named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<float>);
+static_assert( named_type<int, struct transparent_test, transparent_ops_with<float>>::is_transparent_with<float>);
 
-// static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct default_test                          >::ops_categories>);
-// static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct explicit_default_test, default_ops    >::ops_categories>);
-// static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct strict_test,           strict_ops     >::ops_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct default_test                          >::ops_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct explicit_default_test, default_ops    >::ops_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct strict_test,           strict_ops     >::ops_categories>);
 
-// static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops>::ops_categories>);
-// static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops_with<int>>::ops_categories>);
-// static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type<int, struct transparent_test, transparent_ops_with<float>>::ops_categories>);
-// // clang-format on
+static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops>::ops_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops_with<int>>::ops_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type<int, struct transparent_test, transparent_ops_with<float>>::ops_categories>);
+// clang-format on
 
-// TEST(test_named_type, basic)
-// {
-//     static_assert(is_comparable<price>);
+TEST(test_named_type, basic)
+{
+    static_assert(is_comparable<price>);
 
-//     static_assert(price{4} == price{4});
-//     static_assert(price{4} != price{2});
+    static_assert(price{4} == price{4});
+    static_assert(price{4} != price{2});
 
-//     EXPECT_TRUE((price{4} == price{4}));
-//     EXPECT_TRUE((price{4} != price{2}));
+    EXPECT_TRUE((price{4} == price{4}));
+    EXPECT_TRUE((price{4} != price{2}));
 
-//     static_assert(is_ordered<price>);
+    static_assert(is_ordered<price>);
 
-//     static_assert(price{4} < price{6});
-//     static_assert(price{4} <= price{6});
-//     static_assert(price{4} > price{2});
-//     static_assert(price{4} >= price{2});
-//     static_assert(price{4} <= price{4});
-//     static_assert(price{4} >= price{4});
+    static_assert(price{4} < price{6});
+    static_assert(price{4} <= price{6});
+    static_assert(price{4} > price{2});
+    static_assert(price{4} >= price{2});
+    static_assert(price{4} <= price{4});
+    static_assert(price{4} >= price{4});
 
-//     EXPECT_TRUE((price{4} < price{6}));
-//     EXPECT_TRUE((price{4} <= price{6}));
-//     EXPECT_TRUE((price{4} > price{2}));
-//     EXPECT_TRUE((price{4} >= price{2}));
-//     EXPECT_TRUE((price{4} <= price{4}));
-//     EXPECT_TRUE((price{4} >= price{4}));
+    EXPECT_TRUE((price{4} < price{6}));
+    EXPECT_TRUE((price{4} <= price{6}));
+    EXPECT_TRUE((price{4} > price{2}));
+    EXPECT_TRUE((price{4} >= price{2}));
+    EXPECT_TRUE((price{4} <= price{4}));
+    EXPECT_TRUE((price{4} >= price{4}));
 
-//     static_assert(is_addable<price>);
+    static_assert(is_addable<price>);
 
-//     static_assert(price{4} + price{1} == price{5});
-//     static_assert(price{4} - price{1} == price{3});
+    static_assert(price{4} + price{1} == price{5});
+    static_assert(price{4} - price{1} == price{3});
 
-//     EXPECT_TRUE((price{4} + price{1} == price{5}));
-//     EXPECT_TRUE((price{4} - price{1} == price{3}));
+    EXPECT_TRUE((price{4} + price{1} == price{5}));
+    EXPECT_TRUE((price{4} - price{1} == price{3}));
 
-//     price p{4};
-//     p += price{7};
-//     EXPECT_TRUE((p == price{11}));
-//     p -= price{3};
-//     EXPECT_TRUE((p == price{8}));
-// }
+    price p{4};
+    p += price{7};
+    EXPECT_TRUE((p == price{11}));
+    p -= price{3};
+    EXPECT_TRUE((p == price{8}));
+}
 
 // TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_not_enabled)
 // {
