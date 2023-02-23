@@ -10,7 +10,6 @@
 template<typename... args_t>
 struct type_list{};
 
-
 // ######################
 // # type_list_contains #
 // ######################
@@ -38,7 +37,6 @@ static_assert(!type_list_contains_v<type_list<float, double>, int>);
 static_assert( type_list_contains_v<type_list<int>, int>);
 static_assert( type_list_contains_v<type_list<int, float>, int>);
 static_assert( type_list_contains_v<type_list<float, int>, int>);
-
 
 // ####################
 // # type_list_concat #
@@ -255,10 +253,7 @@ template<typename list_t, template<typename> typename op_t>
 struct type_list_transform;
 
 template<template<typename> typename op_t, typename... Ts>
-struct type_list_transform<type_list<Ts...>, op_t>
-{
-    using type = type_list<op_t<Ts>...>;
-};
+struct type_list_transform<type_list<Ts...>, op_t> : std::type_identity<type_list<op_t<Ts>...>> {};
 
 template<typename list_t, template<typename> typename op_t>
 using type_list_transform_t = typename type_list_transform<list_t, op_t>::type;
