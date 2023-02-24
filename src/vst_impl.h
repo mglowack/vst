@@ -206,6 +206,24 @@ private:
             fields);
     }
 
+    template<typename vst_t, typename T, typename... field_ptrs_t>
+    static constexpr auto named_tie(
+        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { 
+                return std::tuple(as_named_var<vst_t>(f.name, as_ref_to_value(obj, f))...); 
+            }, 
+            fields);
+    }
+
+    // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
+    template<typename vst_t, typename T, typename... field_ptrs_t>
+    static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
+    {
+        return indexed_tie_helper::tie<vst_t>(tie(obj, fields)); // fallback to indexing members
+    }
+
     template<typename T, typename field_ptr_t>
     static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
     {
@@ -216,24 +234,6 @@ private:
     static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
     {
         return obj.*f.field_ptr;
-    }
-
-    template<typename vst_t, typename T, typename... field_ptrs_t>
-    static constexpr auto named_tie(
-        T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
-    {
-        return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tuple(as_named_var<vst_t>(f.name, obj.*f.field_ptr)...); 
-            }, 
-            fields);
-    }
-
-    // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
-    template<typename vst_t, typename T, typename... field_ptrs_t>
-    static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
-    {
-        return indexed_tie_helper::tie<vst_t>(tie(obj, fields)); // fallback to indexing members
     }
 
     template<typename vst_t, typename T>
