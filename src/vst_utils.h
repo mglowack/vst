@@ -46,6 +46,12 @@ template<typename T, typename U>
 using propagate_const_t = typename propagate_const<T, U>::type;
 
 // ####################
+// # binary #
+// ####################
+
+
+
+// ####################
 // # apply_with_index #
 // ####################
 

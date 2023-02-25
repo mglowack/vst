@@ -1,8 +1,10 @@
 #ifndef VST_IMPL_H
 #define VST_IMPL_H
 
-#include "vst_defs.h"
-#include "vst_utils.h"
+#include <vst_defs.h>
+#include <vst_utils.h>
+#include <vst_wrapped_value.h>
+#include <vst_vars.h>
 #include "type_list.h"
 
 #include <string>
@@ -19,141 +21,6 @@
 
 struct non_matchable {};
 inline void show_type(non_matchable) {}
-
-// #################
-// # wrapped_value #
-// #################
-
-template<typename T>
-struct wrapped_value
-{
-    const T& value;
-
-    constexpr explicit wrapped_value(const T& value) 
-    : value(value) {}
-};
-
-template<typename P, typename T>
-struct wrapped_value_of : wrapped_value<T>
-{
-    using wrapped_value<T>::wrapped_value;
-};
-
-// defaults
-template<typename T>
-constexpr bool operator==(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
-{
-    return lhs.value == rhs.value;
-}
-
-template<typename T>
-constexpr bool operator<(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
-{
-    return lhs.value < rhs.value;
-}
-
-template<typename T>
-constexpr T operator+(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
-{
-    return lhs.value + rhs.value;
-}
-
-template <typename T>
-std::size_t hash_value(const wrapped_value<T>& v)
-{
-    using boost::hash_value;
-    return hash_value(v.value);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const wrapped_value<T>& rhs)
-{
-    return os << rhs.value;
-}
-
-// overrides - const char*
-inline
-bool operator==(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
-{
-    return strcmp(lhs.value, rhs.value) == 0;
-}
-
-inline
-bool operator<(const wrapped_value<const char*>& lhs, const wrapped_value<const char*>& rhs)
-{
-    return strcmp(lhs.value, rhs.value) < 0;
-}
-
-// #############
-// # named_var #
-// #############
-
-template<typename T>
-struct named_var
-{
-    const char* name;
-    const T& value;
-
-    constexpr explicit named_var(const char* name, const T& value) 
-    : name(name), value(value) {}
-};
-
-template<typename T>
-struct named_var<wrapped_value<T>>
-{
-    const char* name;
-    wrapped_value<T> value;
-
-    constexpr explicit named_var(const char* name, wrapped_value<T> value) 
-    : name(name), value(value) {}
-};
-
-template<typename P, typename T>
-struct named_var<wrapped_value_of<P, T>>
-{
-    const char* name;
-    wrapped_value_of<P, T> value;
-
-    constexpr explicit named_var(const char* name, wrapped_value_of<P, T> value) 
-    : name(name), value(value) {}
-};
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
-{
-    return os << rhs.name << "=" << rhs.value;
-}
-
-// ###############
-// # indexed_var #
-// ###############
-
-template<typename T, std::size_t I>
-struct indexed_var
-{
-    static constexpr std::size_t index = I;
-    const T& value;
-};
-
-template<typename T, std::size_t I>
-struct indexed_var<wrapped_value<T>, I>
-{
-    static constexpr std::size_t index = I;
-    wrapped_value<T> value;
-};
-
-template<typename P, typename T, std::size_t I>
-struct indexed_var<wrapped_value_of<P, T>, I>
-{
-    static constexpr std::size_t index = I;
-    wrapped_value_of<P, T> value;
-};
-
-template<typename T, std::size_t I>
-std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
-{
-    return os << "field" << rhs.index << "=" << rhs.value;
-}
 
 namespace vst::impl {
 

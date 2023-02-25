@@ -547,14 +547,14 @@ namespace
     // but we want to have different semantics in our code base 
     // for that specific type e.g. we want to use the string 
     // as if it was an integer like so:
-    bool operator<(const wrapped_value<string_int>& lhs, const wrapped_value<string_int>& rhs)
+    bool operator<(const vst::wrapped_value<string_int>& lhs, const vst::wrapped_value<string_int>& rhs)
     {
         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
     }
 
     // NOTE: this overrides the stream operator of 'string_int'
     //       but ONLY WHEN printed as part of ANY vst
-    std::ostream& operator<<(std::ostream& os, const wrapped_value<string_int>& rhs)
+    std::ostream& operator<<(std::ostream& os, const vst::wrapped_value<string_int>& rhs)
     {
         return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
@@ -572,26 +572,26 @@ namespace
     // NOTE: this overrides the stream operator of 'string_int' 
     //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
     std::ostream& operator<<(std::ostream& os,
-                             const wrapped_value_of<specific_data, string_int>& rhs)
+                             const vst::wrapped_value_of<specific_data, string_int>& rhs)
     {
         return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
 
-    bool operator<(const wrapped_value_of<specific_data, string_int>& lhs, 
-                   const wrapped_value_of<specific_data, string_int>& rhs)
+    bool operator<(const vst::wrapped_value_of<specific_data, string_int>& lhs, 
+                   const vst::wrapped_value_of<specific_data, string_int>& rhs)
     {
         // fall back to the original operator
         return lhs.value < rhs.value;
     }
 
     std::ostream& operator<<(std::ostream& os,
-                             const wrapped_value_of<specific_data_named, string_int>& rhs)
+                             const vst::wrapped_value_of<specific_data_named, string_int>& rhs)
     {
         return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
 
-    bool operator<(const wrapped_value_of<specific_data_named, string_int>& lhs, 
-                   const wrapped_value_of<specific_data_named, string_int>& rhs)
+    bool operator<(const vst::wrapped_value_of<specific_data_named, string_int>& lhs, 
+                   const vst::wrapped_value_of<specific_data_named, string_int>& rhs)
     {
         // fall back to the original operator
         return lhs.value < rhs.value;
