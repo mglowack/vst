@@ -6,6 +6,9 @@
 #include <type_traits>
 #include <ostream>
 
+struct non_matchable {};
+inline void show_type(non_matchable) {}
+
 namespace vst {
 
 // #################
