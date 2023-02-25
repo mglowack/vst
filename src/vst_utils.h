@@ -1,26 +1,12 @@
-#ifndef VST_UTILS_H
-#define VST_UTILS_H
+#pragma once
 
-#include "vst_defs.h"
+#include <vst_defs.h>
 
 #include <type_traits>
 #include <ostream>
 
 struct non_matchable {};
 inline void show_type(non_matchable) {}
-
-namespace vst {
-
-// #################
-// # is_fields_def #
-// #################
-
-template<typename T>  constexpr bool is_fields_def = false;
-template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = true;
-template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
-template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
-// template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = true;
-template<>            inline constexpr bool is_fields_def<with_fields::empty> = true;
 
 // #############
 // # aggregate #
@@ -30,7 +16,7 @@ template<typename T>
 struct aggregate : std::type_identity<T> {};
 
 template<typename T, typename... ops>
-struct aggregate<type<T, ops...>> : std::type_identity<T> {};
+struct aggregate<vst::type<T, ops...>> : std::type_identity<T> {};
 
 template<typename T>
 using aggregate_t = typename aggregate<T>::type;
@@ -47,12 +33,6 @@ struct propagate_const<const T, U> : std::type_identity<const U> {};
 
 template<typename T, typename U>
 using propagate_const_t = typename propagate_const<T, U>::type;
-
-// ####################
-// # binary #
-// ####################
-
-
 
 // ####################
 // # apply_with_index #
@@ -130,7 +110,3 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
             std::forward<decltype(a)>(a)...);
     }, std::forward<Tuple>(tuple));
 }
-
-} // namespace vst
-
-#endif
