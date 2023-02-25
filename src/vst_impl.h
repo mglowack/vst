@@ -4,8 +4,9 @@
 #include <vst_defs.h>
 #include <vst_utils.h>
 #include <vst_wrapped_value.h>
-#include <vst_vars.h>
-#include "type_list.h"
+#include <vst_named_var.h>
+#include <vst_indexed_var.h>
+#include <type_list.h>
 
 #include <string>
 #include <memory>
