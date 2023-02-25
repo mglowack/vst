@@ -1,9 +1,4 @@
-#ifndef VST_H
-#define VST_H
-
-// #include "type_list.h"
-// #include "vst_defs.h"/
-// #include "vst_impl.h"
+#pragma once
 
 #include <vst_defs.h>
 #include <vst_trait.h>
@@ -13,5 +8,3 @@
 #include <vst_operators_ordered.h>
 #include <vst_operators_addable.h>
 #include <vst_operators_hashable.h>
-
-#endif
