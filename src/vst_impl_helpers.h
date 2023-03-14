@@ -141,11 +141,11 @@ struct helper
     static constexpr auto wrapped_tie(T& obj)
     {
         using vst_t = std::decay_t<T>;
-        if constexpr (std::is_same_v<std::tuple<>, decltype(tie(obj))>)
-        {
-            return std::tuple{};
-        }
-        else
+        // if constexpr (std::is_same_v<std::tuple<>, decltype(tie(obj))>)
+        // {
+        //     return std::tuple{};
+        // }
+        // else
         {
             return std::apply(
                 [](auto&... f) { 
