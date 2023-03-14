@@ -22,9 +22,9 @@ struct indexed_tie_helper
     static constexpr auto tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
-            [](const auto... elem) { 
+            [](const auto... elem) {
                 return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
-            }, 
+            },
             fields);
     }
 
@@ -55,9 +55,9 @@ private:
     static constexpr auto tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
         return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tie(as_ref_to_value(obj, f)...); 
-            }, 
+            [&obj](const auto&... f) {
+                return std::tie(as_ref_to_value(obj, f)...);
+            },
             fields);
     }
 
@@ -66,9 +66,9 @@ private:
         T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
     {
         return std::apply(
-            [&obj](const auto&... f) { 
-                return std::tuple(as_named_var<vst_t>(f.name, as_ref_to_value(obj, f))...); 
-            }, 
+            [&obj](const auto&... f) {
+                return std::tuple(as_named_var<vst_t>(f.name, as_ref_to_value(obj, f))...);
+            },
             fields);
     }
 
@@ -112,7 +112,7 @@ struct aggregate_vst_helper
         return indexed_tie_helper::tie<std::decay_t<T>>(tie(obj));
     }
 
-private:    
+private:
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
@@ -120,7 +120,7 @@ private:
     }
 };
 
-struct helper 
+struct helper
 {
     template<typename T, typename op>
     static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
@@ -141,18 +141,11 @@ struct helper
     static constexpr auto wrapped_tie(T& obj)
     {
         using vst_t = std::decay_t<T>;
-        // if constexpr (std::is_same_v<std::tuple<>, decltype(tie(obj))>)
-        // {
-        //     return std::tuple{};
-        // }
-        // else
-        {
-            return std::apply(
-                [](auto&... f) { 
-                    return std::tuple(wrapped_value_of<vst_t, std::decay_t<decltype(f)>>{f}...); 
-                }, 
-                tie(obj));
-        }
+        return std::apply(
+            []<typename... field_t>(field_t&... f) {
+                return std::tuple(wrapped_value_of<vst_t, field_t>{f}...);
+            },
+            tie(obj));
     }
 };
 
