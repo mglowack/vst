@@ -31,7 +31,7 @@ using transform_op_category_t = typename transform_op_category<op_category_t>::t
 
 template<typename T, typename op_category_t>
 struct transform_op_category_x : transform_op_category<op_category_t> {};
-    
+
 template<typename T>
 struct transform_op_category_x<T, transparent_ops> {
     using type = transparent_ops_with<T>;
@@ -61,7 +61,7 @@ struct named_type_traits
 {
     template<typename T>
     struct is_transparent_with_t : std::bool_constant<is_transparent_with<op_category_t, T>> {};
-    
+
     template<typename T>
     static constexpr bool is_transparent_with_v = is_transparent_with_t<T>::value;
 };
@@ -71,13 +71,13 @@ struct transparent_type_traits
 {
     template<typename op_category_t>
     struct is_transparent_with_t : std::bool_constant<is_transparent_with<op_category_t, T>> {};
-    
+
     template<typename op_category_t>
     static constexpr bool is_transparent_with_v = is_transparent_with_t<op_category_t>::value;
-    
+
     template<typename op_category_t>
     struct transform : transform_op_category_x<T, op_category_t> {};
-    
+
     template<typename op_category_t>
     using transform_t = typename transform<op_category_t>::type;
 };
@@ -158,7 +158,7 @@ struct named_type_pod
     constexpr underlying_t& get() { return value; }
 
     static constexpr auto get_fields()
-    { 
+    {
         return std::tuple{&self::value};
     }
 };
@@ -237,8 +237,8 @@ using ops_category_t = typename ops_category<underlying_t, list_t>::type;
 
 template<typename underlying_t, typename category_t, typename... ops>
 struct ops_category<
-    underlying_t, 
-    type_list<category_t, ops...>, 
+    underlying_t,
+    type_list<category_t, ops...>,
     std::enable_if_t<is_ops_category_v<category_t>>>
 {
     using type = transform_op_category_x_t<underlying_t, category_t>;
@@ -252,8 +252,8 @@ struct ops_category<underlying_t, type_list<>> : ops_category<underlying_t, type
 
 template<typename underlying_t, typename first_op, typename... ops>
 struct ops_category<
-    underlying_t, 
-    type_list<first_op, ops...>, 
+    underlying_t,
+    type_list<first_op, ops...>,
     std::enable_if_t<!is_ops_category_v<first_op>> // not specified => default_ops
 >
 : ops_category<underlying_t, type_list<default_ops, first_op, ops...>> {};
@@ -269,9 +269,9 @@ static_assert(std::is_same_v<ops_category_t<int, type_list<transparent_ops, vst:
 
 static_assert(std::is_same_v<
     type_list_filter_t<
-        type_list<strict_ops, transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::addable>, 
+        type_list<strict_ops, transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::addable>,
         is_ops_category
-    >, 
+    >,
     type_list<strict_ops, transparent_ops, transparent_ops_with<float>>
 >);
 
@@ -287,7 +287,7 @@ static_assert(std::is_same_v<
     type_list_transform_t<
         type_list<strict_ops, transparent_ops, transparent_ops_with<float>>,
         transparent_type_traits<int>::transform_t
-    >, 
+    >,
     type_list<strict_ops, transparent_ops_with<int>, transparent_ops_with<float>>
 >);
 
@@ -336,13 +336,13 @@ template<typename underlying_t, typename tag_t, typename... ops>
 // using named_type = named_type_alias<underlying_t, tag_t, type_list<ops...>>;
 using named_type = vst::impl::type<
     named_type_pod<
-        underlying_t, 
-        tag_t, 
+        underlying_t,
+        tag_t,
         typename ops_category<
-            underlying_t, 
+            underlying_t,
             type_list<ops...>
         >::transformed_list_type
-    >, 
+    >,
     without_ops_category_t<ops...>>;
 
 template<typename T>
@@ -384,7 +384,7 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
 }
 
 template<typename T, typename ENABLER = void>
-struct transparent_equal_to 
+struct transparent_equal_to
 {
     constexpr bool operator()( const T& lhs,  const T& rhs) const
     {
@@ -396,18 +396,18 @@ template<typename T>
 struct transparent_equal_to<T, std::enable_if_t<is_named_type<T>>>
 {
     using is_transparent = void;
-    
+
     constexpr bool operator()(const T& lhs, const T& rhs) const
     {
         return lhs == rhs;
     }
-    
+
     template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
     constexpr bool operator()(const U& lhs, const T& rhs) const
     {
         return lhs == rhs;
     }
-    
+
     template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
     constexpr bool operator()(const T& lhs, const U& rhs) const
     {
@@ -428,18 +428,18 @@ template<typename T>
 struct transparent_less<T, std::enable_if_t<is_named_type<T>>>
 {
     using is_transparent = void;
-    
+
     constexpr bool operator()(const T& lhs, const T& rhs) const
     {
         return lhs < rhs;
     }
-    
+
     template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
     constexpr bool operator()(const U& lhs, const T& rhs) const
     {
         return lhs < rhs;
     }
-    
+
     template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
     constexpr bool operator()(const T& lhs, const U& rhs) const
     {
@@ -447,7 +447,7 @@ struct transparent_less<T, std::enable_if_t<is_named_type<T>>>
     }
 };
 
-namespace std 
+namespace std
 {
     template<typename underlying_t, typename tag_t, typename ops_category, typename... ops>
     struct equal_to<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>>
@@ -458,16 +458,18 @@ namespace std
     : transparent_less<vst::type<named_type_pod<underlying_t, tag_t, ops_category>, ops...>> {};
 }
 
-namespace vst 
+namespace vst
 {
     template<typename T>
     struct hash<T, std::enable_if_t<is_named_type<T>>>
+    // template<typename T> requires is_named_type<T>
+    // struct hash<T>
     {
         size_t operator()(const T& o) const noexcept {
             return std::hash<typename T::underlying_type>{}(o.get());
         }
 
-        template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+        template<typename U> requires T::template is_transparent_with<U>
         size_t operator()(const U& o) const noexcept {
             return std::hash<typename T::underlying_type>{}(o);
         }

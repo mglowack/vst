@@ -7,10 +7,13 @@
 
 namespace vst
 {
-    
-template<typename T, 
+
+template<typename T,
          typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
 struct hash
+
+// template<typename T> requires (impl::helper::has_op<T, op::hashable>())
+// struct hash<T>
 {
     size_t operator()(const T& o) const noexcept
     {

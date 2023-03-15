@@ -15,12 +15,12 @@ struct named_field_ptr
     const char* name;
     field_ptr_t field_ptr;
 
-    constexpr explicit named_field_ptr(const char* name, field_ptr_t field_ptr) 
+    constexpr explicit named_field_ptr(const char* name, field_ptr_t field_ptr)
     : name(name), field_ptr(field_ptr) {}
 };
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
-    
+
 
 // ##########################
 // # has_correct_get_fields #
@@ -72,12 +72,15 @@ struct type
 : public T
 {
     using T::T;
+
+    // friend bool operator==(const type&, const type&) = default;
 };
 
 template <typename T, typename properties_t>
 struct type<T, properties_t, std::enable_if_t<std::is_aggregate_v<T>>>
 : public T
 {
+    // friend bool operator==(const type&, const type&) = default;
 };
 
 } // close impl namespace
@@ -91,6 +94,9 @@ struct trait;
 template<typename T, typename ENABLER>
 struct hash;
 
+// template<typename T>
+// struct hash {};
+
 // ##################
 // # has_get_fields #
 // ##################
@@ -100,7 +106,7 @@ constexpr bool has_get_fields = false;
 
 template<typename T>
 constexpr bool has_get_fields<
-    T, 
+    T,
     std::void_t<decltype(T::get_fields())>>
 = true;
 
