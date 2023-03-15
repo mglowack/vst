@@ -9,33 +9,25 @@ namespace vst::impl
 {
 
 // ordered
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
+template<typename T> requires (vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>())
 constexpr bool operator<(const T& lhs, const T& rhs)
 {
     return helper::wrapped_tie(lhs) < helper::wrapped_tie(rhs);
 }
 
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
+template<typename T> requires (vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>())
 constexpr bool operator<=(const T& lhs, const T& rhs)
 {
     return lhs < rhs || lhs == rhs;
 }
 
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
+template<typename T> requires (vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>())
 constexpr bool operator>(const T& lhs, const T& rhs)
 {
     return !(lhs <= rhs);
 }
 
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>(), int> = 0>
+template<typename T> requires (vst::trait<T>::exists && helper::has_op<T, vst::op::ordered>())
 constexpr bool operator>=(const T& lhs, const T& rhs)
 {
     return !(lhs < rhs);
