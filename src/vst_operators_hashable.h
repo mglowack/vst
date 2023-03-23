@@ -7,10 +7,6 @@
 
 namespace vst {
 
-// template<typename T,
-        //  typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
-// struct hash
-
 template<typename T, typename ENABLER = void> requires OpEnabled<T, op::hashable>
 struct hash
 {

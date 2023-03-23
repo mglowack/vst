@@ -97,12 +97,6 @@ concept Type = trait<T>::exists;
 template <typename T, typename OP>
 concept OpEnabled = Type<T> && type_list_contains_v<typename trait<T>::properties, OP>;
 
-// template<typename T, typename ENABLER = void>
-// struct hash;
-
-// template<typename T>
-// struct hash {};
-
 // ##################
 // # has_get_fields #
 // ##################

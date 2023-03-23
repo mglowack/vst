@@ -460,8 +460,6 @@ namespace std
 
 namespace vst
 {
-    // template<typename T>
-    // struct hash<T, std::enable_if_t<is_named_type<T>>>
     template<typename T> requires is_named_type<T>
     struct hash<T>
     {
