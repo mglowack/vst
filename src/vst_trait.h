@@ -46,12 +46,24 @@ struct trait
 
 } // namespace impl
 
+// no 'with_fields::X' specified => injecting 'with_fields::use_default'
 template<typename T>
 struct trait<type<T>>
 : trait<type<T, with_fields::use_default>>
 {
 };
 
+template<typename T, typename first_op, typename... ops>
+struct trait<
+    type<T, first_op, ops...>,
+    std::enable_if_t<!impl::is_fields_def<first_op> && !std::is_same_v<first_op, with_fields::use_default>>>
+: trait<type<T, with_fields::use_default, first_op, ops...>>
+{
+};
+
+// 'with_fields::use_default':
+// * if 'get_fields()' is not provided on the underlying type translate to 'with_fields::from_aggregate'
+// * otherwise translate to 'with_fields::from<T>'
 template<typename T, typename... ops>
 struct trait<
     type<T, with_fields::use_default, ops...>,
@@ -69,6 +81,7 @@ struct trait<
 {
 };
 
+// 'with_fields::from_aggregate'
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::from_aggregate, ops...>>
 : impl::trait<T, impl::aggregate_vst_helper, ops...>
@@ -76,14 +89,10 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
     static_assert(std::is_aggregate_v<T>, "T must be an aggregate.");
 };
 
-template<typename T, typename first_op, typename... ops>
-struct trait<
-    type<T, first_op, ops...>,
-    std::enable_if_t<!impl::is_fields_def<first_op> && !std::is_same_v<first_op, with_fields::use_default>>>
-: trait<type<T, with_fields::use_default, first_op, ops...>>
-{
-};
-
+// 'with_fields::from<T>'
+// 'with_fields::from_func<f>'
+// 'with_fields::from_var<v>'
+// 'with_fields::empty'
 template<typename T, typename fields_def, typename... ops>
 struct trait<
     type<T, fields_def, ops...>,
