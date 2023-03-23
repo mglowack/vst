@@ -91,6 +91,12 @@ using type = impl::type<T, type_list<ops...>>;
 template<typename T, typename ENABLER = void>
 struct trait;
 
+template <typename T>
+concept Type = trait<T>::exists;
+
+template <typename T, typename OP>
+concept OpEnabled = Type<T> && type_list_contains_v<typename trait<T>::properties, OP>;
+
 // template<typename T, typename ENABLER = void>
 // struct hash;
 

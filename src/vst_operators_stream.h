@@ -9,7 +9,7 @@
 namespace vst::impl {
 
 // stream
-template<typename T, std::enable_if_t<vst::trait<T>::exists, int> = 0>
+template<Type T>
 std::ostream& operator<<(std::ostream& os, const T& rhs)
 {
     os << "[";

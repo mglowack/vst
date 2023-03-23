@@ -31,30 +31,25 @@ constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
     }, helper::tie(lhs));
 }
 
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
+template<typename T> requires OpEnabled<T, vst::op::addable>
 constexpr T operator+(const T& lhs, const T& rhs)
 {
     return binary_op<std::plus<>>(lhs, rhs);
 }
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
+
+template<typename T> requires OpEnabled<T, vst::op::addable>
 constexpr T operator-(const T& lhs, const T& rhs)
 {
     return binary_op<std::minus<>>(lhs, rhs);
 }
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
+
+template<typename T> requires OpEnabled<T, vst::op::addable>
 constexpr T& operator+=(T& lhs, const T& rhs)
 {
     return binary_assign_op<plus_assign<>>(lhs, rhs);
 }
-template<
-    typename T, 
-    std::enable_if_t<vst::trait<T>::exists && helper::has_op<T, vst::op::addable>(), int> = 0>
+
+template<typename T> requires OpEnabled<T, vst::op::addable>
 constexpr T& operator-=(T& lhs, const T& rhs)
 {
     return binary_assign_op<minus_assign<>>(lhs, rhs);

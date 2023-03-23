@@ -5,14 +5,13 @@
 
 #include <type_traits>
 
-namespace vst
-{
+namespace vst {
 
 // template<typename T,
         //  typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
 // struct hash
 
-template<typename T, typename ENABLER = void> requires (trait<T>::exists && impl::helper::has_op<T, op::hashable>())
+template<typename T, typename ENABLER = void> requires OpEnabled<T, op::hashable>
 struct hash
 {
     constexpr size_t operator()(const T& o) const noexcept

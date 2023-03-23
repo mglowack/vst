@@ -9,13 +9,13 @@ namespace vst::impl
 {
 
 // comparable
-template<typename T> requires vst::trait<T>::exists
+template<Type T>
 constexpr bool operator==(const T& lhs, const T& rhs)
 {
     return helper::wrapped_tie(lhs) == helper::wrapped_tie(rhs);
 }
 
-template<typename T> requires vst::trait<T>::exists
+template<Type T>
 constexpr bool operator!=(const T& lhs, const T& rhs)
 {
     return !(lhs == rhs);
