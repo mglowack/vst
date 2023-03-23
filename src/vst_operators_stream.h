@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vst_defs.h>
-#include <vst_impl_helpers.h>
 
 #include <type_traits>
 #include <ostream>
@@ -16,7 +15,7 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
     std::apply(
         [&os](const auto&... field){
             ((os << " " << field), ...);
-        }, helper::named_tie(rhs));
+        }, vst::trait<T>::named_tie(rhs));
     os << " ]";
     return os;
 }

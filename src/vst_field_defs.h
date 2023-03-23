@@ -12,10 +12,6 @@
 
 namespace vst::impl {
 
-// ###########
-// # helpers #
-// ###########
-
 struct indexed_tie_helper
 {
     template<typename vst_t, typename... Ts>
@@ -117,35 +113,6 @@ private:
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
         return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
-    }
-};
-
-struct helper
-{
-    template<typename T, typename op>
-    static constexpr bool has_op() { return type_list_contains_v<typename trait<T>::properties, op>; }
-
-    template<typename T>
-    static constexpr auto tie(T& obj)
-    {
-        return trait<std::decay_t<T>>::tie(obj);
-    }
-
-    template<typename T>
-    static constexpr auto named_tie(T& obj)
-    {
-        return trait<std::decay_t<T>>::named_tie(obj);
-    }
-
-    template<typename T>
-    static constexpr auto wrapped_tie(T& obj)
-    {
-        using vst_t = std::decay_t<T>;
-        return std::apply(
-            []<typename... field_t>(field_t&... f) {
-                return std::tuple(wrapped_value_of<vst_t, field_t>{f}...);
-            },
-            tie(obj));
     }
 };
 

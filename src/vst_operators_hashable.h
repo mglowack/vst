@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vst_defs.h>
-#include <vst_impl_helpers.h>
+
+#include <boost/functional/hash.hpp>
 
 #include <type_traits>
 
@@ -13,7 +14,7 @@ struct hash
     constexpr size_t operator()(const T& o) const noexcept
     {
         // use boost helper for hash of tuples
-        return boost::hash_value(impl::helper::tie(o));
+        return boost::hash_value(vst::trait<T>::tie(o));
     }
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vst_defs.h>
-#include <vst_impl_helpers.h>
+#include <vst_field_defs.h>
 
 #include <type_list.h>
 
@@ -31,6 +31,17 @@ struct trait
 {
     static constexpr bool exists = true;
     using properties = type_list<ops...>;
+
+    template<typename U>
+    static constexpr auto wrapped_tie(U& obj)
+    {
+        using vst_t = std::decay_t<U>;
+        return std::apply(
+            []<typename... field_t>(field_t&... f) {
+                return std::tuple(wrapped_value_of<vst_t, field_t>{f}...);
+            },
+            fields_def_helper_t::tie(obj));
+    }
 };
 
 } // namespace impl
@@ -43,7 +54,7 @@ struct trait<type<T>>
 
 template<typename T, typename... ops>
 struct trait<
-    type<T, with_fields::use_default, ops...>, 
+    type<T, with_fields::use_default, ops...>,
     std::enable_if_t<!has_get_fields<T>>>
 : trait<type<T, with_fields::from_aggregate, ops...>>
 {
@@ -52,7 +63,7 @@ struct trait<
 
 template<typename T, typename... ops>
 struct trait<
-    type<T, with_fields::use_default, ops...>, 
+    type<T, with_fields::use_default, ops...>,
     std::enable_if_t<has_get_fields<T>>>
 : trait<type<T, with_fields::from<T>, ops...>>
 {
@@ -67,7 +78,7 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
 
 template<typename T, typename first_op, typename... ops>
 struct trait<
-    type<T, first_op, ops...>, 
+    type<T, first_op, ops...>,
     std::enable_if_t<!impl::is_fields_def<first_op> && !std::is_same_v<first_op, with_fields::use_default>>>
 : trait<type<T, with_fields::use_default, first_op, ops...>>
 {
@@ -75,7 +86,7 @@ struct trait<
 
 template<typename T, typename fields_def, typename... ops>
 struct trait<
-    type<T, fields_def, ops...>, 
+    type<T, fields_def, ops...>,
     std::enable_if_t<impl::is_fields_def<fields_def>>>
 : impl::trait<T, impl::described_vst_helper<fields_def>, ops...>
 {
