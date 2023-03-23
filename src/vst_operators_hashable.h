@@ -8,7 +8,7 @@
 
 namespace vst {
 
-template<typename T, typename ENABLER = void> requires OpEnabled<T, op::hashable>
+template<OpEnabled<op::hashable> T, typename ENABLER = void>
 struct hash
 {
     constexpr size_t operator()(const T& o) const noexcept

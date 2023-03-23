@@ -8,25 +8,25 @@ namespace vst::impl
 {
 
 // ordered
-template<typename T> requires OpEnabled<T, vst::op::ordered>
+template<OpEnabled<op::ordered> T>
 constexpr bool operator<(const T& lhs, const T& rhs)
 {
     return vst::trait<T>::wrapped_tie(lhs) < vst::trait<T>::wrapped_tie(rhs);
 }
 
-template<typename T> requires OpEnabled<T, vst::op::ordered>
+template<OpEnabled<op::ordered> T>
 constexpr bool operator<=(const T& lhs, const T& rhs)
 {
     return lhs < rhs || lhs == rhs;
 }
 
-template<typename T> requires OpEnabled<T, vst::op::ordered>
+template<OpEnabled<op::ordered> T>
 constexpr bool operator>(const T& lhs, const T& rhs)
 {
     return !(lhs <= rhs);
 }
 
-template<typename T> requires OpEnabled<T, vst::op::ordered>
+template<OpEnabled<op::ordered> T>
 constexpr bool operator>=(const T& lhs, const T& rhs)
 {
     return !(lhs < rhs);

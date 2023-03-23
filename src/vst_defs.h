@@ -67,6 +67,9 @@ namespace op {
 
 namespace impl {
 
+template<typename T>
+concept Aggregate = std::is_aggregate_v<T>;
+
 template <typename T, typename properties_t>
 struct type
 : public T
@@ -74,7 +77,7 @@ struct type
     using T::T;
 };
 
-template <typename T, typename properties_t> requires std::is_aggregate_v<T>
+template <Aggregate T, typename properties_t>
 struct type<T, properties_t>
 : public T {};
 

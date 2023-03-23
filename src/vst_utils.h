@@ -82,8 +82,8 @@ std::ostream& operator<<(std::ostream& os, const value_with_index<I, T>& rhs)
 // constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
 // {
 //     return apply_with_index_impl(
-//         std::forward<F>(f), 
-//         std::forward<Tuple>(tuple), 
+//         std::forward<F>(f),
+//         std::forward<Tuple>(tuple),
 //         std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
 // }
 
@@ -105,7 +105,7 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
 {
     return std::apply([&f](auto&&... a) {
         return apply_with_index_impl(
-            std::forward<F>(f), 
+            std::forward<F>(f),
             std::make_index_sequence<sizeof...(a)>{},
             std::forward<decltype(a)>(a)...);
     }, std::forward<Tuple>(tuple));
