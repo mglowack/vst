@@ -8,14 +8,14 @@
 namespace vst
 {
 
-template<typename T,
-         typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
-struct hash
+// template<typename T,
+        //  typename ENABLER = std::enable_if_t<trait<T>::exists && impl::helper::has_op<T, op::hashable>()>>
+// struct hash
 
-// template<typename T> requires (impl::helper::has_op<T, op::hashable>())
-// struct hash<T>
+template<typename T, typename ENABLER = void> requires (trait<T>::exists && impl::helper::has_op<T, op::hashable>())
+struct hash
 {
-    size_t operator()(const T& o) const noexcept
+    constexpr size_t operator()(const T& o) const noexcept
     {
         // use boost helper for hash of tuples
         return boost::hash_value(impl::helper::tie(o));

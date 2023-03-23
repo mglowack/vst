@@ -460,17 +460,17 @@ namespace std
 
 namespace vst
 {
-    template<typename T>
-    struct hash<T, std::enable_if_t<is_named_type<T>>>
-    // template<typename T> requires is_named_type<T>
-    // struct hash<T>
+    // template<typename T>
+    // struct hash<T, std::enable_if_t<is_named_type<T>>>
+    template<typename T> requires is_named_type<T>
+    struct hash<T>
     {
-        size_t operator()(const T& o) const noexcept {
+        constexpr size_t operator()(const T& o) const noexcept {
             return std::hash<typename T::underlying_type>{}(o.get());
         }
 
         template<typename U> requires T::template is_transparent_with<U>
-        size_t operator()(const U& o) const noexcept {
+        constexpr size_t operator()(const U& o) const noexcept {
             return std::hash<typename T::underlying_type>{}(o);
         }
     };

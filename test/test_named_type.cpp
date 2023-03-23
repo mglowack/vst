@@ -12,21 +12,21 @@
 
 using namespace ::testing;
 
-namespace 
+namespace
 {
     using price = named_type<
-        int, 
-        struct price_tag, 
-        vst::op::ordered, 
-        vst::op::hashable, 
+        int,
+        struct price_tag,
+        vst::op::ordered,
+        vst::op::hashable,
         vst::op::addable>;
-        
+
     using price_transparent = named_type<
-        int, 
-        struct price_transparent_tag, 
+        int,
+        struct price_transparent_tag,
         transparent_ops,
-        vst::op::ordered, 
-        vst::op::hashable, 
+        vst::op::ordered,
+        vst::op::hashable,
         vst::op::addable>;
 
     static_assert(price_transparent::is_transparent);
@@ -35,11 +35,11 @@ namespace
     static_assert(!is_named_type<int>);
 
     // using price_relaxed = named_type<
-    //     int, 
-    //     struct price_tag, 
+    //     int,
+    //     struct price_tag,
     //     type_list<implicitly_convertible_to<int>, transparently_>,
-    //     vst::op::ordered, 
-    //     vst::op::hashable, 
+    //     vst::op::ordered,
+    //     vst::op::hashable,
     //     vst::op::addable>;
 }
 
@@ -128,12 +128,12 @@ TEST(test_named_type, to_and_from_underlying_transparent_equality)
     EXPECT_TRUE((price_transparent{4} != 2));
     EXPECT_TRUE((4 == price_transparent{4}));
     EXPECT_TRUE((2 != price_transparent{4}));
-    
+
     static_assert( eq(price_transparent{4}, 4));
     static_assert(!eq(price_transparent{4}, 2));
     static_assert( eq(4, price_transparent{4}));
     static_assert(!eq(2, price_transparent{4}));
-    
+
     EXPECT_TRUE(( eq(price_transparent{4}, 4)));
     EXPECT_TRUE((!eq(price_transparent{4}, 2)));
     EXPECT_TRUE(( eq(4, price_transparent{4})));
@@ -156,12 +156,12 @@ TEST(test_named_type, to_and_from_T_transparent_equality)
     EXPECT_TRUE((value{4} != 2.f));
     EXPECT_TRUE((4.f == value{4}));
     EXPECT_TRUE((2.f != value{4}));
-    
+
     static_assert( eq(value{4}, 4.f));
     static_assert(!eq(value{4}, 2.f));
     static_assert( eq(4.f, value{4}));
     static_assert(!eq(2.f, value{4}));
-    
+
     EXPECT_TRUE(( eq(value{4}, 4.f)));
     EXPECT_TRUE((!eq(value{4}, 2.f)));
     EXPECT_TRUE(( eq(4.f, value{4})));
@@ -171,9 +171,9 @@ TEST(test_named_type, to_and_from_T_transparent_equality)
 TEST(test_named_type, to_and_from_multiple_T_transparent_equality)
 {
     using value = named_type<
-        int, 
-        struct to_and_from_multiple_T_transparent_equality_test, 
-        transparent_ops_with<float>, 
+        int,
+        struct to_and_from_multiple_T_transparent_equality_test,
+        transparent_ops_with<float>,
         transparent_ops_with<int>>;
     static_assert( is_comparable<value, int>);
     static_assert( is_comparable<value, float>);
@@ -185,7 +185,7 @@ TEST(test_named_type, to_and_from_multiple_T_transparent_equality)
     static_assert(eq(value{4}, 4));
     static_assert(eq(value{4}, 4.f));
 }
-    
+
 TEST(test_named_type, to_and_from_underlying_transparent_ordered)
 {
     static_assert( is_comparable<price_transparent, int>);
@@ -250,13 +250,13 @@ TEST(test_named_type, to_and_from_underlying_transparent_ordered)
     EXPECT_TRUE(( lt(4, price_transparent{4}) || eq(4, price_transparent{4})));
     EXPECT_TRUE((!lt(4, price_transparent{4})));
 }
-    
+
 TEST(test_named_type, to_and_from_T_transparent_ordered)
 {
     using value = named_type<
-        int, 
-        struct to_and_from_T_transparent_ordered_test, 
-        transparent_ops_with<float>, 
+        int,
+        struct to_and_from_T_transparent_ordered_test,
+        transparent_ops_with<float>,
         vst::op::ordered>;
 
     static_assert( is_comparable<value, float>);
@@ -328,7 +328,7 @@ TEST(test_named_type, to_and_from_underlying_transparent_hashable)
     auto vh = [](const auto& o) { return vst::hash<price_transparent>{}(o); };
     auto sh = [](const auto& o) { return std::hash<price_transparent>{}(o); };
     auto bh = [](const auto& o) { return boost::hash<price_transparent>{}(o); };
-    
+
     auto test = [](const auto& h)
     {
         EXPECT_TRUE((h(price_transparent{1}) == h(1)));
@@ -343,16 +343,16 @@ TEST(test_named_type, to_and_from_underlying_transparent_hashable)
 TEST(test_named_type, to_and_from_T_transparent_hashable)
 {
     using value = named_type<
-        int, 
-        struct to_and_from_T_transparent_ordered_test, 
-        transparent_ops_with<float>, 
+        int,
+        struct to_and_from_T_transparent_ordered_test,
+        transparent_ops_with<float>,
         vst::op::hashable>;
 
     static_assert( is_hashable<value, float>);
     auto vh = [](const auto& o) { return vst::hash<value>{}(o); };
     auto sh = [](const auto& o) { return std::hash<value>{}(o); };
     auto bh = [](const auto& o) { return boost::hash<value>{}(o); };
-    
+
     auto test = [](const auto& h)
     {
         EXPECT_THAT(h(value{1}), Eq(h(1.f)));
@@ -363,7 +363,7 @@ TEST(test_named_type, to_and_from_T_transparent_hashable)
         (test(f), ...);
     }, std::tuple{vh, sh, bh});
 }
-    
+
 TEST(test_named_type, to_and_from_underlying_transparent_addable)
 {
     static_assert( is_addable<price_transparent>);      // has explcit addable, price to price
@@ -379,7 +379,7 @@ TEST(test_named_type, heterogeneous_lookup_std_set)
     c.insert(price_transparent{4});
     c.insert(price_transparent{5});
     c.insert(price_transparent{1});
-    
+
     // THEN
     EXPECT_THAT(c.find(5), Eq(c.find(price_transparent{5})));
 }
@@ -393,7 +393,7 @@ TEST(test_named_type, heterogeneous_lookup_std_map)
     c[price_transparent{5}] = "5";
     c[price_transparent{1}] = "1";
     c[price_transparent{4}] = "4";
-    
+
     // THEN
     EXPECT_THAT(c.find(5), Eq(c.find(price_transparent{5})));
 }
@@ -413,7 +413,7 @@ TEST(test_named_type, heterogeneous_lookup_boost_ordered_index)
     c.insert(price_transparent{5});
     c.insert(price_transparent{5});
     c.insert(price_transparent{1});
-    
+
     // THEN
     EXPECT_THAT(c.find(5), Eq(c.find(price_transparent{5})));
 }
@@ -433,7 +433,7 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
     c.insert(price_transparent{5});
     c.insert(price_transparent{5});
     c.insert(price_transparent{1});
-    
+
     // THEN
     EXPECT_THAT(c.find(5), Ne(std::end(c)));
 }

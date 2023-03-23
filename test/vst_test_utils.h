@@ -62,7 +62,7 @@ constexpr bool is_addable_impl = false;
 
 template<typename T, typename U>
 constexpr bool is_addable_impl<
-    T, 
+    T,
     U,
     std::void_t<
         decltype(std::declval<T&>()      += std::declval<const U&>()),
@@ -90,7 +90,7 @@ constexpr bool is_streamable = false;
 
 template<typename T>
 constexpr bool is_streamable<
-    T, 
+    T,
     std::void_t<
         decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>
 = true;
