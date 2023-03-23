@@ -67,21 +67,16 @@ namespace op {
 
 namespace impl {
 
-template <typename T, typename properties_t, typename ENABLER = void>
+template <typename T, typename properties_t>
 struct type
 : public T
 {
     using T::T;
-
-    // friend bool operator==(const type&, const type&) = default;
 };
 
-template <typename T, typename properties_t>
-struct type<T, properties_t, std::enable_if_t<std::is_aggregate_v<T>>>
-: public T
-{
-    // friend bool operator==(const type&, const type&) = default;
-};
+template <typename T, typename properties_t> requires std::is_aggregate_v<T>
+struct type<T, properties_t>
+: public T {};
 
 } // close impl namespace
 
