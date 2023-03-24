@@ -621,13 +621,12 @@ TEST(test_vst, custom_operators_for_string_int)
     using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
     using data = vst::type<pod, vst::op::ordered>;
 
-    using WD = vst::wrapped_value_of<data, string_int>;
-
     // check standard operators work as if it's string
     ASSERT_THAT(stringify(string_int{"10"}), Eq("10"));
     ASSERT_THAT(string_int{"10"}, Lt(string_int{"4"}));
 
     // check wrapped values
+    using WD = vst::wrapped_value_of<data, string_int>;
     ASSERT_THAT(stringify(WD{string_int{"10"}}), Eq("int:\"10\""));
     ASSERT_THAT(WD{string_int{"10"}}, Gt(WD{string_int{"4"}}));
 
