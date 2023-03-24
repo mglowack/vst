@@ -12,25 +12,6 @@
 
 namespace vst::impl {
 
-struct indexed_tie_helper
-{
-    template<typename vst_t, typename... Ts>
-    static constexpr auto tie(std::tuple<Ts&...> fields)
-    {
-        return apply_with_index(
-            [](const auto... elem) {
-                return std::tuple(as_indexed_var<vst_t, elem.index + 1>(elem.value)...); // convert to 1-based
-            },
-            fields);
-    }
-
-    template<typename vst_t, std::size_t I, typename T>
-    static constexpr auto as_indexed_var(const T& var)
-    {
-        return indexed_var<wrapped_value_of<vst_t, T>, I>{wrapped_value_of<vst_t, T>{var}};
-    }
-};
-
 template<typename fields_def_t>
 struct described_vst_helper
 {
@@ -72,7 +53,7 @@ private:
     template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
-        return indexed_tie_helper::tie<vst_t>(tie(obj, fields)); // fallback to indexing members
+        return vst::indexed_var_util::tie<vst_t>(tie(obj, fields)); // fallback to indexing members
     }
 
     template<typename T, typename field_ptr_t>
@@ -105,7 +86,7 @@ struct aggregate_vst_helper
     template<typename T>
     static constexpr auto named_tie(T& obj)
     {
-        return indexed_tie_helper::tie<std::decay_t<T>>(tie(obj));
+        return vst::indexed_var_util::tie<std::decay_t<T>>(tie(obj));
     }
 
 private:
