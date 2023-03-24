@@ -596,21 +596,20 @@ namespace
 
 TEST(test_wrapped_value, test)
 {
+    struct fake_vst {};
     using W = vst::wrapped_value<string_int>;
+    using WF = vst::wrapped_value_of<fake_vst, string_int>;
     using WS = vst::wrapped_value_of<specific_data, string_int>;
 
-    EXPECT_THAT(stringify(string_int{"24"}), Eq("24"));
-    EXPECT_THAT(stringify(W{string_int{"24"}}), Eq("int:\"24\""));
-    EXPECT_THAT(stringify(WS{string_int{"24"}}), Eq("specific:\"24\""));
+    EXPECT_THAT(stringify(   string_int{"10"}),  Eq("10"));
+    EXPECT_THAT(stringify(W{ string_int{"10"}}), Eq("int:\"10\""));
+    EXPECT_THAT(stringify(WF{string_int{"10"}}), Eq("int:\"10\""));
+    EXPECT_THAT(stringify(WS{string_int{"10"}}), Eq("specific:\"10\""));
 
-    EXPECT_THAT(string_int{"24"}, Gt(string_int{"10"}));
-    EXPECT_THAT(string_int{"24"}, Lt(string_int{"3"})); // because of string compare, not actual value
-
-    EXPECT_THAT(W{string_int{"24"}}, Gt(W{string_int{"10"}}));
-    EXPECT_THAT(W{string_int{"24"}}, Gt(W{string_int{"3"}})); // because now we compare the value
-
-    EXPECT_THAT(WS{string_int{"24"}}, Gt(WS{string_int{"10"}}));
-    EXPECT_THAT(WS{string_int{"24"}}, Gt(WS{string_int{"3"}})); // because now we compare the value
+    EXPECT_THAT(   string_int{"10"},  Lt(   string_int{"4"}));  // because of string compare, not actual int value
+    EXPECT_THAT(W{ string_int{"10"}}, Gt(W{ string_int{"4"}})); // because now we compare the actual int value
+    EXPECT_THAT(WF{string_int{"10"}}, Gt(WF{string_int{"4"}})); // because now we compare the actual int value
+    EXPECT_THAT(WS{string_int{"10"}}, Lt(WS{string_int{"4"}})); // because now we compare the string again
 }
 
 TEST(test_vst, custom_operators_for_string_int)
@@ -622,15 +621,29 @@ TEST(test_vst, custom_operators_for_string_int)
     using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
     using data = vst::type<pod, vst::op::ordered>;
 
+    using WD = vst::wrapped_value_of<data, string_int>;
+
+    // check standard operators work as if it's string
     ASSERT_THAT(stringify(string_int{"10"}), Eq("10"));
+    ASSERT_THAT(string_int{"10"}, Lt(string_int{"4"}));
+
+    // check wrapped values
+    ASSERT_THAT(stringify(WD{string_int{"10"}}), Eq("int:\"10\""));
+    ASSERT_THAT(WD{string_int{"10"}}, Gt(WD{string_int{"4"}}));
+
+    // stream operator override for all VSTs
     EXPECT_THAT(stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
     EXPECT_THAT(stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
+
+    // stream operator override for specific VST
     EXPECT_THAT(stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
     EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
 
-    ASSERT_THAT((string_int{"10"}), Lt(string_int{"4"}));
+    // compare operators override for all VSTs (defined to be int comparison)
     EXPECT_THAT((data{"10"}), Gt(data{"4"}));
     EXPECT_THAT((data_named{"10"}), Gt(data_named{"4"}));
+
+    // compare operators override for specific VSTs (defined to be using string comparison)
     EXPECT_THAT((specific_data{"10"}), Lt(specific_data{"4"}));
     EXPECT_THAT((specific_data_named{"10"}), Lt(specific_data_named{"4"}));
 }
