@@ -27,10 +27,21 @@ template<>            inline constexpr bool is_fields_def<with_fields::empty> = 
 
 template<typename T, typename fields_def_helper_t, typename... ops>
 struct trait
-: fields_def_helper_t
 {
     static constexpr bool exists = true;
     using properties = type_list<ops...>;
+
+    template<typename U>
+    static constexpr auto tie(U& obj)
+    {
+        return fields_def_helper_t::tie(obj);
+    }
+
+    template<typename U>
+    static constexpr auto named_tie(U& obj)
+    {
+        return fields_def_helper_t::named_tie(obj);
+    }
 
     template<typename U>
     static constexpr auto wrapped_tie(U& obj)
@@ -40,7 +51,7 @@ struct trait
             []<typename... field_t>(field_t&... f) {
                 return std::tuple(wrapped_value_of<vst_t, field_t>{f}...);
             },
-            fields_def_helper_t::tie(obj));
+            tie(obj));
     }
 };
 
