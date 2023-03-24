@@ -530,13 +530,47 @@ namespace
 {
     struct string_int {
         std::string number;
-
         friend constexpr auto operator<=>(const string_int&, const string_int&) = default;
     };
 
     std::ostream& operator<<(std::ostream& os, const string_int& rhs)
     {
         return os << rhs.number;
+    }
+
+    // VSTs
+    struct specific_data_pod {
+        string_int s;
+    };
+    static constexpr auto specific_data_pod_fields = std::tuple{MEMBER(specific_data_pod, s)};
+    using specific_data = vst::type<specific_data_pod, vst::op::ordered>;
+    using specific_data_named = vst::type<
+        specific_data_pod,
+        vst::with_fields::from_var<&specific_data_pod_fields>,
+        vst::op::ordered>;
+
+
+    // OPERATORS
+
+    // NOTE: this overrides the stream operator of 'string_int'
+    //       but ONLY WHEN printed as part of ANY vst
+    std::ostream& operator<<(std::ostream& os, const vst::wrapped_value<string_int>& rhs)
+    {
+        return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
+
+    // NOTE: this overrides the stream operator of 'string_int'
+    //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
+    std::ostream& operator<<(std::ostream& os,
+                             const vst::wrapped_value_of<specific_data, string_int>& rhs)
+    {
+        return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
+    }
+
+    std::ostream& operator<<(std::ostream& os,
+                             const vst::wrapped_value_of<specific_data_named, string_int>& rhs)
+    {
+        return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
 
     // NOTE: 'string_int' already has operators defined,
@@ -548,42 +582,13 @@ namespace
         return std::atoi(lhs.value.number.c_str()) < std::atoi(rhs.value.number.c_str());
     }
 
-    // NOTE: this overrides the stream operator of 'string_int'
-    //       but ONLY WHEN printed as part of ANY vst
-    std::ostream& operator<<(std::ostream& os, const vst::wrapped_value<string_int>& rhs)
-    {
-        return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
-    }
-
-    struct specific_data_pod {
-        string_int s;
-    };
-    static constexpr auto specific_data_pod_fields = std::tuple{MEMBER(specific_data_pod, s)};
-    using specific_data = vst::type<specific_data_pod, vst::op::ordered>;
-    using specific_data_named = vst::type<
-        specific_data_pod,
-        vst::with_fields::from_var<&specific_data_pod_fields>,
-        vst::op::ordered>;
-
-    // NOTE: this overrides the stream operator of 'string_int'
-    //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
-    std::ostream& operator<<(std::ostream& os,
-                             const vst::wrapped_value_of<specific_data, string_int>& rhs)
-    {
-        return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
-    }
-
+    // NOTE: 'string_int' as part of 'specific_data' or 'specific_data_named' falls back
+    // to original string compare method
     bool operator<(const vst::wrapped_value_of<specific_data, string_int>& lhs,
                    const vst::wrapped_value_of<specific_data, string_int>& rhs)
     {
         // fall back to the original operator
         return lhs.value < rhs.value;
-    }
-
-    std::ostream& operator<<(std::ostream& os,
-                             const vst::wrapped_value_of<specific_data_named, string_int>& rhs)
-    {
-        return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
 
     bool operator<(const vst::wrapped_value_of<specific_data_named, string_int>& lhs,

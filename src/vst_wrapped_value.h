@@ -17,8 +17,6 @@ struct wrapped_value
 
     constexpr explicit wrapped_value(const T& value)
     : value(value) {}
-
-    // friend auto operator<=>(const wrapped_value&, const wrapped_value&) = default;
 };
 
 template<typename P, typename T>
