@@ -15,8 +15,10 @@ struct wrapped_value
 {
     const T& value;
 
-    constexpr explicit wrapped_value(const T& value) 
+    constexpr explicit wrapped_value(const T& value)
     : value(value) {}
+
+    // friend auto operator<=>(const wrapped_value&, const wrapped_value&) = default;
 };
 
 template<typename P, typename T>
@@ -33,9 +35,33 @@ constexpr bool operator==(const wrapped_value<T>& lhs, const wrapped_value<T>& r
 }
 
 template<typename T>
+constexpr bool operator!=(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template<typename T>
 constexpr bool operator<(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
 {
     return lhs.value < rhs.value;
+}
+
+template<typename T>
+constexpr bool operator<=(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return lhs < rhs || lhs == rhs;
+}
+
+template<typename T>
+constexpr bool operator>(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return !(lhs <= rhs);
+}
+
+template<typename T>
+constexpr bool operator>=(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)
+{
+    return !(lhs < rhs);
 }
 
 template<typename T>

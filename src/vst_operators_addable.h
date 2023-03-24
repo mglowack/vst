@@ -3,6 +3,7 @@
 #include <vst_defs.h>
 #include <vst_functional.h>
 
+#include <functional>
 #include <type_traits>
 
 namespace vst::impl

@@ -31,7 +31,7 @@ struct simple_pod {
 
 constexpr auto get_simple_pod_fields() {
     return std::tuple{
-        MEMBER(simple_pod, x), 
+        MEMBER(simple_pod, x),
         MEMBER(simple_pod, y)};
 }
 
@@ -51,7 +51,7 @@ struct simple_just_ptrs_pod {
             &simple_just_ptrs_pod::y};
     }
 };
-        
+
 // #############################
 // # simple_self_described_pod #
 // #############################
@@ -62,11 +62,11 @@ struct simple_self_described_pod {
 
     static constexpr auto get_fields() {
         return std::tuple{
-            MEMBER(simple_self_described_pod, x), 
+            MEMBER(simple_self_described_pod, x),
             MEMBER(simple_self_described_pod, y)};
     }
 };
-        
+
 // #################
 // # composite_pod #
 // #################
@@ -98,7 +98,7 @@ template<typename... ops>
 using simple_explicit_default = vst::type<simple_self_described_pod, vst::with_fields::use_default, ops...>;
 
 template<typename... ops>
-using custom_from_func      = vst::type<simple_pod, 
+using custom_from_func      = vst::type<simple_pod,
                                         vst::with_fields::from_func<get_simple_pod_fields>,
                                         ops...>;
 
@@ -107,7 +107,7 @@ using custom_from_var       = vst::type<simple_pod,
                                         vst::with_fields::from_var<&k_simple_pod_fields>,
                                         ops...>;
 
-template<typename... ops>                            
+template<typename... ops>
 using composite = vst::type<composite_pod, ops...>;
 
 // #########
@@ -137,7 +137,7 @@ TEST(test_vst, apply_with_index_return)
 {
     auto add_values = [](const auto&... elem) { return (elem.value + ...); };
     auto add_indices_and_values = [](const auto&... elem) { return (elem.index + ...) + (elem.value + ...); };
-    
+
     const std::tuple t_const{3, 4, 5};
     std::tuple t_non_const{3, 4, 5};
 
@@ -156,9 +156,9 @@ TEST(test_vst, apply_with_index)
     const std::tuple<int, float> a{1, 2.f};
 
     EXPECT_CALL(mock, Call(
-        value_with_index<0, const int>{1}, 
+        value_with_index<0, const int>{1},
         value_with_index<1, const float>{2.f}));
-    
+
     apply_with_index(mock.AsStdFunction(), a);
 }
 
@@ -170,9 +170,9 @@ TEST(test_vst, apply_with_index_non_const)
     int i = 1;
     float f = 2.f;
     EXPECT_CALL(mock, Call(
-        value_with_index<0, int>{i}, 
+        value_with_index<0, int>{i},
         value_with_index<1, float>{f})).Times(2);
-    
+
     apply_with_index(mock.AsStdFunction(), a);
     apply_with_index(mock.AsStdFunction(), std::tuple<int, float>{1, 2.f});
 }
@@ -241,7 +241,7 @@ TYPED_TEST(test_vst, ordered)
     static_assert(VST{2, 2.f} > VST{2, 1.f});
     static_assert(VST{2, 2.f} > VST{1, 2.f});
     static_assert(VST{2, 2.f} > VST{1, 1.f});
-    
+
     EXPECT_TRUE((VST{1, 2.f} <= VST{1, 2.f}));
     EXPECT_TRUE((VST{1, 2.f} >= VST{1, 2.f}));
     EXPECT_TRUE((VST{2, 2.f} < VST{3, 2.f}));
@@ -255,7 +255,7 @@ TYPED_TEST(test_vst, ordered)
 TYPED_TEST(test_vst, set)
 {
     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
-    
+
     // GIVEN
     std::set<VST> c;
 
@@ -266,12 +266,12 @@ TYPED_TEST(test_vst, set)
     c.insert(VST{2, 1.f});
     c.insert(VST{2, 1.f});
     c.insert(VST{1, 3.f});
-    
+
     // THEN
     EXPECT_THAT(c, ElementsAre(
-        VST{1, 1.f}, 
-        VST{1, 3.f}, 
-        VST{2, 1.f}, 
+        VST{1, 1.f},
+        VST{1, 3.f},
+        VST{2, 1.f},
         VST{2, 2.f}));
 }
 
@@ -289,12 +289,12 @@ TYPED_TEST(test_vst, map)
     c.insert(std::make_pair(VST{2, 1.f}, 4));
     c.insert(std::make_pair(VST{2, 1.f}, 5));
     c.insert(std::make_pair(VST{1, 3.f}, 6));
-    
+
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        Pair(VST{1, 1.f}, 1), 
+        Pair(VST{1, 1.f}, 1),
         Pair(VST{1, 3.f}, 6),
-        Pair(VST{2, 1.f}, 4), 
+        Pair(VST{2, 1.f}, 4),
         Pair(VST{2, 2.f}, 3)));
 }
 
@@ -318,12 +318,12 @@ TYPED_TEST(test_vst, boost_ordered)
     c.insert(VST{2, 1.f});
     c.insert(VST{2, 1.f});
     c.insert(VST{1, 3.f});
-    
+
     // THEN
     EXPECT_THAT(c, ElementsAre(
-        VST{1, 1.f}, 
-        VST{1, 3.f}, 
-        VST{2, 1.f}, 
+        VST{1, 1.f},
+        VST{1, 3.f},
+        VST{2, 1.f},
         VST{2, 2.f}));
 }
 
@@ -363,19 +363,19 @@ TYPED_TEST(test_vst, unordered_set)
     c.insert(VST{2, 1.f});
     c.insert(VST{2, 1.f});
     c.insert(VST{1, 3.f});
-    
+
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        VST{1, 1.f}, 
-        VST{2, 2.f}, 
-        VST{2, 1.f}, 
+        VST{1, 1.f},
+        VST{2, 2.f},
+        VST{2, 1.f},
         VST{1, 3.f}));
 }
 
 TYPED_TEST(test_vst, unordered_map)
 {
     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
-    
+
     // GIVEN
     std::unordered_map<VST, int> c;
 
@@ -386,19 +386,19 @@ TYPED_TEST(test_vst, unordered_map)
     c.insert(std::make_pair(VST{2, 1.f}, 4));
     c.insert(std::make_pair(VST{2, 1.f}, 5));
     c.insert(std::make_pair(VST{1, 3.f}, 6));
-    
+
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        Pair(VST{1, 1.f}, 1), 
+        Pair(VST{1, 1.f}, 1),
         Pair(VST{2, 2.f}, 3),
-        Pair(VST{2, 1.f}, 4), 
+        Pair(VST{2, 1.f}, 4),
         Pair(VST{1, 3.f}, 6)));
 }
 
 TYPED_TEST(test_vst, boost_hashed)
 {
     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
-    
+
     // GIVEN
     namespace bmi = boost::multi_index;
 
@@ -415,12 +415,12 @@ TYPED_TEST(test_vst, boost_hashed)
     c.insert(VST{2, 1.f});
     c.insert(VST{2, 1.f});
     c.insert(VST{1, 3.f});
-    
+
     // THEN
     EXPECT_THAT(c, UnorderedElementsAre(
-        VST{1, 1.f}, 
-        VST{2, 2.f}, 
-        VST{2, 1.f}, 
+        VST{1, 1.f},
+        VST{2, 2.f},
+        VST{2, 1.f},
         VST{1, 3.f}));
 }
 
@@ -436,7 +436,7 @@ TYPED_TEST(test_vst, addable)
 
     static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
     static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});
-    
+
     EXPECT_TRUE((VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f}));
     EXPECT_TRUE((VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f}));
 
@@ -479,7 +479,7 @@ constexpr bool operator==(const manual_override&, const manual_override&) {
 
 } // close anon namespace
 
-namespace vst 
+namespace vst
 {
 
 template <>
@@ -526,30 +526,22 @@ TEST(test_vst, custom_ctor)
 // # custom operators on a per type basis #
 // ########################################
 
-namespace 
+namespace
 {
     struct string_int {
         std::string number;
+
+        friend constexpr auto operator<=>(const string_int&, const string_int&) = default;
     };
-    
-    bool operator==(const string_int& lhs, const string_int& rhs)
-    {
-        return lhs.number == rhs.number;
-    }
-    
-    bool operator<(const string_int& lhs, const string_int& rhs)
-    {
-        return lhs.number < rhs.number;
-    }
 
     std::ostream& operator<<(std::ostream& os, const string_int& rhs)
     {
         return os << rhs.number;
     }
 
-    // NOTE: 'string_int' already has operators defined, 
-    // but we want to have different semantics in our code base 
-    // for that specific type e.g. we want to use the string 
+    // NOTE: 'string_int' already has operators defined,
+    // but we want to have different semantics in our code base
+    // for that specific type e.g. we want to use the string
     // as if it was an integer like so:
     bool operator<(const vst::wrapped_value<string_int>& lhs, const vst::wrapped_value<string_int>& rhs)
     {
@@ -562,18 +554,18 @@ namespace
     {
         return os << "int:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
-    
+
     struct specific_data_pod {
         string_int s;
     };
     static constexpr auto specific_data_pod_fields = std::tuple{MEMBER(specific_data_pod, s)};
     using specific_data = vst::type<specific_data_pod, vst::op::ordered>;
     using specific_data_named = vst::type<
-        specific_data_pod, 
+        specific_data_pod,
         vst::with_fields::from_var<&specific_data_pod_fields>,
         vst::op::ordered>;
 
-    // NOTE: this overrides the stream operator of 'string_int' 
+    // NOTE: this overrides the stream operator of 'string_int'
     //       but ONLY WHEN printed as part 'specific_data' or 'specific_data_named' vst
     std::ostream& operator<<(std::ostream& os,
                              const vst::wrapped_value_of<specific_data, string_int>& rhs)
@@ -581,7 +573,7 @@ namespace
         return os << "specific:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
 
-    bool operator<(const vst::wrapped_value_of<specific_data, string_int>& lhs, 
+    bool operator<(const vst::wrapped_value_of<specific_data, string_int>& lhs,
                    const vst::wrapped_value_of<specific_data, string_int>& rhs)
     {
         // fall back to the original operator
@@ -594,12 +586,31 @@ namespace
         return os << "specific_named:\"" << std::atoi(rhs.value.number.c_str()) << "\"";
     }
 
-    bool operator<(const vst::wrapped_value_of<specific_data_named, string_int>& lhs, 
+    bool operator<(const vst::wrapped_value_of<specific_data_named, string_int>& lhs,
                    const vst::wrapped_value_of<specific_data_named, string_int>& rhs)
     {
         // fall back to the original operator
         return lhs.value < rhs.value;
     }
+}
+
+TEST(test_wrapped_value, test)
+{
+    using W = vst::wrapped_value<string_int>;
+    using WS = vst::wrapped_value_of<specific_data, string_int>;
+
+    EXPECT_THAT(stringify(string_int{"24"}), Eq("24"));
+    EXPECT_THAT(stringify(W{string_int{"24"}}), Eq("int:\"24\""));
+    EXPECT_THAT(stringify(WS{string_int{"24"}}), Eq("specific:\"24\""));
+
+    EXPECT_THAT(string_int{"24"}, Gt(string_int{"10"}));
+    EXPECT_THAT(string_int{"24"}, Lt(string_int{"3"})); // because of string compare, not actual value
+
+    EXPECT_THAT(W{string_int{"24"}}, Gt(W{string_int{"10"}}));
+    EXPECT_THAT(W{string_int{"24"}}, Gt(W{string_int{"3"}})); // because now we compare the value
+
+    EXPECT_THAT(WS{string_int{"24"}}, Gt(WS{string_int{"10"}}));
+    EXPECT_THAT(WS{string_int{"24"}}, Gt(WS{string_int{"3"}})); // because now we compare the value
 }
 
 TEST(test_vst, custom_operators_for_string_int)
@@ -641,7 +652,7 @@ TEST(test_vst, built_in_comparison_for_const_char)
         // needs swapping
         s1 = "bbb";
         s2 = "aaa";
-        
+
         // make sure pointer arithmetic would give the wrong answer lexicographically
         ASSERT_TRUE((s1.c_str() < s2.c_str() && s1 > s2));
         EXPECT_THAT((data{4, s1.c_str()}), Gt(data{4, s2.c_str()}));
