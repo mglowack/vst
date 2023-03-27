@@ -18,7 +18,11 @@ struct described_vst_helper
     template<typename T>
     static constexpr auto tie(T& obj)
     {
-        return tie(obj, fields_def_t::get_fields());
+        return std::apply(
+            [&obj](const auto&... f) {
+                return std::tie(as_ref_to_value(obj, f)...);
+            },
+            fields_def_t::get_fields());
     }
 
     template<typename T>
@@ -28,16 +32,6 @@ struct described_vst_helper
     }
 
 private:
-    template<typename T, typename... field_ptrs_t>
-    static constexpr auto tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
-    {
-        return std::apply(
-            [&obj](const auto&... f) {
-                return std::tie(as_ref_to_value(obj, f)...);
-            },
-            fields);
-    }
-
     template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(
         T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
@@ -53,7 +47,7 @@ private:
     template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
-        return vst::indexed_var_util::tie<vst_t>(tie(obj, fields)); // fallback to indexing members
+        return vst::indexed_var_util::tie<vst_t>(tie(obj)); // fallback to indexing members
     }
 
     template<typename T, typename field_ptr_t>

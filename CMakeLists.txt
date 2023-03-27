@@ -5,5 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(../deps/googletest-1.13.0 gtest)
+
+add_compile_options(-Wall -Werror -fuse-ld=mold)
+
 add_subdirectory(src)
 add_subdirectory(test)

@@ -184,7 +184,7 @@ TEST(test_vst, empty)
 
     static_assert(empty{} == empty{});
 
-    EXPECT_TRUE((empty{} == empty{}));
+    EXPECT_THAT(empty{}, Eq(empty{}));
 }
 
 template <typename T>
@@ -217,10 +217,10 @@ TYPED_TEST(test_vst, comparable)
     static_assert(VST{2, 2.f} != VST{3, 2.f});
     static_assert(VST{2, 2.f} != VST{2, 1.f});
 
-    EXPECT_TRUE((VST{1, 2.f} == VST{1, 2.f}));
-    EXPECT_TRUE((VST{2, 2.f} == VST{2, 2.f}));
-    EXPECT_TRUE((VST{2, 2.f} != VST{3, 2.f}));
-    EXPECT_TRUE((VST{2, 2.f} != VST{2, 1.f}));
+    EXPECT_THAT((VST{1, 2.f}), Eq(VST{1, 2.f}));
+    EXPECT_THAT((VST{2, 2.f}), Eq(VST{2, 2.f}));
+    EXPECT_THAT((VST{2, 2.f}), Ne(VST{3, 2.f}));
+    EXPECT_THAT((VST{2, 2.f}), Ne(VST{2, 1.f}));
 }
 
 TYPED_TEST(test_vst, ordered)
@@ -242,14 +242,14 @@ TYPED_TEST(test_vst, ordered)
     static_assert(VST{2, 2.f} > VST{1, 2.f});
     static_assert(VST{2, 2.f} > VST{1, 1.f});
 
-    EXPECT_TRUE((VST{1, 2.f} <= VST{1, 2.f}));
-    EXPECT_TRUE((VST{1, 2.f} >= VST{1, 2.f}));
-    EXPECT_TRUE((VST{2, 2.f} < VST{3, 2.f}));
-    EXPECT_TRUE((VST{2, 2.f} < VST{2, 3.f}));
-    EXPECT_TRUE((VST{2, 2.f} < VST{3, 3.f}));
-    EXPECT_TRUE((VST{2, 2.f} > VST{2, 1.f}));
-    EXPECT_TRUE((VST{2, 2.f} > VST{1, 2.f}));
-    EXPECT_TRUE((VST{2, 2.f} > VST{1, 1.f}));
+    EXPECT_THAT((VST{1, 2.f}), Le(VST{1, 2.f}));
+    EXPECT_THAT((VST{1, 2.f}), Ge(VST{1, 2.f}));
+    EXPECT_THAT((VST{2, 2.f}), Lt(VST{3, 2.f}));
+    EXPECT_THAT((VST{2, 2.f}), Lt(VST{2, 3.f}));
+    EXPECT_THAT((VST{2, 2.f}), Lt(VST{3, 3.f}));
+    EXPECT_THAT((VST{2, 2.f}), Gt(VST{2, 1.f}));
+    EXPECT_THAT((VST{2, 2.f}), Gt(VST{1, 2.f}));
+    EXPECT_THAT((VST{2, 2.f}), Gt(VST{1, 1.f}));
 }
 
 TYPED_TEST(test_vst, set)
@@ -337,16 +337,16 @@ TYPED_TEST(test_vst, hashable)
     static_assert(is_hashable<VST>);
     static_assert(!is_addable<VST>);
 
-    auto h = [](const VST& o) { return vst::hash<VST>{}(o); };
+    auto vh = [](const VST& o) { return vst::hash<VST>{}(o); };
     auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
     auto bh = [](const VST& o) { return boost::hash<VST>{}(o); };
 
-    EXPECT_TRUE((h(VST{1, 2.f}) == sh(VST{1, 2.f})));
-    EXPECT_TRUE((h(VST{1, 2.f}) == bh(VST{1, 2.f})));
+    EXPECT_THAT((vh(VST{1, 2.f})), Eq(sh(VST{1, 2.f})));
+    EXPECT_THAT((vh(VST{1, 2.f})), Eq(bh(VST{1, 2.f})));
 
-    EXPECT_TRUE((h(VST{1, 2.f}) == h(VST{1, 2.f})));
-    EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{2, 2.f})));
-    EXPECT_TRUE((h(VST{1, 2.f}) != h(VST{1, 1.f})));
+    EXPECT_THAT((vh(VST{1, 2.f})), Eq(vh(VST{1, 2.f})));
+    EXPECT_THAT((vh(VST{1, 2.f})), Ne(vh(VST{2, 2.f})));
+    EXPECT_THAT((vh(VST{1, 2.f})), Ne(vh(VST{1, 1.f})));
 }
 
 TYPED_TEST(test_vst, unordered_set)
@@ -437,16 +437,16 @@ TYPED_TEST(test_vst, addable)
     static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
     static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});
 
-    EXPECT_TRUE((VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f}));
-    EXPECT_TRUE((VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f}));
+    EXPECT_THAT((VST{1, 2.f} + VST{2, 2.f}), Eq(VST{3, 4.f}));
+    EXPECT_THAT((VST{1, 2.f} - VST{2, 2.f}), Eq(VST{-1, 0.f}));
 
     VST obj{0, 0.f};
     obj += VST{1, 1.f};
-    EXPECT_TRUE((obj == VST{1, 1.f}));
+    EXPECT_THAT((obj), Eq(VST{1, 1.f}));
     obj += VST{1, 1.f};
-    EXPECT_TRUE((obj == VST{2, 2.f}));
+    EXPECT_THAT((obj), Eq(VST{2, 2.f}));
     obj -= VST{0, 1.f};
-    EXPECT_TRUE((obj == VST{2, 1.f}));
+    EXPECT_THAT((obj), Eq(VST{2, 1.f}));
 }
 
 // #############
@@ -473,6 +473,11 @@ struct manual_override_pod {
 };
 using manual_override = vst::type<manual_override_pod, vst::op::hashable>;
 
+struct nested_manual_override_pod {
+    manual_override f;
+};
+using nested_manual_override = vst::type<nested_manual_override_pod, vst::op::hashable>;
+
 constexpr bool operator==(const manual_override&, const manual_override&) {
     return true;
 }
@@ -495,11 +500,21 @@ struct hash<manual_override>
 
 TEST(test_vst, manual_override)
 {
-    EXPECT_TRUE((manual_override{1, 2} == manual_override{1, 1}));
-    EXPECT_FALSE((manual_override{1, 2} != manual_override{1, 1}));
-    EXPECT_TRUE((vst::hash<manual_override>{}(manual_override{1, 2}) == 42));
-    EXPECT_TRUE((std::hash<manual_override>{}(manual_override{1, 2}) == 42));
-    EXPECT_TRUE((boost::hash<manual_override>{}(manual_override{1, 2}) == 42));
+    auto vh = []<typename VST>(const VST& o) { return vst::hash<VST>{}(o); };
+    auto sh = []<typename VST>(const VST& o) { return std::hash<VST>{}(o); };
+    auto bh = []<typename VST>(const VST& o) { return boost::hash<VST>{}(o); };
+
+    EXPECT_THAT((manual_override{1, 2}), Eq(manual_override{1, 1}));
+    EXPECT_THAT((manual_override{1, 2}), Eq(manual_override{1, 1})); // because 'operator==' always returns true
+    EXPECT_THAT((vh(manual_override{1, 2})), Eq(42));
+    EXPECT_THAT((sh(manual_override{1, 2})), Eq(42));
+    EXPECT_THAT((bh(manual_override{1, 2})), Eq(42));
+
+    EXPECT_THAT((nested_manual_override{manual_override{1, 2}}), Eq(nested_manual_override{manual_override{1, 1}}));
+    EXPECT_THAT((nested_manual_override{manual_override{1, 2}}), Eq(nested_manual_override{manual_override{1, 1}})); // because 'operator==' always returns true
+    EXPECT_THAT((vh(nested_manual_override{manual_override{1, 2}})), Eq(42));
+    EXPECT_THAT((sh(nested_manual_override{manual_override{1, 2}})), Eq(42));
+    EXPECT_THAT((bh(nested_manual_override{manual_override{1, 2}})), Eq(42));
 }
 
 // #######################
