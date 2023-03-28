@@ -88,6 +88,20 @@ struct composite_pod {
 template<typename... ops>
 using simple                = vst::type<simple_pod, ops...>;
 
+
+static constexpr auto tie_test()
+{
+    using V = simple<>;
+
+    static_assert(std::is_same_v<std::tuple<int&, float&>, decltype(vst::trait<V>::tie(std::declval<V&>()))>);
+    static_assert(std::is_same_v<
+        std::tuple<vst::indexed_var<int, 1>, vst::indexed_var<float, 2>>,
+        decltype(vst::indexed_var_util::tie(vst::trait<V>::tie(std::declval<V&>())))>);
+    static_assert(std::is_same_v<
+        std::tuple<vst::indexed_var<vst::wrapped_value_of<V, int>, 1>, vst::indexed_var<vst::wrapped_value_of<V, float>, 2>>,
+        decltype(vst::wrap<V>(vst::indexed_var_util::tie(vst::trait<V>::tie(std::declval<V&>()))))>);
+}
+
 template<typename... ops>
 using simple_just_ptrs      = vst::type<simple_just_ptrs_pod, ops...>;
 

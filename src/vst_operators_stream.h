@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vst_defs.h>
+#include <vst_wrapped_value.h>
 
 #include <type_traits>
 #include <ostream>
@@ -15,7 +16,7 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
     std::apply(
         [&os](const auto&... field){
             ((os << " " << field), ...);
-        }, vst::trait<T>::named_tie(rhs));
+        }, vst::wrap<T>(vst::trait<T>::named_tie(rhs)));
     os << " ]";
     return os;
 }

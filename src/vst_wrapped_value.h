@@ -25,6 +25,20 @@ struct wrapped_value_of : wrapped_value<T>
     using wrapped_value<T>::wrapped_value;
 };
 
+template<typename vst_t, typename T>
+constexpr auto wrap(const T& v)
+{
+    return wrapped_value_of<vst_t, T>{v};
+}
+
+template<typename vst_t, typename... Ts>
+constexpr auto wrap(std::tuple<Ts...> values)
+{
+    return std::apply(
+        [](const auto&... elem) { return std::tuple(wrap<vst_t>(elem)...); },
+        values);
+}
+
 // defaults
 template<typename T>
 constexpr bool operator==(const wrapped_value<T>& lhs, const wrapped_value<T>& rhs)

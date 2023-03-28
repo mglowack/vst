@@ -42,28 +42,6 @@ struct trait
     {
         return fields_def_helper_t::named_tie(obj);
     }
-
-    template<typename U>
-    static constexpr auto wrapped_tie(U& obj)
-    {
-        using vst_t = std::decay_t<U>;
-        return std::apply(
-            []<typename... field_t>(const field_t&... f) {
-                return std::tuple(wrapped_value_of<vst_t, field_t>{f}...);
-            },
-            tie(obj));
-    }
-
-    // template<typename... Us>
-    // static constexpr auto wrap(std::tuple<Us&> fields)
-    // {
-    //     using vst_t = std::decay_t<U>;
-    //     return std::apply(
-    //         []<typename... field_t>(const field_t&... f) {
-    //             return std::tuple(wrapped_value_of<vst_t, field_t>{f}...);
-    //         },
-    //         tie(obj));
-    // }
 };
 
 } // namespace impl

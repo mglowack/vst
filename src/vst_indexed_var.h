@@ -34,29 +34,28 @@ std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
     return os << "field" << rhs.index << "=" << rhs.value;
 }
 
+template<typename vst_t, typename T, std::size_t I>
+constexpr auto wrap(const indexed_var<T, I>& var)
+{
+    return indexed_var<wrapped_value_of<vst_t, T>, I>{wrapped_value_of<vst_t, T>{var.value}};
+}
+
 struct indexed_var_util
 {
-    template<typename vst_t, typename... Ts>
+    template<typename... Ts>
     static constexpr auto tie(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
             [](const auto&... elem) {
-                return std::tuple(as_indexed_var<vst_t>(elem)...);
+                return std::tuple(make<elem.index + 1>(elem.value)...); // convert to 1-based
             },
             fields);
     }
 
-    template<typename vst_t, typename T, std::size_t I>
-    static constexpr auto wrap(const indexed_var<T, I>& var)
+    template<std::size_t I, typename T>
+    static constexpr auto make(const T& value)
     {
-        return indexed_var<wrapped_value_of<vst_t, T>, I>{
-            wrapped_value_of<vst_t, T>{var.value}};
-    }
-
-    template<typename vst_t, std::size_t I, typename T>
-    static constexpr auto as_indexed_var(const value_with_index<I, T>& var)
-    {
-        return wrap<vst_t>(indexed_var<std::remove_const_t<T>, I+1>{var.value}); // convert to 1-based
+        return indexed_var<T, I>{value};
     }
 };
 

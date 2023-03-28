@@ -40,12 +40,10 @@ std::ostream& operator<<(std::ostream& os, const named_var<T>& rhs)
     return os << rhs.name << "=" << rhs.value;
 }
 
-struct named_var_util {
-    template<typename vst_t, typename T>
-    static constexpr auto wrap(const named_var<T>& var)
-    {
-        return named_var{var.name, wrapped_value_of<vst_t, T>{var.value}};
-    }
-};
+template<typename vst_t, typename T>
+constexpr auto wrap(const named_var<T>& var)
+{
+    return named_var{var.name, vst::wrap<vst_t>(var.value)};
+}
 
 }

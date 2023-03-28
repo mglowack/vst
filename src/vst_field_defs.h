@@ -2,7 +2,6 @@
 
 #include <vst_defs.h>
 #include <vst_utils.h>
-#include <vst_wrapped_value.h>
 #include <vst_named_var.h>
 #include <vst_indexed_var.h>
 
@@ -47,7 +46,7 @@ private:
     template<typename vst_t, typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
-        return vst::indexed_var_util::tie<vst_t>(tie(obj)); // fallback to indexing members
+        return vst::indexed_var_util::tie(tie(obj)); // fallback to indexing members
     }
 
     template<typename T, typename field_ptr_t>
@@ -65,7 +64,7 @@ private:
     template<typename vst_t, typename T>
     static constexpr auto as_named_var(const char* name, const T& var)
     {
-        return named_var_util::wrap<vst_t>(named_var{name, var});
+        return named_var{name, var};
     }
 };
 
@@ -80,7 +79,7 @@ struct aggregate_vst_helper
     template<typename T>
     static constexpr auto named_tie(T& obj)
     {
-        return vst::indexed_var_util::tie<std::decay_t<T>>(tie(obj));
+        return vst::indexed_var_util::tie(tie(obj));
     }
 
 private:
