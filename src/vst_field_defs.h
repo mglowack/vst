@@ -65,7 +65,7 @@ private:
     template<typename vst_t, typename T>
     static constexpr auto as_named_var(const char* name, const T& var)
     {
-        return named_var<wrapped_value_of<vst_t, T>>{name, wrapped_value_of<vst_t, T>{var}};
+        return named_var_util::wrap<vst_t>(named_var{name, var});
     }
 };
 
