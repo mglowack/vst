@@ -30,8 +30,8 @@ namespace boost
 {
 
 // boost::hash support
-template<typename... args_t>
-struct hash<vst::impl::type<args_t...>> : vst::hash<vst::impl::type<args_t...>>
+template<typename T, typename... args_t>
+struct hash<vst::type<T, args_t...>> : vst::hash<vst::type<T, args_t...>>
 {
 };
 
@@ -41,8 +41,8 @@ namespace std
 {
 
 // std::hash support
-template<typename... args_t>
-struct hash<vst::impl::type<args_t...>> : vst::hash<vst::impl::type<args_t...>>
+template<typename T, typename... args_t>
+struct hash<vst::type<T, args_t...>> : vst::hash<vst::type<T, args_t...>>
 {
 };
 
