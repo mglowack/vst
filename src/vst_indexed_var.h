@@ -28,6 +28,12 @@ struct indexed_var<wrapped_value_of<P, T>, I>
     wrapped_value_of<P, T> value;
 };
 
+template<std::size_t I, typename T>
+constexpr auto make_indexed_var(const T& value)
+{
+    return indexed_var<T, I>{value};
+}
+
 template<typename T, std::size_t I>
 std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
 {
@@ -37,7 +43,7 @@ std::ostream& operator<<(std::ostream& os, const indexed_var<T, I>& rhs)
 template<typename vst_t, typename T, std::size_t I>
 constexpr auto wrap(const indexed_var<T, I>& var)
 {
-    return indexed_var<wrapped_value_of<vst_t, T>, I>{wrapped_value_of<vst_t, T>{var.value}};
+    return make_indexed_var<I>(wrapped_value_of<vst_t, T>{var.value});
 }
 
 struct indexed_var_util
@@ -47,15 +53,9 @@ struct indexed_var_util
     {
         return apply_with_index(
             [](const auto&... elem) {
-                return std::tuple(make<elem.index + 1>(elem.value)...); // convert to 1-based
+                return std::tuple(make_indexed_var<elem.index + 1>(elem.value)...); // convert to 1-based
             },
             fields);
-    }
-
-    template<std::size_t I, typename T>
-    static constexpr auto make(const T& value)
-    {
-        return indexed_var<T, I>{value};
     }
 };
 
