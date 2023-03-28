@@ -46,7 +46,7 @@ private:
     template<typename T, typename... field_ptrs_t>
     static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
     {
-        return vst::indexed_var_util::tie(tie(obj)); // fallback to indexing members
+        return vst::indexed_var_util::index(tie(obj)); // fallback to indexing members
     }
 
     template<typename T, typename field_ptr_t>
@@ -73,14 +73,15 @@ struct aggregate_vst_helper
     template<typename T>
     static constexpr auto named_tie(T& obj)
     {
-        return vst::indexed_var_util::tie(tie(obj));
+        return vst::indexed_var_util::index(tie(obj));
     }
 
 private:
     template<typename T>
     static constexpr decltype(auto) as_aggregate(T& obj)
     {
-        return static_cast<propagate_const_t<T, aggregate_t<std::remove_const_t<T>>>&>(obj);
+        using aggregate_t = vst::trait<std::remove_const_t<T>>::pod_t;
+        return static_cast<propagate_const_t<T, aggregate_t>&>(obj);
     }
 };
 

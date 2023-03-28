@@ -8,19 +8,6 @@
 struct non_matchable {};
 inline void show_type(non_matchable) {}
 
-// #############
-// # aggregate #
-// #############
-
-template<typename T>
-struct aggregate : std::type_identity<T> {};
-
-template<typename T, typename... ops>
-struct aggregate<vst::type<T, ops...>> : std::type_identity<T> {};
-
-template<typename T>
-using aggregate_t = typename aggregate<T>::type;
-
 // ###################
 // # propagate_const #
 // ###################

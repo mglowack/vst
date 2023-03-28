@@ -43,7 +43,7 @@ constexpr auto wrap(const indexed_var<T, I>& var)
 struct indexed_var_util
 {
     template<typename... Ts>
-    static constexpr auto tie(std::tuple<Ts&...> fields)
+    static constexpr auto index(std::tuple<Ts&...> fields)
     {
         return apply_with_index(
             [](const auto&... elem) {

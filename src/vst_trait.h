@@ -29,6 +29,7 @@ template<typename T, typename fields_def_helper_t, typename... ops>
 struct trait
 {
     static constexpr bool exists = true;
+    using pod_t = T;
     using properties = type_list<ops...>;
 
     template<typename U>
