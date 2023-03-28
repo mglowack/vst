@@ -11,7 +11,6 @@ add_library (vst OBJECT
     vst_wrapped_value.cpp
     vst_named_var.cpp
     vst_indexed_var.cpp
-    vst_field_defs.cpp
     vst_operators_hashable.cpp
     vst_operators_stream.cpp
     vst_operators_addable.cpp

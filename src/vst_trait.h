@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vst_defs.h>
-// #include <vst_field_defs.h>
 #include <vst_utils.h>
 #include <vst_named_var.h>
 #include <vst_indexed_var.h>
@@ -22,7 +21,7 @@ template<typename T>  constexpr bool is_fields_def = false;
 template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>>   = true;
 template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>>    = true;
 template<typename T>  constexpr bool is_fields_def<with_fields::from<T>>        = true;
-template<>            inline constexpr bool is_fields_def<with_fields::empty>   = true;
+template<>            constexpr bool is_fields_def<with_fields::empty>          = true;
 
 template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = false;
 template<>            constexpr bool is_fields_def<with_fields::use_default>    = false;
@@ -138,7 +137,8 @@ private:
     template<typename U, typename... field_ptrs>
     static constexpr auto named_tie(U& obj, std::tuple<field_ptrs...> fields)
     {
-            return vst::indexed_var_util::index(tie(obj)); // fallback to indexing members
+        // fallback to indexing members when fields are not 'named_field_ptr's
+        return vst::indexed_var_util::index(tie(obj));
     }
 
     template<typename U, typename field_ptr_t>
