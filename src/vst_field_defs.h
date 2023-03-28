@@ -49,24 +49,6 @@ struct described_vst_helper
     }
 
 private:
-    // template<typename T, typename... field_ptrs_t>
-    // static constexpr auto named_tie(
-    //     T& obj, const std::tuple<named_field_ptr<field_ptrs_t>...>& fields)
-    // {
-    //     return std::apply(
-    //         [&obj](const auto&... f) {
-    //             return std::tuple(named_var{f.name, as_ref_to_value(obj, f)}...);
-    //         },
-    //         fields);
-    // }
-
-    // // NOTE: this overload takes over if fields ARE NOT named_field_ptr<T> i.e. no names were specified
-    // template<typename T, typename... field_ptrs_t>
-    // static constexpr auto named_tie(T& obj, const std::tuple<field_ptrs_t...>& fields)
-    // {
-    //     return vst::indexed_var_util::index(tie(obj)); // fallback to indexing members
-    // }
-
     template<typename T, typename field_ptr_t>
     static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
     {

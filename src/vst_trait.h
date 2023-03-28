@@ -1,9 +1,14 @@
 #pragma once
 
 #include <vst_defs.h>
-#include <vst_field_defs.h>
+// #include <vst_field_defs.h>
+#include <vst_utils.h>
+#include <vst_named_var.h>
+#include <vst_indexed_var.h>
 
 #include <type_list.h>
+
+#include <boost/pfr.hpp>
 
 namespace vst {
 
@@ -14,35 +19,50 @@ namespace impl {
 // #################
 
 template<typename T>  constexpr bool is_fields_def = false;
-template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>> = true;
-template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>> = true;
-template<typename T>  constexpr bool is_fields_def<with_fields::from<T>> = true;
-// template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = true;
-template<>            inline constexpr bool is_fields_def<with_fields::empty> = true;
+template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>>   = true;
+template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>>    = true;
+template<typename T>  constexpr bool is_fields_def<with_fields::from<T>>        = true;
+template<>            inline constexpr bool is_fields_def<with_fields::empty>   = true;
 
+template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = false;
+template<>            constexpr bool is_fields_def<with_fields::use_default>    = false;
 
 // #########
 // # trait #
 // #########
 
-template<typename T, typename fields_def_helper_t, typename... ops>
+    template<typename T>
+    static constexpr bool has_named_field_ptrs = false;
+
+    template<typename... field_ptrs_t>
+    static constexpr bool has_named_field_ptrs<std::tuple<named_field_ptr<field_ptrs_t>...>> = true;
+
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
+    {
+        return obj.*f;
+    }
+
+    template<typename T, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
+    {
+        return obj.*f.field_ptr;
+    }
+
+    template<typename T>
+    static constexpr decltype(auto) as_aggregate(T& obj)
+    {
+        using aggregate_t = vst::trait<std::remove_const_t<T>>::pod_t;
+        return static_cast<propagate_const_t<T, aggregate_t>&>(obj);
+    }
+
+template<typename T, typename fields_def_t, typename... ops>
 struct trait
 {
     static constexpr bool exists = true;
     using pod_t = T;
+    using fields_def = fields_def_t;
     using properties = type_list<ops...>;
-
-    template<typename U>
-    static constexpr auto tie(U& obj)
-    {
-        return fields_def_helper_t::tie(obj);
-    }
-
-    template<typename U>
-    static constexpr auto named_tie(U& obj)
-    {
-        return fields_def_helper_t::named_tie(obj);
-    }
 };
 
 } // namespace impl
@@ -63,8 +83,8 @@ struct trait<
 };
 
 // 'with_fields::use_default':
-// * if 'get_fields()' is not provided on the underlying type translate to 'with_fields::from_aggregate'
-// * otherwise translate to 'with_fields::from<T>'
+// * translate to 'with_fields::from_aggregate' if 'get_fields()' is not provided on the underlying type
+// * translate to 'with_fields::from<T>' otherwise
 template<typename T, typename... ops>
 struct trait<
     type<T, with_fields::use_default, ops...>,
@@ -85,9 +105,21 @@ struct trait<
 // 'with_fields::from_aggregate'
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::from_aggregate, ops...>>
-: impl::trait<T, impl::aggregate_vst_helper, ops...>
+: impl::trait<T, with_fields::from_aggregate, ops...>
 {
     static_assert(std::is_aggregate_v<T>, "T must be an aggregate.");
+
+    template<typename U>
+    static constexpr auto tie(U& obj)
+    {
+        return boost::pfr::structure_tie(as_aggregate(obj));
+    }
+
+    template<typename U>
+    static constexpr auto named_tie(U& obj)
+    {
+        return vst::indexed_var_util::index(tie(obj));
+    }
 };
 
 // 'with_fields::from<T>'
@@ -98,9 +130,34 @@ template<typename T, typename fields_def, typename... ops>
 struct trait<
     type<T, fields_def, ops...>,
     std::enable_if_t<impl::is_fields_def<fields_def>>>
-: impl::trait<T, impl::described_vst_helper<fields_def>, ops...>
+: impl::trait<T, fields_def, ops...>
 {
     static_assert(has_correct_get_fields<fields_def, T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
+
+    template<typename U>
+    static constexpr auto tie(U& obj)
+    {
+        return std::apply(
+            [&obj](const auto&... f) { return std::tie(as_ref_to_value(obj, f)...); },
+            fields_def::get_fields());
+    }
+
+    static constexpr bool has_named_members = impl::has_named_field_ptrs<decltype(fields_def::get_fields())>;
+
+    template<typename U>
+    static constexpr auto named_tie(U& obj)
+    {
+        if constexpr (has_named_members) {
+            return std::apply(
+                [&obj](const auto&... f) {
+                    return std::tuple(named_var{f.name, as_ref_to_value(obj, f)}...);
+                },
+                fields_def::get_fields());
+
+        } else {
+            return vst::indexed_var_util::index(tie(obj)); // fallback to indexing members
+        }
+    }
 };
 
 } // namespace vst
