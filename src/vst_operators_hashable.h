@@ -18,6 +18,12 @@ struct hash
     }
 };
 
+template<OpEnabled<op::hashable> T>
+constexpr auto hash_value(const T& o)
+{
+    return hash<T>{}(o);
+}
+
 } // namespace vst
 
 namespace boost

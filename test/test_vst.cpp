@@ -500,21 +500,13 @@ struct hash<manual_override>
 
 TEST(test_vst, manual_override)
 {
-    auto vh = []<typename VST>(const VST& o) { return vst::hash<VST>{}(o); };
-    auto sh = []<typename VST>(const VST& o) { return std::hash<VST>{}(o); };
-    auto bh = []<typename VST>(const VST& o) { return boost::hash<VST>{}(o); };
-
     EXPECT_THAT((manual_override{1, 2}), Eq(manual_override{1, 1}));
     EXPECT_THAT((manual_override{1, 2}), Eq(manual_override{1, 1})); // because 'operator==' always returns true
-    EXPECT_THAT((vh(manual_override{1, 2})), Eq(42));
-    EXPECT_THAT((sh(manual_override{1, 2})), Eq(42));
-    EXPECT_THAT((bh(manual_override{1, 2})), Eq(42));
+    EXPECT_THAT((vst::hash_value(manual_override{1, 2})), Eq(42));
 
     EXPECT_THAT((nested_manual_override{manual_override{1, 2}}), Eq(nested_manual_override{manual_override{1, 1}}));
     EXPECT_THAT((nested_manual_override{manual_override{1, 2}}), Eq(nested_manual_override{manual_override{1, 1}})); // because 'operator==' always returns true
-    EXPECT_THAT((vh(nested_manual_override{manual_override{1, 2}})), Eq(42));
-    EXPECT_THAT((sh(nested_manual_override{manual_override{1, 2}})), Eq(42));
-    EXPECT_THAT((bh(nested_manual_override{manual_override{1, 2}})), Eq(42));
+    EXPECT_THAT((vst::hash_value(nested_manual_override{manual_override{1, 2}})), Eq(42));
 }
 
 // #######################
