@@ -27,26 +27,46 @@ struct named_field_ptr
 // ##########################
 
 template<typename T>
-struct member_of
+struct is_pointer_to_member_of
 {
     template<typename ptr_t>
-    struct is_pointer_to_member : std::false_type {};
+    struct pred : std::false_type {};
 
     template<typename X>
-    struct is_pointer_to_member<X (T::*)> : std::true_type {};
-
-    template<typename ptr_t>
-    static constexpr bool is_pointer_to_member_v = is_pointer_to_member<ptr_t>::value;
+    struct pred<X (T::*)> : std::true_type {};
 };
 
-template<template<typename> typename checker_t, typename T, typename ENABLER = std::void_t<>>
-constexpr bool is_tuple_of = false;
+template<typename T>
+struct is_named_field_ptr_of
+{
+    template<typename ptr_t>
+    struct pred : std::false_type {};
 
-template<template<typename> typename checker_t, typename... ptrs_t>
-constexpr bool is_tuple_of<checker_t, std::tuple<ptrs_t...>> = (checker_t<ptrs_t>::value && ...);
+    template<typename X>
+    struct pred<named_field_ptr<X (T::*)>> : std::true_type {};
+};
 
-template<template<typename> typename checker_t, typename... ptrs_t>
-constexpr bool is_tuple_of<checker_t, std::tuple<named_field_ptr<ptrs_t>...>> = (checker_t<ptrs_t>::value && ...);
+
+
+template<template<typename> typename... preds_t>
+struct disjunction
+{
+    template<typename T>
+    using pred = std::disjunction<preds_t<T>...>;
+};
+
+
+
+template<template<typename...> typename template_t, typename T>
+struct is_template : std::false_type {};
+
+template<template<typename...> typename template_t, typename T>
+constexpr bool is_template_v =  is_template<template_t, T>::value;
+
+template<template<typename...> typename template_t, typename... args_t>
+struct is_template<template_t, template_t<args_t...>> : std::true_type {};
+
+
 
 template<typename T, typename U, typename ENABLER = std::void_t<>>
 constexpr bool has_correct_get_fields = false;
@@ -55,7 +75,14 @@ template<typename T, typename U>
 constexpr bool has_correct_get_fields<
     T, U,
     std::void_t<decltype(T::get_fields())>>
-= is_tuple_of<member_of<U>::template is_pointer_to_member, decltype(T::get_fields())>;
+= is_template_v<std::tuple, decltype(T::get_fields())>
+    && type_list_all_v<
+        type_list_cast_t<decltype(T::get_fields())>,
+        disjunction<
+            is_pointer_to_member_of<U>::template pred,
+            is_named_field_ptr_of<U>::template pred>::template pred>;
+// =    type_list_all_v<list_from_tuple_t<decltype(T::get_fields())>, is_pointer_to_member_of<U>::template pred>
+//   || type_list_all_v<list_from_tuple_t<decltype(T::get_fields())>, is_named_field_ptr_of<U>::template pred>;
 
 namespace vst {
 

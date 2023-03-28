@@ -1,6 +1,8 @@
 #ifndef TYPE_LIST_H
 #define TYPE_LIST_H
 
+#include <tuple>
+#include <variant>
 #include <type_traits>
 
 // #############
@@ -77,14 +79,14 @@ struct type_list_filter<type_list<first_t, the_rest_t...>, pred_t>
     using type = std::conditional_t<
         pred_t<first_t>::value,
         type_list_concat_t<
-            type_list<first_t>, 
+            type_list<first_t>,
             type_list_filter_t<
-                type_list<the_rest_t...>, 
+                type_list<the_rest_t...>,
                 pred_t
             >
         >,
         type_list_filter_t<
-            type_list<the_rest_t...>, 
+            type_list<the_rest_t...>,
             pred_t
         >
     >;
@@ -121,81 +123,81 @@ static_assert( trait_op<is_int>::negate_v<double>);
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<>, 
+            type_list<>,
             is_int
-        >, 
+        >,
         type_list<>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<int>, 
+            type_list<int>,
             is_int
-        >, 
+        >,
         type_list<int>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<int>, 
+            type_list<int>,
             trait_op<is_int>::negate
-        >, 
+        >,
         type_list<>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<float>, 
+            type_list<float>,
             is_int
-        >, 
+        >,
         type_list<>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<float>, 
+            type_list<float>,
             trait_op<is_int>::negate
-        >, 
+        >,
         type_list<float>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<float, double>, 
+            type_list<float, double>,
             is_int
-        >, 
+        >,
         type_list<>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<float, double>, 
+            type_list<float, double>,
             trait_op<is_int>::negate
-        >, 
+        >,
         type_list<float, double>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<int, float, int, double>, 
+            type_list<int, float, int, double>,
             is_int
-        >, 
+        >,
         type_list<int, int>
     >);
 
 static_assert(
     std::is_same_v<
         type_list_filter_t<
-            type_list<int, float, int, double>, 
+            type_list<int, float, int, double>,
             trait_op<is_int>::negate
-        >, 
+        >,
         type_list<float, double>
     >);
 
@@ -261,5 +263,26 @@ using type_list_transform_t = typename type_list_transform<list_t, op_t>::type;
 static_assert(std::is_same_v<type_list_transform_t<type_list<>, std::add_const_t>, type_list<>>);
 static_assert(std::is_same_v<type_list_transform_t<type_list<int>, std::add_const_t>, type_list<const int>>);
 static_assert(std::is_same_v<type_list_transform_t<type_list<int, double>, std::add_const_t>, type_list<const int, const double>>);
+
+// ##################
+// # type_list_cast #
+// ##################
+
+template<typename T>
+struct type_list_cast;
+
+template<typename... Ts>
+struct type_list_cast<std::tuple<Ts...>> : std::type_identity<type_list<Ts...>> {};
+
+template<typename... Ts>
+struct type_list_cast<std::variant<Ts...>> : std::type_identity<type_list<Ts...>> {};
+
+template<typename T>
+using type_list_cast_t = typename type_list_cast<T>::type;
+
+static_assert(std::is_same_v<type_list_cast_t<std::tuple<>>, type_list<>>);
+static_assert(std::is_same_v<type_list_cast_t<std::tuple<int, float>>, type_list<int, float>>);
+static_assert(std::is_same_v<type_list_cast_t<std::variant<>>, type_list<>>);
+static_assert(std::is_same_v<type_list_cast_t<std::variant<int, float>>, type_list<int, float>>);
 
 #endif
