@@ -31,31 +31,6 @@ template<>            constexpr bool is_fields_def<with_fields::use_default>    
 // # trait #
 // #########
 
-    template<typename T>
-    static constexpr bool has_named_field_ptrs = false;
-
-    template<typename... field_ptrs_t>
-    static constexpr bool has_named_field_ptrs<std::tuple<named_field_ptr<field_ptrs_t>...>> = true;
-
-    template<typename T, typename field_ptr_t>
-    static constexpr decltype(auto) as_ref_to_value(T& obj, field_ptr_t f)
-    {
-        return obj.*f;
-    }
-
-    template<typename T, typename field_ptr_t>
-    static constexpr decltype(auto) as_ref_to_value(T& obj, const named_field_ptr<field_ptr_t>& f)
-    {
-        return obj.*f.field_ptr;
-    }
-
-    template<typename T>
-    static constexpr decltype(auto) as_aggregate(T& obj)
-    {
-        using aggregate_t = vst::trait<std::remove_const_t<T>>::pod_t;
-        return static_cast<propagate_const_t<T, aggregate_t>&>(obj);
-    }
-
 template<typename T, typename fields_def_t, typename... ops>
 struct trait
 {
@@ -112,7 +87,7 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
     template<typename U>
     static constexpr auto tie(U& obj)
     {
-        return boost::pfr::structure_tie(as_aggregate(obj));
+        return boost::pfr::structure_tie(static_cast<propagate_const_t<U, T>&>(obj));
     }
 
     template<typename U>
@@ -132,7 +107,8 @@ struct trait<
     std::enable_if_t<impl::is_fields_def<fields_def>>>
 : impl::trait<T, fields_def, ops...>
 {
-    static_assert(has_correct_get_fields<fields_def, T>, "'get_fields' must return a tuple of pointer to members or named_field_ptr");
+    static_assert(has_correct_get_fields<fields_def, T>,
+    "'get_fields' must return a tuple of pointer to members or named_field_ptr");
 
     template<typename U>
     static constexpr auto tie(U& obj)
@@ -142,21 +118,39 @@ struct trait<
             fields_def::get_fields());
     }
 
-    static constexpr bool has_named_members = impl::has_named_field_ptrs<decltype(fields_def::get_fields())>;
-
     template<typename U>
     static constexpr auto named_tie(U& obj)
     {
-        if constexpr (has_named_members) {
-            return std::apply(
-                [&obj](const auto&... f) {
-                    return std::tuple(named_var{f.name, as_ref_to_value(obj, f)}...);
-                },
-                fields_def::get_fields());
+        return named_tie(obj, fields_def::get_fields());
+    }
 
-        } else {
+private:
+    template<typename U, typename... field_ptrs>
+    static constexpr auto named_tie(U& obj, std::tuple<named_field_ptr<field_ptrs>...> fields)
+    {
+        return std::apply(
+            [&obj](const auto&... f) {
+                return std::tuple(named_var{f.name, as_ref_to_value(obj, f)}...);
+            },
+            fields);
+    }
+
+    template<typename U, typename... field_ptrs>
+    static constexpr auto named_tie(U& obj, std::tuple<field_ptrs...> fields)
+    {
             return vst::indexed_var_util::index(tie(obj)); // fallback to indexing members
-        }
+    }
+
+    template<typename U, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(U& obj, field_ptr_t f)
+    {
+        return obj.*f;
+    }
+
+    template<typename U, typename field_ptr_t>
+    static constexpr decltype(auto) as_ref_to_value(U& obj, const named_field_ptr<field_ptr_t>& f)
+    {
+        return obj.*f.field_ptr;
     }
 };
 
