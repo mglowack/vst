@@ -5,6 +5,31 @@
 #include <utility>
 #include <iosfwd>
 
+// ########################
+// # append_template_args #
+// ########################
+
+template<typename T, typename... extra_args_t>
+struct append_template_args;
+
+template<typename T, typename... args_t, typename... extra_args_t>
+struct append_template_args<vst::type<T, args_t...>, extra_args_t...>
+{
+    using type = vst::type<T, args_t..., extra_args_t...>;
+};
+
+// #############
+// # stringify #
+// #############
+
+template<typename T>
+std::string stringify(const T& o)
+{
+    std::ostringstream oss;
+    oss << o;
+    return oss.str();
+}
+
 // #################
 // # is_comparable #
 // #################

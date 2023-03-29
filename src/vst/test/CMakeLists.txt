@@ -6,7 +6,10 @@ find_package(Boost COMPONENTS container REQUIRED)
 
 add_executable(
     vst_test
-    test_vst.cpp)
+    test_vst.cpp
+    test_vst_utils.cpp
+    test_vst_manual.cpp
+)
 target_link_libraries(
     vst_test PRIVATE
     gmock_main
