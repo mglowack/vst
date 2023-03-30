@@ -105,25 +105,47 @@ static_assert( is_ops_category_v<transparent_ops_with<float>>);
 // * 'default_ops' into 'strict_ops'
 // * 'transparent_ops' into 'transparent_ops_with<underlying_t>
 
+// ################
+// # type_convert #
+// ################
+
 template<typename from_t, typename into_t>
 struct type_convert
 {
     template<typename T>
     using func = std::conditional<std::is_same_v<T, from_t>, into_t, T>;
+
+    template<typename T>
+    using func_t = typename func<T>::type;
 };
 
 static_assert(std::is_same_v<void,  type_convert<int, float>::func<void>::type>);
 static_assert(std::is_same_v<float, type_convert<int, float>::func<float>::type>);
 static_assert(std::is_same_v<float, type_convert<int, float>::func<int>::type>);
 
-// template<typename T, typename... funcs>
-// struct apply_all;
+// #############
+// # apply_all #
+// #############
 
-// template<typename T, template<typename> typename func, typename... other_funcs>
-// struct apply_all<T, func, other_funcs...>
-// {
-//     using type = apply_all<func<T>::type, other_funcs...>::type;
-// };
+template<typename T, template<typename> typename... funcs>
+struct apply_all : std::type_identity<T> {};
+
+template<typename T, template<typename> typename... funcs>
+using apply_all_t = typename apply_all<T, funcs...>::type;
+
+template<typename T, template<typename> typename func, template<typename> typename... other_funcs>
+struct apply_all<T, func, other_funcs...>
+{
+    using type = apply_all<func<T>, other_funcs...>::type;
+};
+
+static_assert(std::is_same_v<void, apply_all_t<void>>);
+static_assert(std::is_same_v<const int, apply_all_t<int, std::add_const_t>>);
+static_assert(std::is_same_v<const int&, apply_all_t<int, std::add_const_t, std::add_lvalue_reference_t>>);
+static_assert(std::is_same_v<void, apply_all_t<void, type_convert<int, void>::func_t>>);
+static_assert(std::is_same_v<void, apply_all_t<int,  type_convert<int, void>::func_t>>);
+static_assert(std::is_same_v<float, apply_all_t<int, type_convert<int, void>::func_t,
+                                                     type_convert<void, float>::func_t>>);
 
 // template<typename underlying_t, typename... conversions>
 // struct transform_op_category
