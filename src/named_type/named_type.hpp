@@ -77,12 +77,10 @@ struct named_type_pod
 {
     using self = named_type_pod<underlying_t, tag_t, ops_categories_t>;
     using underlying_type = underlying_t;
-    // using ops_category = ops_category_t;
     using ops_categories = ops_categories_t;
 
     template<typename T>
     static constexpr bool is_transparent_with = type_list_any_v<ops_categories, transparent_type_traits<T>::template is_transparent_with_t>;
-    // static constexpr bool is_transparent_with = is_transparent_with<ops_category_t, T>;
 
     static constexpr bool is_transparent = self::is_transparent_with<underlying_type>;
 
@@ -292,25 +290,31 @@ constexpr bool is_named_type<vst::type<named_type_pod<underlying_t, tag_t, ops_c
 // struct is_named_type<typename named_type_impl<underlying_t, tag_t, type_list<ops...>>::type> : std::true_type {};
 // struct is_named_type<vst::impl::type<named_type<underlying_t, tag_t, ops_category>, type_list<ops...>>> : std::true_type {};
 
-template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+template<typename T>
+concept NamedType = is_named_type<T>;
+
+template<typename U, typename T>
+concept TransparentWith = is_named_type<T> && T::template is_transparent_with<U>;
+
+template<NamedType T, TransparentWith<T> U>
 constexpr bool operator==(const T& lhs, const U& rhs)
 {
     return lhs.get() == rhs;
 }
 
-template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+template<NamedType T, TransparentWith<T> U>
 constexpr bool operator==(const U& lhs, const T& rhs)
 {
     return lhs == rhs.get();
 }
 
-template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+template<NamedType T, TransparentWith<T> U>
 constexpr bool operator<(const T& lhs, const U& rhs)
 {
     return lhs.get() < rhs;
 }
 
-template<typename T, typename U, std::enable_if_t<is_named_type<T> && T::template is_transparent_with<U>, int> = 0>
+template<NamedType T, TransparentWith<T> U>
 constexpr bool operator<(const U& lhs, const T& rhs)
 {
     return lhs < rhs.get();
@@ -322,17 +326,8 @@ std::ostream& operator<<(std::ostream& os, const named_type<T, tag_t, ops...>& r
     return os << rhs.get();
 }
 
-template<typename T, typename ENABLER = void>
+template<NamedType T>
 struct transparent_equal_to
-{
-    constexpr bool operator()( const T& lhs,  const T& rhs) const
-    {
-        return lhs == rhs;
-    }
-};
-
-template<typename T>
-struct transparent_equal_to<T, std::enable_if_t<is_named_type<T>>>
 {
     using is_transparent = void;
 
@@ -341,30 +336,21 @@ struct transparent_equal_to<T, std::enable_if_t<is_named_type<T>>>
         return lhs == rhs;
     }
 
-    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    template<TransparentWith<T> U>
     constexpr bool operator()(const U& lhs, const T& rhs) const
     {
         return lhs == rhs;
     }
 
-    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    template<TransparentWith<T> U>
     constexpr bool operator()(const T& lhs, const U& rhs) const
     {
         return lhs == rhs;
     }
 };
 
-template<typename T, typename ENABLER = void>
+template<NamedType T>
 struct transparent_less
-{
-    constexpr bool operator()( const T& lhs,  const T& rhs) const
-    {
-        return lhs < rhs;
-    }
-};
-
-template<typename T>
-struct transparent_less<T, std::enable_if_t<is_named_type<T>>>
 {
     using is_transparent = void;
 
@@ -373,13 +359,13 @@ struct transparent_less<T, std::enable_if_t<is_named_type<T>>>
         return lhs < rhs;
     }
 
-    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    template<TransparentWith<T> U>
     constexpr bool operator()(const U& lhs, const T& rhs) const
     {
         return lhs < rhs;
     }
 
-    template<typename U, std::enable_if_t<T::template is_transparent_with<U>, int> = 0>
+    template<TransparentWith<T> U>
     constexpr bool operator()(const T& lhs, const U& rhs) const
     {
         return lhs < rhs;
