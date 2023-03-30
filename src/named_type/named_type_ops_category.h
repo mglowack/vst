@@ -7,7 +7,13 @@
 // #######################
 // # operator categories #
 // #######################
-//
+
+struct default_ops;
+struct strict_ops;
+struct transparent_ops;
+template<typename T>
+struct transparent_ops_with;
+
 // These types are used to specify what kind of operators the 'named_type' will support.
 // Operator category tag should be placed after named type tag, i.e. before specifying 'vst::op's.
 //
@@ -65,16 +71,6 @@
 //  if (a == 10.f) {} // allowed
 //  if (a < 10.f)  {} // allowed
 //..
-
-// #################
-// # op categories #
-// #################
-
-struct default_ops;
-struct strict_ops;
-struct transparent_ops;
-template<typename T>
-struct transparent_ops_with;
 
 // ###################
 // # is_ops_category #

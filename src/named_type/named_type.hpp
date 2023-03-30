@@ -1,54 +1,9 @@
-#ifndef NAMED_TYPE_H
-#define NAMED_TYPE_H
+#pragma once
+
+#include <named_type_ops_category.h>
 
 #include "vst.hpp"
 #include "type_list.h"
-
-// ##############
-// # named_type #
-// ##############
-
-struct default_ops;
-struct strict_ops;
-struct transparent_ops;
-template<typename T>
-struct transparent_ops_with;
-
-template<typename op_category_t>
-struct transform_op_category
-{
-    using type = op_category_t;
-};
-
-template<>
-struct transform_op_category<default_ops>
-{
-    using type = strict_ops;
-};
-
-template<typename op_category_t>
-using transform_op_category_t = typename transform_op_category<op_category_t>::type;
-
-template<typename T, typename op_category_t>
-struct transform_op_category_x : transform_op_category<op_category_t> {};
-
-template<typename T>
-struct transform_op_category_x<T, transparent_ops> {
-    using type = transparent_ops_with<T>;
-};
-
-template<typename T, typename op_category_t>
-using transform_op_category_x_t = typename transform_op_category_x<T, op_category_t>::type;
-
-static_assert(std::is_same_v<transform_op_category_t<default_ops>, strict_ops>);
-static_assert(std::is_same_v<transform_op_category_t<strict_ops>, strict_ops>);
-static_assert(std::is_same_v<transform_op_category_t<transparent_ops>, transparent_ops>);
-static_assert(std::is_same_v<transform_op_category_t<transparent_ops_with<int>>, transparent_ops_with<int>>);
-
-static_assert(std::is_same_v<transform_op_category_x_t<int, default_ops>, strict_ops>);
-static_assert(std::is_same_v<transform_op_category_x_t<int, strict_ops>, strict_ops>);
-static_assert(std::is_same_v<transform_op_category_x_t<int, transparent_ops>, transparent_ops_with<int>>);
-static_assert(std::is_same_v<transform_op_category_x_t<int, transparent_ops_with<int>>, transparent_ops_with<int>>);
 
 template<typename op_category_t, typename T>
 constexpr bool is_transparent_with = false;
@@ -60,23 +15,23 @@ template<typename op_category_t>
 struct named_type_traits
 {
     template<typename T>
-    struct is_transparent_with_t : std::bool_constant<is_transparent_with<op_category_t, T>> {};
+    static constexpr bool is_transparent_with_v = is_transparent_with<op_category_t, T>;
 
     template<typename T>
-    static constexpr bool is_transparent_with_v = is_transparent_with_t<T>::value;
+    struct is_transparent_with_t : std::bool_constant<is_transparent_with_v<T>> {};
 };
 
 template<typename T>
 struct transparent_type_traits
 {
     template<typename op_category_t>
-    struct is_transparent_with_t : std::bool_constant<is_transparent_with<op_category_t, T>> {};
+    static constexpr bool is_transparent_with_v = is_transparent_with<op_category_t, T>;
 
     template<typename op_category_t>
-    static constexpr bool is_transparent_with_v = is_transparent_with_t<op_category_t>::value;
+    struct is_transparent_with_t : std::bool_constant<is_transparent_with_v<op_category_t>> {};
 
     template<typename op_category_t>
-    struct transform : transform_op_category_x<T, op_category_t> {};
+    struct transform : transform_op_category<T>::func<op_category_t> {};
 
     template<typename op_category_t>
     using transform_t = typename transform<op_category_t>::type;
@@ -116,22 +71,6 @@ static_assert(!type_list_any_v<type_list<default_ops>,                          
 static_assert(!type_list_any_v<type_list<strict_ops>,                                             transparent_type_traits<int>::  is_transparent_with_t>);
 
 // clang-format on
-
-template<typename T>
-struct is_ops_category : type_list_contains<type_list<default_ops, strict_ops, transparent_ops>, T> {};
-
-template<typename T>
-struct is_ops_category<transparent_ops_with<T>> : std::true_type {};
-
-template<typename T>
-constexpr bool is_ops_category_v = is_ops_category<T>::value;
-
-static_assert( is_ops_category_v<default_ops>);
-static_assert( is_ops_category_v<strict_ops>);
-static_assert( is_ops_category_v<transparent_ops>);
-static_assert( is_ops_category_v<transparent_ops_with<int>>);
-static_assert(!is_ops_category_v<int>);
-static_assert(!is_ops_category_v<struct foo>);
 
 template<typename underlying_t, typename tag_t, typename ops_categories_t>
 struct named_type_pod
@@ -241,7 +180,7 @@ struct ops_category<
     type_list<category_t, ops...>,
     std::enable_if_t<is_ops_category_v<category_t>>>
 {
-    using type = transform_op_category_x_t<underlying_t, category_t>;
+    using type = transform_op_category<underlying_t>::template func_t<category_t>;
     using filtered_list_type = type_list_filter_t<type_list<category_t, ops...>, is_ops_category>;
     using transformed_list_type = type_list_transform_t<filtered_list_type, transparent_type_traits<underlying_t>::template transform_t>;
 };
@@ -522,5 +461,3 @@ constexpr bool operator<=(const U& lhs, const T& rhs)
 {
     return !(lhs > rhs);
 }
-
-#endif
