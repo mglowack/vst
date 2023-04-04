@@ -42,7 +42,7 @@ struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categor
 
     template<typename T>
     static constexpr bool is_transparent_with
-        = type_list_any_v<op_categories, allows_transparent_ops_with<T>::pred>;
+        = type_list_any_v<op_categories, allows_transparent_ops_with<T>::template pred>;
 
     static constexpr bool is_transparent = is_transparent_with<underlying_type>;
 };
