@@ -3,6 +3,7 @@
 #include <named_type_pod.h>
 #include <named_type_trait.h>
 #include <named_type_ops_category.h>
+#include <named_type_conversions_category.h>
 
 #include "vst.hpp"
 #include "type_list.h"
@@ -16,7 +17,8 @@ using named_type = vst::impl::type<
     named_type_pod<
         underlying_t,
         tag_t,
-        extract_op_categories_t<type_list<ops...>, underlying_t>
+        extract_op_categories_t<type_list<ops...>, underlying_t>,
+        extract_conversion_categories_t<type_list<ops...>, underlying_t>
     >,
     filter_op_categories_t<type_list<ops...>>>;
 

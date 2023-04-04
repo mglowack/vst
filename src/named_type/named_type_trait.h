@@ -32,13 +32,14 @@ static_assert(!type_list_any_v<type_list<strict_ops>, allows_transparent_ops_wit
 template<typename T>
 struct named_type_trait;
 
-template<typename underlying_t, typename tag_t, typename op_categories_t, typename... ops>
-struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categories_t>, ops...>>
+template<typename underlying_t, typename tag_t, typename op_categories_t, typename conversion_categories_t, typename... ops>
+struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categories_t, conversion_categories_t>, ops...>>
 {
     static constexpr bool exists = true;
 
     using underlying_type = underlying_t;
     using op_categories = op_categories_t;
+    using conversion_categories = conversion_categories_t;
 
     template<typename T>
     static constexpr bool is_transparent_with

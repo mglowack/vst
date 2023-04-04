@@ -89,10 +89,13 @@ struct a
 
 TEST(test_named_type, explicit_false_ctor)
 {
-    using price_relaxed_to = named_type<int, struct price_relaxed_to_tag, implicitly_convertible_to<int>>;
+    using price_relaxed_to = named_type<int, struct price_relaxed_to_tag, implicit_conversions_to<int>>;
 
-    // static_assert( std::is_convertible_v<price_relaxed_to, int>);
+    static_assert( std::is_convertible_v<price_relaxed_to, int>);
     static_assert(!std::is_convertible_v<int, price_relaxed_to>);
+
+    price_relaxed_to p{5};
+    [[maybe_unused]] int pi = p;
 
     static_assert(std::is_constructible_v<price, int>);
     static_assert(!std::is_convertible_v<price, int>);
