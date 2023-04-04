@@ -32,18 +32,6 @@ struct named_type_trait<named_type_pod<underlying_t, tag_t, op_categories_t, con
     using underlying_type = underlying_t;
     using op_categories = op_categories_t;
     using conversion_categories = conversion_categories_t;
-
-    template<typename T>
-    static constexpr bool is_transparent_with
-        = type_list_contains_v<op_categories, transparent_ops_with<T>>;
-
-    template<typename T>
-    static constexpr bool is_implicitly_convertible_to
-        = type_list_contains_v<conversion_categories, implicit_conversions_to<T>>;
-
-    template<typename T>
-    static constexpr bool is_implicitly_convertible_from
-        = type_list_contains_v<conversion_categories, implicit_conversions_from<T>>;
 };
 
 template<
@@ -59,10 +47,22 @@ template<typename T>
 concept NamedType = named_type_trait<T>::exists;
 
 template<typename U, typename T>
-concept TransparentWith = NamedType<T> && named_type_trait<T>::template is_transparent_with<U>;
+concept TransparentWith =
+    NamedType<T>
+    && type_list_contains_v<
+        typename named_type_trait<T>::op_categories,
+        transparent_ops_with<U>>;
 
 template<typename U, typename T>
-concept ImplicitlyConvertibleTo = NamedType<T> && named_type_trait<T>::template is_implicitly_convertible_to<U>;
+concept ImplicitlyConvertibleTo =
+    NamedType<T>
+    && type_list_contains_v<
+        typename named_type_trait<T>::conversion_categories,
+        implicit_conversions_to<U>>;
 
 template<typename U, typename T>
-concept ImplicitlyConvertibleFrom = NamedType<T> && named_type_trait<T>::template is_implicitly_convertible_from<U>;
+concept ImplicitlyConvertibleFrom =
+    NamedType<T>
+    && type_list_contains_v<
+        typename named_type_trait<T>::conversion_categories,
+        implicit_conversions_from<U>>;
