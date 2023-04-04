@@ -6,6 +6,8 @@
 #include <type_list.h>
 template<typename T, typename list>
 constexpr bool is_implicitly_convertible_to = type_list_contains_v<list, implicit_conversions_to<T>>;
+template<typename T, typename list>
+constexpr bool is_implicitly_convertible_from = type_list_contains_v<list, implicit_conversions_from<T>>;
 
 // ##################
 // # named_type_pod #
@@ -16,7 +18,8 @@ struct named_type_pod
 {
     underlying_t value;
 
-    explicit constexpr named_type_pod(underlying_t value) : value(value) {}
+    explicit(!is_implicitly_convertible_from<underlying_t, conversion_categories_t>)
+    constexpr named_type_pod(underlying_t value) : value(value) {}
 
     explicit(!is_implicitly_convertible_to<underlying_t, conversion_categories_t>)
     constexpr operator const underlying_t&() const { return value; }

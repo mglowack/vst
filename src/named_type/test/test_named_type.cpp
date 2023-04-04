@@ -94,8 +94,18 @@ TEST(test_named_type, explicit_false_ctor)
     static_assert( std::is_convertible_v<price_relaxed_to, int>);
     static_assert(!std::is_convertible_v<int, price_relaxed_to>);
 
-    price_relaxed_to p{5};
-    [[maybe_unused]] int pi = p;
+    {
+        [[maybe_unused]] int p = price_relaxed_to{5};
+    }
+
+    using price_relaxed_from = named_type<int, struct price_relaxed_to_tag, implicit_conversions_from<int>>;
+
+    static_assert(!std::is_convertible_v<price_relaxed_from, int>);
+    static_assert( std::is_convertible_v<int, price_relaxed_from>);
+
+    {
+        [[maybe_unused]] price_relaxed_from p = 5;
+    }
 
     static_assert(std::is_constructible_v<price, int>);
     static_assert(!std::is_convertible_v<price, int>);
