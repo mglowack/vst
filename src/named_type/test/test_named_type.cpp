@@ -62,6 +62,62 @@ static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type_
 static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<float>>>::op_categories>);
 // clang-format on
 
+template<typename T>
+struct implicitly_convertible_to : std::false_type {};
+
+template<>
+struct implicitly_convertible_to<float> : std::true_type {};
+
+template<typename T>
+concept ImplicitlyConvertibleTo = implicitly_convertible_to<T>::value;
+
+template<bool ctor, bool op>
+struct a
+{
+    int u;
+
+    constexpr explicit(ctor) a(int u) : u(u) {}
+    constexpr explicit(op) operator int() const {
+        return u;
+    }
+
+    template<ImplicitlyConvertibleTo T>
+    constexpr operator T() const {
+        return u;
+    }
+};
+
+TEST(test_named_type, explicit_false_ctor)
+{
+    using price_relaxed_to = named_type<int, struct price_relaxed_to_tag, implicitly_convertible_to<int>>;
+
+    // static_assert( std::is_convertible_v<price_relaxed_to, int>);
+    static_assert(!std::is_convertible_v<int, price_relaxed_to>);
+
+    static_assert(std::is_constructible_v<price, int>);
+    static_assert(!std::is_convertible_v<price, int>);
+    static_assert(!std::is_convertible_v<int, price>);
+
+    // both ctor and conversion op explicit
+    static_assert(!std::is_convertible_v<a<true, true>, int>);
+    static_assert(!std::is_convertible_v<int, a<true, true>>);
+
+    // ctor explicit
+    static_assert(!std::is_convertible_v<int, a<true, false>>);
+    static_assert( std::is_convertible_v<a<true, false>, int>);
+
+    // op explicit
+    static_assert(!std::is_convertible_v<a<false, true>, int>);
+    static_assert( std::is_convertible_v<int, a<false, true>>);
+
+
+    static_assert(!std::is_convertible_v<a<true, true>, int>);
+    static_assert( std::is_convertible_v<a<true, true>, float>);
+    static_assert(!std::is_convertible_v<a<true, true>, double>);
+    // static_assert(!std::is_convertible_v<named_type<int, struct xxx, , int>);
+    // price p = 4;
+}
+
 TEST(test_named_type, basic)
 {
     static_assert(is_comparable<price>);

@@ -205,7 +205,7 @@ static_assert(std::is_same_v<
 
 template<typename params_list>
 struct filter_op_categories
-: type_list_filter<params_list, trait_op<is_ops_category>::negate> {};
+: type_list_filter<params_list, vst::is_op> {};
 
 template<typename params_list>
 using filter_op_categories_t = typename filter_op_categories<params_list>::type;

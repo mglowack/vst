@@ -5,15 +5,15 @@ include(GoogleTest)
 find_package(Boost COMPONENTS container REQUIRED)
 
 add_executable(
-    vst_test
+    test_vst
     test_vst.cpp
     test_vst_utils.cpp
     test_vst_manual.cpp
 )
 target_link_libraries(
-    vst_test PRIVATE
+    test_vst PRIVATE
     gmock_main
     ${Boost_LIBRARIES}
     vst
 )
-gtest_discover_tests(vst_test)
+gtest_discover_tests(test_vst)

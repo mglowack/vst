@@ -92,6 +92,18 @@ namespace op {
     struct addable;
 }
 
+template<typename T>
+struct is_op : type_list_contains<type_list<op::ordered, op::hashable, op::addable>, T> {};
+
+template<typename T>
+constexpr bool is_op_v = is_op<T>::value;
+
+static_assert(!is_op_v<int>);
+static_assert(!is_op_v<float>);
+static_assert( is_op_v<op::ordered>);
+static_assert( is_op_v<op::hashable>);
+static_assert( is_op_v<op::addable>);
+
 namespace impl {
 
 template<typename T>
