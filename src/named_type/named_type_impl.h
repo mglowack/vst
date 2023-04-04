@@ -1,6 +1,9 @@
 #pragma once
 
 #include <named_type_ops_category.h>
+// #include <named_type_pod.h>
+// #include <named_type_trait.h>
+// #include <named_type_defs.h>
 
 #include "vst.hpp"
 #include "type_list.h"
@@ -295,6 +298,9 @@ concept NamedType = is_named_type<T>;
 
 template<typename U, typename T>
 concept TransparentWith = is_named_type<T> && T::template is_transparent_with<U>;
+
+// template<typename U, typename T>
+// concept TransparentWith = is_named_type<T> && named_type_trait<T>::template is_transparent_with<U>;
 
 template<NamedType T, TransparentWith<T> U>
 constexpr bool operator==(const T& lhs, const U& rhs)
