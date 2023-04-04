@@ -23,7 +23,6 @@ struct named_type_pod
     constexpr named_type_pod(underlying_t value) : value(value) {}
 
     template<ImplicitlyConvertibleFrom<self> T>
-    // explicit(!ImplicitlyConvertibleFrom<T, self>)
     constexpr named_type_pod(T value) : value(value) {}
 
     template<ImplicitlyConvertibleTo<self> T>

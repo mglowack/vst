@@ -29,23 +29,15 @@ namespace
         vst::op::hashable,
         vst::op::addable>;
 
-    static_assert(!Transparent<price>);
-    static_assert( Transparent<price_transparent>);
-
-    // using price_relaxed = named_type<
-    //     int,
-    //     struct price_tag,
-    //     type_list<implicitly_convertible_to<int>, transparently_>,
-    //     vst::op::ordered,
-    //     vst::op::hashable,
-    //     vst::op::addable>;
+    static_assert(!TransparentWith<int, price>);
+    static_assert( TransparentWith<int, price_transparent>);
 }
 
 // clang-format off
-static_assert(!Transparent<named_type<int, struct default_test                          >>);
-static_assert(!Transparent<named_type<int, struct explicit_default_test, default_ops    >>);
-static_assert(!Transparent<named_type<int, struct strict_test,           strict_ops     >>);
-static_assert( Transparent<named_type<int, struct transparent_test,      transparent_ops>>);
+static_assert(!TransparentWith<int, named_type<int, struct default_test                          >>);
+static_assert(!TransparentWith<int, named_type<int, struct explicit_default_test, default_ops    >>);
+static_assert(!TransparentWith<int, named_type<int, struct strict_test,           strict_ops     >>);
+static_assert( TransparentWith<int, named_type<int, struct transparent_test,      transparent_ops>>);
 
 static_assert( TransparentWith<int,   named_type<int, struct transparent_test,      transparent_ops>>);
 static_assert(!TransparentWith<float, named_type<int, struct transparent_test,      transparent_ops>>);
