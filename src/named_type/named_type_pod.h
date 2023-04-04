@@ -22,8 +22,11 @@ struct named_type_pod
     explicit(!ImplicitlyConvertibleFrom<underlying_t, self>)
     constexpr named_type_pod(underlying_t value) : value(value) {}
 
-    template<typename T>
-    explicit(!ImplicitlyConvertibleTo<T, self>)
+    template<ImplicitlyConvertibleFrom<self> T>
+    // explicit(!ImplicitlyConvertibleFrom<T, self>)
+    constexpr named_type_pod(T value) : value(value) {}
+
+    template<ImplicitlyConvertibleTo<self> T>
     constexpr operator T() const { return value; }
 
     explicit(!ImplicitlyConvertibleTo<underlying_t, self>)
@@ -32,8 +35,8 @@ struct named_type_pod
     explicit(!ImplicitlyConvertibleTo<underlying_t, self>)
     constexpr operator underlying_t&()             { return value; }
 
-    constexpr const underlying_t& get()               const { return value; }
-    constexpr underlying_t& get()                           { return value; }
+    constexpr const underlying_t& get()      const { return value; }
+    constexpr underlying_t& get()                  { return value; }
 
     static constexpr auto get_fields()
     {
