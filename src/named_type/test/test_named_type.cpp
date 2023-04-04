@@ -21,9 +21,6 @@ namespace
         vst::op::hashable,
         vst::op::addable>;
 
-    static_assert(NamedType<price>);
-    static_assert(!named_type_trait<price>::is_transparent);
-
     using price_transparent = named_type<
         int,
         struct price_transparent_tag,
@@ -32,10 +29,8 @@ namespace
         vst::op::hashable,
         vst::op::addable>;
 
-    static_assert(NamedType<price_transparent>);
-    static_assert(named_type_trait<price_transparent>::is_transparent);
-    static_assert(named_type_trait<price_transparent>::is_transparent_with<int>);
-
+    static_assert(!Transparent<price>);
+    static_assert( Transparent<price_transparent>);
 
     // using price_relaxed = named_type<
     //     int,
