@@ -45,26 +45,26 @@ namespace
     //     vst::op::hashable,
     //     vst::op::addable>;
 }
-#if 0
+
 // clang-format off
-static_assert(!named_type<int, struct default_test                          >::is_transparent);
-static_assert(!named_type<int, struct explicit_default_test, default_ops    >::is_transparent);
-static_assert(!named_type<int, struct strict_test,           strict_ops     >::is_transparent);
-static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent);
-static_assert( named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<int>);
-static_assert(!named_type<int, struct transparent_test,      transparent_ops>::is_transparent_with<float>);
+static_assert(!Transparent<named_type<int, struct default_test                          >>);
+static_assert(!Transparent<named_type<int, struct explicit_default_test, default_ops    >>);
+static_assert(!Transparent<named_type<int, struct strict_test,           strict_ops     >>);
+static_assert( Transparent<named_type<int, struct transparent_test,      transparent_ops>>);
 
-static_assert( named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<int>);
-static_assert(!named_type<int, struct transparent_test, transparent_ops_with<int>>::is_transparent_with<float>);
-static_assert( named_type<int, struct transparent_test, transparent_ops_with<float>>::is_transparent_with<float>);
+static_assert( TransparentWith<int,   named_type<int, struct transparent_test,      transparent_ops>>);
+static_assert(!TransparentWith<float, named_type<int, struct transparent_test,      transparent_ops>>);
+static_assert( TransparentWith<int,   named_type<int, struct transparent_test, transparent_ops_with<int>>>);
+static_assert(!TransparentWith<float, named_type<int, struct transparent_test, transparent_ops_with<int>>>);
+static_assert( TransparentWith<float, named_type<int, struct transparent_test, transparent_ops_with<float>>>);
 
-static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct default_test                          >::ops_categories>);
-static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct explicit_default_test, default_ops    >::ops_categories>);
-static_assert(std::is_same_v<type_list<strict_ops>, named_type<int, struct strict_test,           strict_ops     >::ops_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type_trait<named_type<int, struct default_test                          >>::op_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type_trait<named_type<int, struct explicit_default_test, default_ops    >>::op_categories>);
+static_assert(std::is_same_v<type_list<strict_ops>, named_type_trait<named_type<int, struct strict_test,           strict_ops     >>::op_categories>);
 
-static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops>::ops_categories>);
-static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type<int, struct transparent_test, transparent_ops_with<int>>::ops_categories>);
-static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type<int, struct transparent_test, transparent_ops_with<float>>::ops_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type_trait<named_type<int, struct transparent_test, transparent_ops>>::op_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<int>>>::op_categories>);
+static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<float>>>::op_categories>);
 // clang-format on
 
 TEST(test_named_type, basic)
@@ -444,5 +444,3 @@ TEST(test_named_type, heterogeneous_lookup_boost_hashed_index)
 // TODO MG:
 //  * configurable comparisons to underlying?
 //  * ref-types
-
-#endif

@@ -50,5 +50,8 @@ struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categor
 template<typename T>
 concept NamedType = named_type_trait<T>::exists;
 
+template<typename T>
+concept Transparent = named_type_trait<T>::exists && named_type_trait<T>::is_transparent;
+
 template<typename U, typename T>
 concept TransparentWith = named_type_trait<T>::exists && named_type_trait<T>::template is_transparent_with<U>;
