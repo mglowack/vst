@@ -71,3 +71,9 @@ concept Transparent = named_type_trait<T>::exists && named_type_trait<T>::is_tra
 
 template<typename U, typename T>
 concept TransparentWith = named_type_trait<T>::exists && named_type_trait<T>::template is_transparent_with<U>;
+
+template<typename U, typename T>
+concept ImplicitlyConvertibleTo = named_type_trait<T>::template is_implicitly_convertible_to<U>;
+
+template<typename U, typename T>
+concept ImplicitlyConvertibleFrom = named_type_trait<T>::template is_implicitly_convertible_from<U>;

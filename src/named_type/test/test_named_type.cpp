@@ -72,6 +72,17 @@ TEST(test_named_type, implicitly_convertible_to)
     [[maybe_unused]] int p = price_relaxed_to{5};
 }
 
+TEST(test_named_type, implicitly_convertible_to_another_type)
+{
+    using price_relaxed_to = named_type<int, struct price_relaxed_to_tag, implicit_conversions_to<float>>;
+
+    static_assert(!std::is_convertible_v<price_relaxed_to, int>);
+    static_assert( std::is_convertible_v<price_relaxed_to, float>);
+    static_assert(!std::is_convertible_v<float, price_relaxed_to>);
+
+    [[maybe_unused]] float p = price_relaxed_to{5};
+}
+
 TEST(test_named_type, implicitly_convertible_from)
 {
     using price_relaxed_from = named_type<int, struct price_relaxed_to_tag, implicit_conversions_from<int>>;
