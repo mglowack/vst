@@ -5,6 +5,7 @@ add_library (
     named_type OBJECT
     named_type.hpp
     named_type_ops_category.cpp
+    named_type_pod.cpp
     named_type_defs.cpp
     named_type_impl.cpp)
 set_target_properties(named_type PROPERTIES LINKER_LANGUAGE CXX)

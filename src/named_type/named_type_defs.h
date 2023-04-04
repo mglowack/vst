@@ -1,32 +1,10 @@
 #pragma once
 
+#include <named_type_pod.h>
 #include <named_type_ops_category.h>
 
 #include "vst.hpp"
 #include "type_list.h"
-
-// ##################
-// # named_type_pod #
-// ##################
-
-template<typename underlying_t, typename tag_t, typename ops_categories_t>
-struct named_type_pod
-{
-    underlying_t value;
-
-    explicit constexpr named_type_pod(underlying_t value) : value(value) {}
-
-    explicit constexpr operator const underlying_t&() const { return value; }
-    explicit constexpr operator underlying_t&()             { return value; }
-
-    constexpr const underlying_t& get()               const { return value; }
-    constexpr underlying_t& get()                           { return value; }
-
-    static constexpr auto get_fields()
-    {
-        return std::tuple{&named_type_pod<underlying_t, tag_t, ops_categories_t>::value};
-    }
-};
 
 // ###############################
 // # allows_transparent_ops_with #
@@ -72,9 +50,9 @@ struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categor
 template<typename T>
 concept NamedType = named_type_trait<T>::exists;
 
-// ##############
-// # named_type #
-// ##############
+// #########################
+// # extract_op_categories #
+// #########################
 
 template<typename params_list, typename underlying_t>
 struct extract_op_categories
@@ -99,6 +77,10 @@ static_assert(std::is_same_v<
     type_list<transparent_ops_with<int>, transparent_ops_with<float>>,
     extract_op_categories_t<type_list<transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::hashable>, int>>);
 
+// ########################
+// # filter_op_categories #
+// ########################
+
 template<typename params_list>
 struct filter_op_categories
 : type_list_filter<params_list, trait_op<is_ops_category>::negate> {};
@@ -109,6 +91,10 @@ using filter_op_categories_t = typename filter_op_categories<params_list>::type;
 static_assert(std::is_same_v<
     type_list<vst::op::ordered, vst::op::hashable>,
     filter_op_categories_t<type_list<transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::hashable>>>);
+
+// ##############
+// # named_type #
+// ##############
 
 // template<typename underlying_t, typename tag_t, typename... params>
 // using named_type = vst::impl::type<
