@@ -6,9 +6,7 @@ add_library (
     named_type.hpp
     named_type_ops_category.cpp
     named_type_pod.cpp
-    named_type_trait.cpp
-    named_type_defs.cpp
-    named_type_operators.cpp)
+    named_type_trait.cpp)
 set_target_properties(named_type PROPERTIES LINKER_LANGUAGE CXX)
 # target_include_directories(vst
     # INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> ${Boost_INCLUDE_DIRS})
