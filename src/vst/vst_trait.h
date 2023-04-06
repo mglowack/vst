@@ -33,7 +33,6 @@ template<>            constexpr bool is_fields_def<with_fields::use_default>    
 template<typename T, typename fields_def_t, typename... ops>
 struct trait
 {
-    static constexpr bool exists = true;
     using pod_t = T;
     using fields_def = fields_def_t;
     using properties = type_list<ops...>;

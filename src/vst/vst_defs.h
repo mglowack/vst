@@ -129,7 +129,11 @@ template<typename T, typename ENABLER = void>
 struct trait;
 
 template <typename T>
-concept Type = trait<T>::exists;
+concept Type = requires {
+    typename trait<T>::pod_t;
+    typename trait<T>::fields_def;
+    typename trait<T>::properties;
+};
 
 template <typename T, typename OP>
 concept OpEnabled = Type<T> && type_list_contains_v<typename trait<T>::properties, OP>;

@@ -27,8 +27,6 @@ template<
     typename conversion_categories_t>
 struct named_type_trait<named_type_pod<underlying_t, tag_t, op_categories_t, conversion_categories_t>>
 {
-    static constexpr bool exists = true;
-
     using underlying_type = underlying_t;
     using op_categories = op_categories_t;
     using conversion_categories = conversion_categories_t;
@@ -44,7 +42,11 @@ struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categor
 : named_type_trait<named_type_pod<underlying_t, tag_t, op_categories_t, conversion_categories_t>> {};
 
 template<typename T>
-concept NamedType = named_type_trait<T>::exists;
+concept NamedType = requires {
+    typename named_type_trait<T>::underlying_type;
+    typename named_type_trait<T>::op_categories;
+    typename named_type_trait<T>::conversion_categories;
+};
 
 template<typename U, typename T>
 concept TransparentWith =
