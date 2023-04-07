@@ -26,20 +26,19 @@ using named_type = vst::impl::type<
 // # operators #
 // #############
 
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator==(const T& lhs, const U& rhs)
+template<NamedType T>
+constexpr bool operator==(const T& lhs, const TransparentWith<T> auto& rhs)
 {
     return lhs.get() == rhs;
 }
 
-template<NamedType T, TransparentWith<T> U>
-constexpr auto operator<=>(const T& lhs, const U& rhs)
+template<NamedType T>
+constexpr auto operator<=>(const T& lhs, const TransparentWith<T> auto& rhs)
 {
     return lhs.get() <=> rhs;
 }
 
-template<NamedType T>
-std::ostream& operator<<(std::ostream& os, const T& rhs)
+std::ostream& operator<<(std::ostream& os, const NamedType auto& rhs)
 {
     return os << rhs.get();
 }
