@@ -26,24 +26,5 @@ constexpr auto hash_value(const T& o)
 
 } // namespace vst
 
-namespace boost
-{
-
-// boost::hash support
-template<typename T, typename... args_t>
-struct hash<vst::type<T, args_t...>> : vst::hash<vst::type<T, args_t...>>
-{
-};
-
-} // namespace boost
-
-namespace std
-{
-
-// std::hash support
-template<typename T, typename... args_t>
-struct hash<vst::type<T, args_t...>> : vst::hash<vst::type<T, args_t...>>
-{
-};
-
-} // namespace std
+namespace boost { template<vst::Type T> struct hash<T> : vst::hash<T> {}; }
+namespace std   { template<vst::Type T> struct hash<T> : vst::hash<T> {}; }

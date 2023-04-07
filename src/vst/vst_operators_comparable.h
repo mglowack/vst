@@ -15,10 +15,4 @@ constexpr bool operator==(const T& lhs, const T& rhs)
     return vst::wrap<T>(vst::trait<T>::tie(lhs)) == vst::wrap<T>(vst::trait<T>::tie(rhs));
 }
 
-template<Type T>
-constexpr bool operator!=(const T& lhs, const T& rhs)
-{
-    return !(lhs == rhs);
-}
-
 } // namespace vst::impl
