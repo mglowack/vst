@@ -142,7 +142,7 @@ TYPED_TEST(test_vst, comparable)
     using VST = TypeParam;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_comparable<VST>);
+    static_assert(std::equality_comparable<VST>);
     static_assert(!is_ordered<VST>);
     static_assert(!is_hashable<VST>);
     static_assert(!is_addable<VST>);
