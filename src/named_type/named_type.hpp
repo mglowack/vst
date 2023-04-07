@@ -39,15 +39,15 @@ constexpr bool operator==(const U& lhs, const T& rhs)
 }
 
 template<NamedType T, TransparentWith<T> U>
-constexpr bool operator<(const T& lhs, const U& rhs)
+constexpr auto operator<=>(const T& lhs, const U& rhs)
 {
-    return lhs.get() < rhs;
+    return lhs.get() <=> rhs;
 }
 
 template<NamedType T, TransparentWith<T> U>
-constexpr bool operator<(const U& lhs, const T& rhs)
+constexpr auto operator<=>(const U& lhs, const T& rhs)
 {
-    return lhs < rhs.get();
+    return lhs <=> rhs.get();
 }
 
 template<NamedType T>
@@ -104,53 +104,4 @@ namespace vst
             return std::hash<underlying_t>{}(o);
         }
     };
-}
-
-// complementary operators
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator!=(const T& lhs, const U& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator!=(const U& lhs, const T& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator>(const T& lhs, const U& rhs)
-{
-    return !(lhs < rhs || lhs == rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator>(const U& lhs, const T& rhs)
-{
-    return !(lhs < rhs || lhs == rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator>=(const T& lhs, const U& rhs)
-{
-    return !(lhs < rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator>=(const U& lhs, const T& rhs)
-{
-    return !(lhs < rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator<=(const T& lhs, const U& rhs)
-{
-    return !(lhs > rhs);
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr bool operator<=(const U& lhs, const T& rhs)
-{
-    return !(lhs > rhs);
 }
