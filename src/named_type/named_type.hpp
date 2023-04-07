@@ -33,21 +33,9 @@ constexpr bool operator==(const T& lhs, const U& rhs)
 }
 
 template<NamedType T, TransparentWith<T> U>
-constexpr bool operator==(const U& lhs, const T& rhs)
-{
-    return lhs == rhs.get();
-}
-
-template<NamedType T, TransparentWith<T> U>
 constexpr auto operator<=>(const T& lhs, const U& rhs)
 {
     return lhs.get() <=> rhs;
-}
-
-template<NamedType T, TransparentWith<T> U>
-constexpr auto operator<=>(const U& lhs, const T& rhs)
-{
-    return lhs <=> rhs.get();
 }
 
 template<NamedType T>
