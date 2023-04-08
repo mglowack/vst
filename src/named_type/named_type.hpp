@@ -80,6 +80,8 @@ namespace vst
     template<NamedType T>
     struct hash<T>
     {
+        using is_transparent = void;
+
         constexpr size_t operator()(const T& o) const noexcept {
             return hash_it(o.get());
         }

@@ -371,6 +371,8 @@ TEST(test_named_type, to_and_from_underlying_transparent_hashable)
     }, std::tuple{vh, sh, bh});
 }
 
+#include <unordered_map>
+
 TEST(test_named_type, to_and_from_T_transparent_hashable)
 {
     using value = named_type<
@@ -393,6 +395,12 @@ TEST(test_named_type, to_and_from_T_transparent_hashable)
     std::apply([&test](const auto&&... f) {
         (test(f), ...);
     }, std::tuple{vh, sh, bh});
+
+    std::unordered_map<value, std::string> M;
+    M[value{1}] = "one";
+
+    EXPECT_THAT(M.find(value{1})->second, Eq("one"));
+    EXPECT_THAT(M.find(1.f)->second, Eq("one"));
 }
 
 TEST(test_named_type, to_and_from_underlying_transparent_addable)
