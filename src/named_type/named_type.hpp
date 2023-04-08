@@ -81,20 +81,15 @@ namespace vst
     struct hash<T>
     {
         using is_transparent = void;
+        using underlying_t = typename named_type_trait<T>::underlying_type;
 
         constexpr size_t operator()(const T& o) const noexcept {
-            return hash_it(o.get());
+            return std::hash<underlying_t>{}(o.get());
         }
 
         template<TransparentWith<T> U>
         constexpr size_t operator()(const U& o) const noexcept {
-            return hash_it(o);
-        }
-
-    private:
-        template<typename U>
-        constexpr size_t hash_it(const U& o) const noexcept {
-            return std::hash<U>{}(o);
+            return std::hash<underlying_t>{}(o);
         }
     };
 }
