@@ -106,9 +106,6 @@ static_assert( is_op_v<op::addable>);
 
 namespace impl {
 
-template<typename T>
-concept Aggregate = std::is_aggregate_v<T>;
-
 template <typename T, typename properties_t>
 struct type
 : public T
@@ -116,7 +113,7 @@ struct type
     using T::T;
 };
 
-template <Aggregate T, typename properties_t>
+template <typename T, typename properties_t> requires std::is_aggregate_v<T>
 struct type<T, properties_t>
 : public T {};
 

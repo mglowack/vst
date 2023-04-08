@@ -26,6 +26,9 @@ template<>            constexpr bool is_fields_def<with_fields::empty>          
 template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = false;
 template<>            constexpr bool is_fields_def<with_fields::use_default>    = false;
 
+template<typename T>
+concept FieldsDef = is_fields_def<T>;
+
 // #########
 // # trait #
 // #########
@@ -58,20 +61,21 @@ struct trait<
 // 'with_fields::use_default':
 // * translate to 'with_fields::from_aggregate' if 'get_fields()' is not provided on the underlying type
 // * translate to 'with_fields::from<T>' otherwise
-template<typename T, typename... ops>
-struct trait<
-    type<T, with_fields::use_default, ops...>,
-    std::enable_if_t<!has_get_fields<T>>>
-: trait<type<T, with_fields::from_aggregate, ops...>>
-{
-    static_assert(std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
-};
+// template<typename T, typename... ops>
+// struct trait<
+//     type<T, with_fields::use_default, ops...>,
+//     std::enable_if_t<!has_get_fields<T>>>
+// : trait<type<T, with_fields::from_aggregate, ops...>>
+// {
+//     static_assert(std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
+// };
 
 template<typename T, typename... ops>
-struct trait<
-    type<T, with_fields::use_default, ops...>,
-    std::enable_if_t<has_get_fields<T>>>
-: trait<type<T, with_fields::from<T>, ops...>>
+struct trait<type<T, with_fields::use_default, ops...>>
+: trait<
+    type<T,
+         std::conditional_t<has_get_fields<T>, with_fields::from<T>, with_fields::from_aggregate>,
+         ops...>>
 {
 };
 
@@ -99,10 +103,8 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
 // 'with_fields::from_func<f>'
 // 'with_fields::from_var<v>'
 // 'with_fields::empty'
-template<typename T, typename fields_def, typename... ops>
-struct trait<
-    type<T, fields_def, ops...>,
-    std::enable_if_t<impl::is_fields_def<fields_def>>>
+template<typename T, typename fields_def, typename... ops> requires impl::is_fields_def<fields_def>
+struct trait<type<T, fields_def, ops...>>
 : impl::trait<T, fields_def, ops...>
 {
     static_assert(has_correct_get_fields<fields_def, T>,
