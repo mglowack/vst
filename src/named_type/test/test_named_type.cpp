@@ -353,6 +353,8 @@ TEST(test_named_type, to_and_from_T_transparent_ordered)
     EXPECT_TRUE((!lt(4.f, value{4})));
 }
 
+#include <unordered_map>
+
 TEST(test_named_type, to_and_from_underlying_transparent_hashable)
 {
     static_assert( is_hashable<price_transparent, int>);
@@ -369,9 +371,16 @@ TEST(test_named_type, to_and_from_underlying_transparent_hashable)
     std::apply([&test](const auto&&... f) {
         (test(f), ...);
     }, std::tuple{vh, sh, bh});
-}
 
-#include <unordered_map>
+    using value = price_transparent;
+    std::unordered_map<value, std::string> M;
+    M[value{1}] = "one";
+
+    ASSERT_THAT(M.contains(value{1}), Eq(true));
+    ASSERT_THAT(M.contains(1), Eq(true));
+    EXPECT_THAT(M.find(value{1})->second, Eq("one"));
+    EXPECT_THAT(M.find(1)->second, Eq("one"));
+}
 
 TEST(test_named_type, to_and_from_T_transparent_hashable)
 {
@@ -399,6 +408,8 @@ TEST(test_named_type, to_and_from_T_transparent_hashable)
     std::unordered_map<value, std::string> M;
     M[value{1}] = "one";
 
+    ASSERT_THAT(M.contains(value{1}), Eq(true));
+    ASSERT_THAT(M.contains(1.f), Eq(true));
     EXPECT_THAT(M.find(value{1})->second, Eq("one"));
     EXPECT_THAT(M.find(1.f)->second, Eq("one"));
 }
