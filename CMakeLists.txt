@@ -12,3 +12,5 @@ add_subdirectory(src/vst)
 add_subdirectory(src/vst/test)
 add_subdirectory(src/named_type)
 add_subdirectory(src/named_type/test)
+
+enable_testing()

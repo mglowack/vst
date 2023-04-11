@@ -14,3 +14,4 @@ target_link_libraries(
     named_type
 )
 gtest_discover_tests(test_named_type)
+# add_test(NAME test_named_type COMMAND test_named_type)
