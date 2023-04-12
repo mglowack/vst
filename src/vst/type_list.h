@@ -268,14 +268,23 @@ static_assert(std::is_same_v<type_list_transform_t<type_list<int, double>, std::
 // # type_list_cast #
 // ##################
 
+template<template<typename...> typename template_to_t, typename T>
+struct template_cast;
+
+template<
+    template<typename...> typename template_to_t,
+    template<typename...> typename template_from_t,
+    typename... Ts>
+struct template_cast<template_to_t, template_from_t<Ts...>>
+: std::type_identity<template_to_t<Ts...>> {};
+
+template<template<typename...> typename template_to_t, typename T>
+using template_cast_t = typename template_cast<template_to_t, T>::type;
+
+
+
 template<typename T>
-struct type_list_cast;
-
-template<typename... Ts>
-struct type_list_cast<std::tuple<Ts...>> : std::type_identity<type_list<Ts...>> {};
-
-template<typename... Ts>
-struct type_list_cast<std::variant<Ts...>> : std::type_identity<type_list<Ts...>> {};
+using type_list_cast = template_cast<type_list, T>;
 
 template<typename T>
 using type_list_cast_t = typename type_list_cast<T>::type;

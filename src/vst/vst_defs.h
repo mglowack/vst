@@ -77,7 +77,7 @@ constexpr bool has_correct_get_fields<
     std::void_t<decltype(T::get_fields())>>
 = is_template_v<std::tuple, decltype(T::get_fields())>
     && type_list_all_v<
-        type_list_cast_t<decltype(T::get_fields())>,
+        template_cast_t<type_list, decltype(T::get_fields())>,
         disjunction<
             is_pointer_to_member_of<U>::template pred,
             is_named_field_ptr_of<U>::template pred>::template pred>;
