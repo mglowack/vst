@@ -76,13 +76,72 @@ constexpr bool has_correct_get_fields<
     T, U,
     std::void_t<decltype(T::get_fields())>>
 = is_template_v<std::tuple, decltype(T::get_fields())>
-    && type_list_all_v<
+    && (type_list_all_v<
         template_cast_t<type_list, decltype(T::get_fields())>,
-        disjunction<
-            is_pointer_to_member_of<U>::template pred,
-            is_named_field_ptr_of<U>::template pred>::template pred>;
-// =    type_list_all_v<list_from_tuple_t<decltype(T::get_fields())>, is_pointer_to_member_of<U>::template pred>
-//   || type_list_all_v<list_from_tuple_t<decltype(T::get_fields())>, is_named_field_ptr_of<U>::template pred>;
+        is_pointer_to_member_of<U>::template pred>
+      || type_list_all_v<
+        template_cast_t<type_list, decltype(T::get_fields())>,
+        is_named_field_ptr_of<U>::template pred>);
+
+namespace has_correct_get_fields_tests {
+
+struct empty {};
+static_assert(!has_correct_get_fields<empty, empty>);
+
+struct simple_empty_fields {
+    static auto get_fields() {
+        return std::tuple{};
+    }
+};
+static_assert( has_correct_get_fields<simple_empty_fields, simple_empty_fields>);
+
+struct wrong_template_mix {
+    static auto get_fields() {
+        return std::variant<int, float>{};
+    }
+};
+static_assert(!has_correct_get_fields<wrong_template_mix, wrong_template_mix>);
+
+struct simple_ptrs {
+    int i;
+    float f;
+
+    static auto get_fields() {
+        return std::tuple{
+            &simple_ptrs::i,
+            &simple_ptrs::f
+        };
+    }
+};
+static_assert( has_correct_get_fields<simple_ptrs, simple_ptrs>);
+
+struct simple_named_ptrs {
+    int i;
+    float f;
+
+    static auto get_fields() {
+        return std::tuple{
+            named_field_ptr{"i", &simple_named_ptrs::i},
+            named_field_ptr{"f", &simple_named_ptrs::f}
+        };
+    }
+};
+static_assert( has_correct_get_fields<simple_named_ptrs, simple_named_ptrs>);
+
+struct simple_mix {
+    int i;
+    float f;
+
+    static auto get_fields() {
+        return std::tuple{
+            named_field_ptr{"i", &simple_mix::i},
+            &simple_mix::f
+        };
+    }
+};
+static_assert(!has_correct_get_fields<simple_mix, simple_mix>);
+
+}
 
 namespace vst {
 
