@@ -10,6 +10,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <unordered_map>
+#include <map>
+
 using namespace ::testing;
 
 namespace
@@ -282,6 +285,19 @@ TEST(test_named_type, to_and_from_underlying_transparent_ordered)
     EXPECT_TRUE((!lt(4, price_transparent{4})));
 }
 
+TEST(test_named_type, to_and_from_underlying_transparent_ordered_heterogeneous_lookup)
+{
+    using value = price_transparent;
+
+    std::map<value, std::string> M;
+    M[value{1}] = "one";
+
+    ASSERT_THAT(M.contains(value{1}), Eq(true));
+    ASSERT_THAT(M.contains(1), Eq(true));
+    EXPECT_THAT(M.find(value{1})->second, Eq("one"));
+    EXPECT_THAT(M.find(1)->second, Eq("one"));
+}
+
 TEST(test_named_type, to_and_from_T_transparent_ordered)
 {
     using value = named_type<
@@ -353,7 +369,22 @@ TEST(test_named_type, to_and_from_T_transparent_ordered)
     EXPECT_TRUE((!lt(4.f, value{4})));
 }
 
-#include <unordered_map>
+TEST(test_named_type, to_and_from_T_transparent_ordered_heterogeneous_lookup)
+{
+    using value = named_type<
+        int,
+        struct to_and_from_T_transparent_ordered_test,
+        transparent_ops_with<float>,
+        vst::op::ordered>;
+
+    std::map<value, std::string> M;
+    M[value{1}] = "one";
+
+    ASSERT_THAT(M.contains(value{1}), Eq(true));
+    ASSERT_THAT(M.contains(1.f), Eq(true));
+    EXPECT_THAT(M.find(value{1})->second, Eq("one"));
+    EXPECT_THAT(M.find(1.f)->second, Eq("one"));
+}
 
 TEST(test_named_type, to_and_from_underlying_transparent_hashable)
 {
@@ -371,8 +402,12 @@ TEST(test_named_type, to_and_from_underlying_transparent_hashable)
     std::apply([&test](const auto&&... f) {
         (test(f), ...);
     }, std::tuple{vh, sh, bh});
+}
 
+TEST(test_named_type, to_and_from_underlying_transparent_hashable_heterogeneous_lookup)
+{
     using value = price_transparent;
+
     std::unordered_map<value, std::string> M;
     M[value{1}] = "one";
 
@@ -404,6 +439,15 @@ TEST(test_named_type, to_and_from_T_transparent_hashable)
     std::apply([&test](const auto&&... f) {
         (test(f), ...);
     }, std::tuple{vh, sh, bh});
+}
+
+TEST(test_named_type, to_and_T_transparent_hashable_heterogeneous_lookup)
+{
+    using value = named_type<
+        int,
+        struct to_and_from_T_transparent_ordered_test,
+        transparent_ops_with<float>,
+        vst::op::hashable>;
 
     std::unordered_map<value, std::string> M;
     M[value{1}] = "one";
