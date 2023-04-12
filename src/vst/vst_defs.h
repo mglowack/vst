@@ -148,6 +148,9 @@ constexpr bool has_get_fields<
     std::void_t<decltype(T::get_fields())>>
 = true;
 
+template<typename T>
+concept SelfDescribed = has_get_fields<T>;
+
 namespace with_fields {
 
 template<auto (*get_fields_func)()>
