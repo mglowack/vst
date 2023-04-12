@@ -44,39 +44,26 @@ struct trait
 } // namespace impl
 
 // no 'with_fields::X' specified => injecting 'with_fields::use_default'
-template<typename T>
-struct trait<type<T>>
-: trait<type<T, with_fields::use_default>>
-{
-};
-
-template<typename T, typename first_op, typename... ops>
-struct trait<
-    type<T, first_op, ops...>,
-    std::enable_if_t<!impl::is_fields_def<first_op> && !std::is_same_v<first_op, with_fields::use_default>>>
-: trait<type<T, with_fields::use_default, first_op, ops...>>
+template<typename T, typename... ops>
+struct trait<type<T, ops...>>
+: trait<type<T, with_fields::use_default, ops...>>
 {
 };
 
 // 'with_fields::use_default':
-// * translate to 'with_fields::from_aggregate' if 'get_fields()' is not provided on the underlying type
-// * translate to 'with_fields::from<T>' otherwise
-// template<typename T, typename... ops>
-// struct trait<
-//     type<T, with_fields::use_default, ops...>,
-//     std::enable_if_t<!has_get_fields<T>>>
-// : trait<type<T, with_fields::from_aggregate, ops...>>
-// {
-//     static_assert(std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
-// };
+// * translate to 'with_fields::from<T>' if 'get_fields()' is provided on the underlying type
+// * translate to 'with_fields::from_aggregate' otherwise
+template<typename T, typename... ops> requires has_get_fields<T>
+struct trait<type<T, with_fields::use_default, ops...>>
+: trait<type<T, with_fields::from<T>, ops...>>
+{
+};
 
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::use_default, ops...>>
-: trait<
-    type<T,
-         std::conditional_t<has_get_fields<T>, with_fields::from<T>, with_fields::from_aggregate>,
-         ops...>>
+: trait<type<T, with_fields::from_aggregate, ops...>>
 {
+    static_assert(std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
 
 // 'with_fields::from_aggregate'
