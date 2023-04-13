@@ -8,7 +8,7 @@
 
 namespace vst {
 
-template<OpEnabled<op::hashable> T, typename ENABLER = void>
+template<OpEnabled<op::hashable> T>
 struct hash
 {
     constexpr size_t operator()(const T& o) const noexcept

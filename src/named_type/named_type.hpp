@@ -77,11 +77,9 @@ namespace std
 
 namespace vst
 {
-    // workaround for "partial specialization is not more specialized than the primary template" error
-    template<typename T>
-    concept HashableNamedType = NamedType<T> && OpEnabled<T, op::hashable>;
-
-    template<HashableNamedType T>
+    // 'requires' clause to avoid "partial specialization is not more specialized than the primary template" error
+    // the specialzation restrction must be strictly more specialized than vst::hash restriction
+    template<OpEnabled<op::hashable> T> requires NamedType<T>
     struct hash<T>
     {
         using is_transparent = void;
