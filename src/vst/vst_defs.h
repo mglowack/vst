@@ -23,6 +23,21 @@ struct named_field_ptr
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
+// ##################
+// # has_get_fields #
+// ##################
+
+template<typename T>
+using get_fields_t = decltype( T::get_fields() );
+
+#include <experimental/type_traits>
+
+template<typename T>
+constexpr bool has_get_fields = std::experimental::is_detected_v<get_fields_t, T>;
+
+template<typename T>
+concept SelfDescribed = has_get_fields<T>;
+
 
 // ##########################
 // # has_correct_get_fields #
@@ -75,14 +90,11 @@ constexpr bool is_fields_spec =
     && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
       || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 
-template<typename T, typename U, typename ENABLER = std::void_t<>>
+template<typename T, typename U>
 constexpr bool has_correct_get_fields = false;
 
-template<typename T, typename U>
-constexpr bool has_correct_get_fields<
-    T, U,
-    std::void_t<decltype(T::get_fields())>>
-= is_fields_spec<U, decltype(T::get_fields())>;
+template<typename T, typename U> requires has_get_fields<T>
+constexpr bool has_correct_get_fields<T, U> = is_fields_spec<U, get_fields_t<T>>;
 
 namespace has_correct_get_fields_tests {
 
@@ -162,22 +174,6 @@ concept Type = requires {
 
 template <typename T, typename OP>
 concept OpEnabled = Type<T> && type_list_contains_v<typename trait<T>::properties, OP>;
-
-// ##################
-// # has_get_fields #
-// ##################
-
-template<typename T, typename ENABLER = std::void_t<>>
-constexpr bool has_get_fields = false;
-
-template<typename T>
-constexpr bool has_get_fields<
-    T,
-    std::void_t<decltype(T::get_fields())>>
-= true;
-
-template<typename T>
-concept SelfDescribed = has_get_fields<T>;
 
 namespace with_fields {
 

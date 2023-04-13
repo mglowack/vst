@@ -78,7 +78,7 @@ namespace std
 namespace vst
 {
     // 'requires' clause to avoid "partial specialization is not more specialized than the primary template" error
-    // the specialzation restrction must be strictly more specialized than vst::hash restriction
+    // the specialzation restrction must be strictly more specialized than 'vst::hash' restriction
     template<OpEnabled<op::hashable> T> requires NamedType<T>
     struct hash<T>
     {
