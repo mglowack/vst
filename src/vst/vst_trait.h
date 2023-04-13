@@ -90,7 +90,7 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
 // 'with_fields::from_func<f>'
 // 'with_fields::from_var<v>'
 // 'with_fields::empty'
-template<typename T, typename fields_def, typename... ops> requires impl::is_fields_def<fields_def>
+template<typename T, SelfDescribed fields_def, typename... ops>// requires impl::is_fields_def<fields_def>
 struct trait<type<T, fields_def, ops...>>
 : impl::trait<T, fields_def, ops...>
 {

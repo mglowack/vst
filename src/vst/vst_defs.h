@@ -93,7 +93,7 @@ constexpr bool is_fields_spec =
 template<typename T, typename U>
 constexpr bool has_correct_get_fields = false;
 
-template<typename T, typename U> requires has_get_fields<T>
+template<SelfDescribed T, typename U>
 constexpr bool has_correct_get_fields<T, U> = is_fields_spec<U, get_fields_t<T>>;
 
 namespace has_correct_get_fields_tests {
