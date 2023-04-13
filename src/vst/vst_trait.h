@@ -53,7 +53,7 @@ struct trait<type<T, ops...>>
 // 'with_fields::use_default':
 // * translate to 'with_fields::from<T>' if 'get_fields()' is provided on the underlying type
 // * translate to 'with_fields::from_aggregate' otherwise
-template<CorrectlyDescribed T, Operator... ops>
+template<SelfDescribed T, Operator... ops>
 struct trait<type<T, with_fields::use_default, ops...>>
 : trait<type<T, with_fields::from<T>, ops...>>
 {
@@ -63,7 +63,7 @@ template<typename T, typename... ops> // why not Operator... ?
 struct trait<type<T, with_fields::use_default, ops...>>
 : trait<type<T, with_fields::from_aggregate, ops...>>
 {
-    static_assert(CorrectlyDescribed<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
+    static_assert(SelfDescribed<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
 
 // 'with_fields::from_aggregate'
@@ -90,7 +90,7 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
 // 'with_fields::from_func<f>'
 // 'with_fields::from_var<v>'
 // 'with_fields::empty'
-template<typename T, CorrectlyDescribed<T> fields_def, Operator... ops>// requires impl::is_fields_def<fields_def>
+template<typename T, DescribesThe<T> fields_def, Operator... ops>// requires impl::is_fields_def<fields_def>
 struct trait<type<T, fields_def, ops...>>
 : impl::trait<T, fields_def, ops...>
 {

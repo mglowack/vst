@@ -24,7 +24,7 @@ struct named_field_ptr
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
 // ######################
-// # CorrectlyDescribed #
+// # Described #
 // ######################
 
 template<typename T>
@@ -70,44 +70,56 @@ struct is_template<template_t, template_t<args_t...>> : std::true_type {};
 
 
 template<typename T, typename spec_t>
-concept CorrectFieldSpec =
+concept FieldSpec =
     is_template_v<std::tuple, spec_t>
     && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
       || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 
 template<typename spec_t, typename T>
-concept CorrectFieldSpecOf = CorrectFieldSpec<T, spec_t>;
+concept FieldSpecOf = FieldSpec<T, spec_t>;
 
-template<typename T, typename U = T>
-concept CorrectlyDescribed = requires {
-    { T::get_fields() } -> CorrectFieldSpecOf<U>;
+template<typename T, typename U>
+concept DescribesThe = requires {
+    { T::get_fields() } -> FieldSpecOf<U>;
 };
 
-namespace CorrectlyDescribed_tests {
+template<typename T>
+concept SelfDescribed = DescribesThe<T, T>;
+
+namespace Described_tests {
 
 struct empty {};
-static_assert(!CorrectlyDescribed<empty>);
+static_assert(!SelfDescribed<empty>);
 
 struct simple_empty_fields {
     static auto get_fields() {
         return std::tuple{};
     }
 };
-static_assert( CorrectlyDescribed<simple_empty_fields>);
+static_assert( SelfDescribed<simple_empty_fields>);
+
+struct simple_with_fields {
+    int i;
+    float f;
+    static auto get_fields() {
+        return std::tuple{&simple_with_fields::i, &simple_with_fields::f};
+    }
+};
+static_assert( SelfDescribed<simple_with_fields>);
 
 struct simple {
     int i;
     float f;
 };
-static_assert(!CorrectFieldSpec<simple, std::pair<int, float>>);
-static_assert(!CorrectFieldSpec<simple, std::vector<int>>);
-static_assert(!CorrectFieldSpec<simple, std::variant<int, float>>);
-static_assert( CorrectFieldSpec<simple, std::tuple<>>);
-static_assert( CorrectFieldSpec<simple, std::tuple<decltype(&simple::i)>>);
-static_assert( CorrectFieldSpec<simple, std::tuple<decltype(&simple::i), decltype(&simple::f)>>);
-static_assert( CorrectFieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>>);
-static_assert(!CorrectFieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>>);
-static_assert(!CorrectFieldSpec<simple, std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>>);
+static_assert(!FieldSpec<simple, std::pair<int, float>>);
+static_assert(!FieldSpec<simple, std::vector<int>>);
+static_assert(!FieldSpec<simple, std::variant<int, float>>);
+static_assert( FieldSpec<simple, std::tuple<>>);
+static_assert( FieldSpec<simple, std::tuple<decltype(&simple::i)>>);
+static_assert( FieldSpec<simple, std::tuple<decltype(&simple::i), decltype(&simple::f)>>);
+static_assert( FieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>>);
+static_assert(!FieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>>);
+static_assert(!FieldSpec<simple, std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>>);
 
 }
 
@@ -190,7 +202,7 @@ struct from
 {
     static constexpr auto get_fields()
     {
-        static_assert(CorrectlyDescribed<T>, "T must be an aggregate or have 'get_fields' defined.");
+        static_assert(SelfDescribed<T>, "T must be an aggregate or have 'get_fields' defined.");
         return T::get_fields();
     }
 };
