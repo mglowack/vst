@@ -77,29 +77,20 @@ template<template<typename...> typename template_t, typename... args_t>
 struct is_template<template_t, template_t<args_t...>> : std::true_type {};
 
 
+
 template<typename T, typename spec_t>
-constexpr bool is_fields_spec =
+concept CorrectFieldSpec =
     is_template_v<std::tuple, spec_t>
     && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
       || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 
-
-template<typename T, typename spec_t>
-concept CorrectFieldSpec = is_fields_spec<T, spec_t>;
-
 template<typename spec_t, typename T>
-concept CorrectFieldSpecOf = is_fields_spec<T, spec_t>;
+concept CorrectFieldSpecOf = CorrectFieldSpec<T, spec_t>;
 
-template<typename T>
+template<typename T, typename U = T>
 concept CorrectlyDescribed = requires {
-    { T::get_fields() } -> CorrectFieldSpecOf<T>;
+    { T::get_fields() } -> CorrectFieldSpecOf<U>;
 };
-
-template<typename T, typename U>
-constexpr bool has_correct_get_fields = false;
-
-template<SelfDescribed T, typename U>
-constexpr bool has_correct_get_fields<T, U> = is_fields_spec<U, decltype(T::get_fields())>;
 
 namespace has_correct_get_fields_tests {
 
@@ -142,6 +133,9 @@ struct is_op : type_list_contains<type_list<op::ordered, op::hashable, op::addab
 
 template<typename T>
 constexpr bool is_op_v = is_op<T>::value;
+
+template<typename T>
+concept Operator = is_op_v<T>;
 
 static_assert(!is_op_v<int>);
 static_assert(!is_op_v<float>);
