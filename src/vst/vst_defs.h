@@ -4,6 +4,8 @@
 #include "type_list.h"
 
 #include <tuple>
+#include <vector>
+#include <utility>
 
 // ###################
 // # named_field_ptr #
@@ -67,6 +69,11 @@ template<template<typename...> typename template_t, typename... args_t>
 struct is_template<template_t, template_t<args_t...>> : std::true_type {};
 
 
+template<typename T, typename spec_t>
+constexpr bool is_fields_spec =
+    is_template_v<std::tuple, spec_t>
+    && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
+      || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 
 template<typename T, typename U, typename ENABLER = std::void_t<>>
 constexpr bool has_correct_get_fields = false;
@@ -75,13 +82,7 @@ template<typename T, typename U>
 constexpr bool has_correct_get_fields<
     T, U,
     std::void_t<decltype(T::get_fields())>>
-= is_template_v<std::tuple, decltype(T::get_fields())>
-    && (type_list_all_v<
-        template_cast_t<type_list, decltype(T::get_fields())>,
-        is_pointer_to_member_of<U>::template pred>
-      || type_list_all_v<
-        template_cast_t<type_list, decltype(T::get_fields())>,
-        is_named_field_ptr_of<U>::template pred>);
+= is_fields_spec<U, decltype(T::get_fields())>;
 
 namespace has_correct_get_fields_tests {
 
@@ -95,51 +96,19 @@ struct simple_empty_fields {
 };
 static_assert( has_correct_get_fields<simple_empty_fields, simple_empty_fields>);
 
-struct wrong_template_mix {
-    static auto get_fields() {
-        return std::variant<int, float>{};
-    }
-};
-static_assert(!has_correct_get_fields<wrong_template_mix, wrong_template_mix>);
-
-struct simple_ptrs {
+struct simple {
     int i;
     float f;
-
-    static auto get_fields() {
-        return std::tuple{
-            &simple_ptrs::i,
-            &simple_ptrs::f
-        };
-    }
 };
-static_assert( has_correct_get_fields<simple_ptrs, simple_ptrs>);
-
-struct simple_named_ptrs {
-    int i;
-    float f;
-
-    static auto get_fields() {
-        return std::tuple{
-            named_field_ptr{"i", &simple_named_ptrs::i},
-            named_field_ptr{"f", &simple_named_ptrs::f}
-        };
-    }
-};
-static_assert( has_correct_get_fields<simple_named_ptrs, simple_named_ptrs>);
-
-struct simple_mix {
-    int i;
-    float f;
-
-    static auto get_fields() {
-        return std::tuple{
-            named_field_ptr{"i", &simple_mix::i},
-            &simple_mix::f
-        };
-    }
-};
-static_assert(!has_correct_get_fields<simple_mix, simple_mix>);
+static_assert(!is_fields_spec<simple, std::pair<int, float>>);
+static_assert(!is_fields_spec<simple, std::vector<int>>);
+static_assert(!is_fields_spec<simple, std::variant<int, float>>);
+static_assert( is_fields_spec<simple, std::tuple<>>);
+static_assert( is_fields_spec<simple, std::tuple<decltype(&simple::i)>>);
+static_assert( is_fields_spec<simple, std::tuple<decltype(&simple::i), decltype(&simple::f)>>);
+static_assert( is_fields_spec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>>);
+static_assert(!is_fields_spec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>>);
+static_assert(!is_fields_spec<simple, std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>>);
 
 }
 
@@ -181,7 +150,7 @@ struct type<T, properties_t>
 template <typename T, typename... ops>
 using type = impl::type<T, type_list<ops...>>;
 
-template<typename T, typename ENABLER = void>
+template<typename T>
 struct trait;
 
 template <typename T>

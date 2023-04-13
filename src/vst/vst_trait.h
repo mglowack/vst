@@ -65,6 +65,7 @@ struct trait<type<T, with_fields::use_default, ops...>>
 {
     static_assert(has_get_fields<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
+
 // 'with_fields::from_aggregate'
 template<typename T, typename... ops>
 struct trait<type<T, with_fields::from_aggregate, ops...>>
@@ -93,8 +94,9 @@ template<typename T, typename fields_def, typename... ops> requires impl::is_fie
 struct trait<type<T, fields_def, ops...>>
 : impl::trait<T, fields_def, ops...>
 {
-    static_assert(has_correct_get_fields<fields_def, T>,
-    "'get_fields' must return a tuple of pointer to members or named_field_ptr");
+    // static_assert(has_correct_get_fields<fields_def, T>,
+    static_assert(is_fields_spec<T, decltype(fields_def::get_fields())>,
+    "'get_fields' must return a tuple of either pointer to members or named_field_ptr");
 
     template<typename U>
     static constexpr auto tie(U& obj)
