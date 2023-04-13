@@ -13,22 +13,6 @@ namespace vst {
 
 namespace impl {
 
-// #################
-// # is_fields_def #
-// #################
-
-template<typename T>  constexpr bool is_fields_def = false;
-template<auto (*f)()> constexpr bool is_fields_def<with_fields::from_func<f>>   = true;
-template<auto v>      constexpr bool is_fields_def<with_fields::from_var<v>>    = true;
-template<typename T>  constexpr bool is_fields_def<with_fields::from<T>>        = true;
-template<>            constexpr bool is_fields_def<with_fields::empty>          = true;
-
-template<>            constexpr bool is_fields_def<with_fields::from_aggregate> = false;
-template<>            constexpr bool is_fields_def<with_fields::use_default>    = false;
-
-template<typename T>
-concept FieldsDef = is_fields_def<T>;
-
 // #########
 // # trait #
 // #########
@@ -90,7 +74,7 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
 // 'with_fields::from_func<f>'
 // 'with_fields::from_var<v>'
 // 'with_fields::empty'
-template<typename T, DescribesThe<T> fields_def, Operator... ops>// requires impl::is_fields_def<fields_def>
+template<typename T, DescribesThe<T> fields_def, Operator... ops>
 struct trait<type<T, fields_def, ops...>>
 : impl::trait<T, fields_def, ops...>
 {
