@@ -63,7 +63,7 @@ template<typename T, typename... ops>
 struct trait<type<T, with_fields::use_default, ops...>>
 : trait<type<T, with_fields::from_aggregate, ops...>>
 {
-    static_assert(has_get_fields<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
+    static_assert(SelfDescribed<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
 
 // 'with_fields::from_aggregate'

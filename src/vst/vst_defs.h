@@ -28,16 +28,9 @@ struct named_field_ptr
 // ##################
 
 template<typename T>
-using get_fields_t = decltype( T::get_fields() );
-
-#include <experimental/type_traits>
-
-template<typename T>
-constexpr bool has_get_fields = std::experimental::is_detected_v<get_fields_t, T>;
-
-template<typename T>
-concept SelfDescribed = has_get_fields<T>;
-
+concept SelfDescribed = requires {
+    T::get_fields();
+};
 
 // ##########################
 // # has_correct_get_fields #
@@ -90,37 +83,49 @@ constexpr bool is_fields_spec =
     && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
       || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 
+
+template<typename T, typename spec_t>
+concept CorrectFieldSpec = is_fields_spec<T, spec_t>;
+
+template<typename spec_t, typename T>
+concept CorrectFieldSpecOf = is_fields_spec<T, spec_t>;
+
+template<typename T>
+concept CorrectlyDescribed = requires {
+    { T::get_fields() } -> CorrectFieldSpecOf<T>;
+};
+
 template<typename T, typename U>
 constexpr bool has_correct_get_fields = false;
 
 template<SelfDescribed T, typename U>
-constexpr bool has_correct_get_fields<T, U> = is_fields_spec<U, get_fields_t<T>>;
+constexpr bool has_correct_get_fields<T, U> = is_fields_spec<U, decltype(T::get_fields())>;
 
 namespace has_correct_get_fields_tests {
 
 struct empty {};
-static_assert(!has_correct_get_fields<empty, empty>);
+static_assert(!CorrectlyDescribed<empty>);
 
 struct simple_empty_fields {
     static auto get_fields() {
         return std::tuple{};
     }
 };
-static_assert( has_correct_get_fields<simple_empty_fields, simple_empty_fields>);
+static_assert( CorrectlyDescribed<simple_empty_fields>);
 
 struct simple {
     int i;
     float f;
 };
-static_assert(!is_fields_spec<simple, std::pair<int, float>>);
-static_assert(!is_fields_spec<simple, std::vector<int>>);
-static_assert(!is_fields_spec<simple, std::variant<int, float>>);
-static_assert( is_fields_spec<simple, std::tuple<>>);
-static_assert( is_fields_spec<simple, std::tuple<decltype(&simple::i)>>);
-static_assert( is_fields_spec<simple, std::tuple<decltype(&simple::i), decltype(&simple::f)>>);
-static_assert( is_fields_spec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>>);
-static_assert(!is_fields_spec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>>);
-static_assert(!is_fields_spec<simple, std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>>);
+static_assert(!CorrectFieldSpec<simple, std::pair<int, float>>);
+static_assert(!CorrectFieldSpec<simple, std::vector<int>>);
+static_assert(!CorrectFieldSpec<simple, std::variant<int, float>>);
+static_assert( CorrectFieldSpec<simple, std::tuple<>>);
+static_assert( CorrectFieldSpec<simple, std::tuple<decltype(&simple::i)>>);
+static_assert( CorrectFieldSpec<simple, std::tuple<decltype(&simple::i), decltype(&simple::f)>>);
+static_assert( CorrectFieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>>);
+static_assert(!CorrectFieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>>);
+static_assert(!CorrectFieldSpec<simple, std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>>);
 
 }
 
@@ -200,7 +205,7 @@ struct from
 {
     static constexpr auto get_fields()
     {
-        static_assert(has_get_fields<T>, "T must be an aggregate or have 'get_fields' defined.");
+        static_assert(SelfDescribed<T>, "T must be an aggregate or have 'get_fields' defined.");
         return T::get_fields();
     }
 };
