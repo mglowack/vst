@@ -28,7 +28,7 @@ struct trait
 } // namespace impl
 
 // no 'with_fields::X' specified => injecting 'with_fields::use_default'
-template<typename T, Operator... ops>
+template<typename T, typename... ops> // why not Operator... ?
 struct trait<type<T, ops...>>
 : trait<type<T, with_fields::use_default, ops...>>
 {
@@ -37,7 +37,7 @@ struct trait<type<T, ops...>>
 // 'with_fields::use_default':
 // * translate to 'with_fields::from<T>' if 'get_fields()' is provided on the underlying type
 // * translate to 'with_fields::from_aggregate' otherwise
-template<SelfDescribed T, Operator... ops>
+template<SelfDescribed T, typename... ops> // why not Operator... ?
 struct trait<type<T, with_fields::use_default, ops...>>
 : trait<type<T, with_fields::from<T>, ops...>>
 {
