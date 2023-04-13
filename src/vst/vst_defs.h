@@ -69,14 +69,11 @@ struct is_template<template_t, template_t<args_t...>> : std::true_type {};
 
 
 
-template<typename T, typename spec_t>
-concept FieldSpec =
+template<typename spec_t, typename T>
+concept FieldSpecOf =
     is_template_v<std::tuple, spec_t>
     && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
       || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
-
-template<typename spec_t, typename T>
-concept FieldSpecOf = FieldSpec<T, spec_t>;
 
 template<typename T, typename U>
 concept DescribesThe = requires {
@@ -85,43 +82,6 @@ concept DescribesThe = requires {
 
 template<typename T>
 concept SelfDescribed = DescribesThe<T, T>;
-
-namespace Described_tests {
-
-struct empty {};
-static_assert(!SelfDescribed<empty>);
-
-struct simple_empty_fields {
-    static auto get_fields() {
-        return std::tuple{};
-    }
-};
-static_assert( SelfDescribed<simple_empty_fields>);
-
-struct simple_with_fields {
-    int i;
-    float f;
-    static auto get_fields() {
-        return std::tuple{&simple_with_fields::i, &simple_with_fields::f};
-    }
-};
-static_assert( SelfDescribed<simple_with_fields>);
-
-struct simple {
-    int i;
-    float f;
-};
-static_assert(!FieldSpec<simple, std::pair<int, float>>);
-static_assert(!FieldSpec<simple, std::vector<int>>);
-static_assert(!FieldSpec<simple, std::variant<int, float>>);
-static_assert( FieldSpec<simple, std::tuple<>>);
-static_assert( FieldSpec<simple, std::tuple<decltype(&simple::i)>>);
-static_assert( FieldSpec<simple, std::tuple<decltype(&simple::i), decltype(&simple::f)>>);
-static_assert( FieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>>);
-static_assert(!FieldSpec<simple, std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>>);
-static_assert(!FieldSpec<simple, std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>>);
-
-}
 
 namespace vst {
 
@@ -220,6 +180,51 @@ struct use_default {};
 struct from_aggregate {};
 
 } // namespace fields
+
+namespace Described_tests {
+
+struct empty {};
+static_assert(!SelfDescribed<empty>);
+
+struct simple_empty_fields {
+    static auto get_fields() {
+        return std::tuple{};
+    }
+};
+static_assert( SelfDescribed<simple_empty_fields>);
+static_assert( DescribesThe<with_fields::empty, simple_empty_fields>);
+
+struct simple_with_fields {
+    int i;
+    float f;
+    static auto get_fields() {
+        return std::tuple{&simple_with_fields::i, &simple_with_fields::f};
+    }
+};
+static_assert( SelfDescribed<simple_with_fields>);
+static_assert( DescribesThe<with_fields::from<simple_empty_fields>, simple_empty_fields>);
+
+struct simple {
+    int i;
+    float f;
+};
+struct other {
+    int i;
+    float f;
+};
+static_assert(!FieldSpecOf<std::pair<int, float>,                                                                    simple>);
+static_assert(!FieldSpecOf<std::vector<int>,                                                                         simple>);
+static_assert(!FieldSpecOf<std::variant<int, float>,                                                                 simple>);
+static_assert( FieldSpecOf<std::tuple<>,                                                                             simple>);
+static_assert( FieldSpecOf<std::tuple<decltype(&simple::i)>,                                                         simple>);
+static_assert(!FieldSpecOf<std::tuple<decltype(&other::i)>,                                                          simple>);
+static_assert(!FieldSpecOf<std::tuple<decltype(&simple::i), decltype(&other::f)>,                                    simple>);
+static_assert( FieldSpecOf<std::tuple<decltype(&simple::i), decltype(&simple::f)>,                                   simple>);
+static_assert( FieldSpecOf<std::tuple<named_field_ptr<decltype(&simple::i)>, named_field_ptr<decltype(&simple::f)>>, simple>);
+static_assert(!FieldSpecOf<std::tuple<named_field_ptr<decltype(&simple::i)>, decltype(&simple::f)>,                  simple>);
+static_assert(!FieldSpecOf<std::tuple<decltype(&simple::i), named_field_ptr<decltype(&simple::f)>>,                  simple>);
+
+}
 
 } // close vst namespace
 
