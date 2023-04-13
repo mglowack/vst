@@ -23,18 +23,9 @@ struct named_field_ptr
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
-// ##################
-// # has_get_fields #
-// ##################
-
-template<typename T>
-concept SelfDescribed = requires {
-    T::get_fields();
-};
-
-// ##########################
-// # has_correct_get_fields #
-// ##########################
+// ######################
+// # CorrectlyDescribed #
+// ######################
 
 template<typename T>
 struct is_pointer_to_member_of
@@ -92,7 +83,7 @@ concept CorrectlyDescribed = requires {
     { T::get_fields() } -> CorrectFieldSpecOf<U>;
 };
 
-namespace has_correct_get_fields_tests {
+namespace CorrectlyDescribed_tests {
 
 struct empty {};
 static_assert(!CorrectlyDescribed<empty>);
@@ -199,7 +190,7 @@ struct from
 {
     static constexpr auto get_fields()
     {
-        static_assert(SelfDescribed<T>, "T must be an aggregate or have 'get_fields' defined.");
+        static_assert(CorrectlyDescribed<T>, "T must be an aggregate or have 'get_fields' defined.");
         return T::get_fields();
     }
 };
