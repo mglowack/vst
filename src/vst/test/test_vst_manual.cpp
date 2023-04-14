@@ -1,5 +1,5 @@
 #include <vst.hpp>
-#include <stringify.h>
+#include <dev_stringify.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

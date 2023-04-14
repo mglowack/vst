@@ -5,10 +5,11 @@ cmake_minimum_required(VERSION 3.25)
 # add_library (vst INTERFACE vst_wrapped_value.cpp vst_named_var.cpp vst_indexed_var.cpp)
 add_library (
     dev OBJECT
-    concepts.cpp
-    stringify.cpp
-    type_list.cpp
-    type_traits.cpp
+    dev_concepts.cpp
+    dev_stringify.cpp
+    dev_type_list.cpp
+    dev_type_traits.cpp
+    dev_functional.cpp
 )
 set_target_properties(dev PROPERTIES LINKER_LANGUAGE CXX)
 # target_include_directories(vst

@@ -1,7 +1,7 @@
 #pragma once
 
-namespace vst {
-    
+namespace dev {
+
 template<typename = void>
 struct plus_assign
 {
@@ -22,4 +22,4 @@ struct minus_assign
     }
 };
 
-}
+} // namespace dev

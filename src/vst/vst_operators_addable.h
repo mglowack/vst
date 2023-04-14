@@ -1,9 +1,10 @@
 #pragma once
 
 #include <vst_defs.h>
-#include <vst_functional.h>
 
-#include <tuple.h>
+#include <dev_functional.h>
+
+#include <dev_tuple.h>
 
 #include <functional>
 #include <type_traits>
@@ -48,13 +49,13 @@ constexpr T operator-(const T& lhs, const T& rhs)
 template<OpEnabled<op::addable> T>
 constexpr T& operator+=(T& lhs, const T& rhs)
 {
-    return binary_assign_op<plus_assign<>>(lhs, rhs);
+    return binary_assign_op<dev::plus_assign<>>(lhs, rhs);
 }
 
 template<OpEnabled<op::addable> T>
 constexpr T& operator-=(T& lhs, const T& rhs)
 {
-    return binary_assign_op<minus_assign<>>(lhs, rhs);
+    return binary_assign_op<dev::minus_assign<>>(lhs, rhs);
 }
 
 } // namespace vst::impl

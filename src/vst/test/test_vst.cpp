@@ -1,7 +1,7 @@
 #include <vst.hpp>
 
-#include <stringify.h>
-#include <concepts.h>
+#include <dev_stringify.h>
+#include <dev_concepts.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -432,6 +432,4 @@ TEST(test_vst, streaming)
 //  * tags to allow re-using PODs?
 //
 // TODO MG cleanup:
-//  * move operators (plus_assign, minus_assign) to utils
-//  * move var classes to right namespace
 //  * use wrapped version on modyfying operators to allow customizing (maybe not possible)
