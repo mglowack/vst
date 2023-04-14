@@ -146,11 +146,11 @@ TYPED_TEST(test_vst, comparable)
 {
     using VST = TypeParam;
 
-    static_assert(is_streamable<VST>);
+    static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
-    static_assert(!is_ordered<VST>);
+    static_assert(!std::totally_ordered<VST>);
     static_assert(!is_hashable<VST>);
-    static_assert(!is_addable<VST>);
+    static_assert(!Addable<VST>);
 
     static_assert(VST{1, 2.f} == VST{1, 2.f});
     static_assert(VST{2, 2.f} == VST{2, 2.f});
@@ -167,11 +167,11 @@ TYPED_TEST(test_vst, ordered)
 {
     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
-    static_assert(is_streamable<VST>);
+    static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
-    static_assert(is_ordered<VST>);
+    static_assert(std::totally_ordered<VST>);
     static_assert(!is_hashable<VST>);
-    static_assert(!is_addable<VST>);
+    static_assert(!Addable<VST>);
 
     static_assert(VST{1, 2.f} <= VST{1, 2.f});
     static_assert(VST{1, 2.f} >= VST{1, 2.f});
@@ -271,11 +271,11 @@ TYPED_TEST(test_vst, hashable)
 {
     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
-    static_assert(is_streamable<VST>);
+    static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
-    static_assert(!is_ordered<VST>);
+    static_assert(!std::totally_ordered<VST>);
     static_assert(is_hashable<VST>);
-    static_assert(!is_addable<VST>);
+    static_assert(!Addable<VST>);
 
     auto vh = [](const VST& o) { return vst::hash<VST>{}(o); };
     auto sh = [](const VST& o) { return std::hash<VST>{}(o); };
@@ -368,11 +368,11 @@ TYPED_TEST(test_vst, addable)
 {
     using VST = typename append_template_args<TypeParam, vst::op::addable>::type;
 
-    static_assert(is_streamable<VST>);
+    static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
-    static_assert(!is_ordered<VST>);
+    static_assert(!std::totally_ordered<VST>);
     static_assert(!is_hashable<VST>);
-    static_assert(is_addable<VST>);
+    static_assert(Addable<VST>);
 
     static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
     static_assert(VST{1, 2.f} - VST{2, 2.f} == VST{-1, 0.f});

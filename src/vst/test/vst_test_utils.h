@@ -31,72 +31,36 @@ std::string stringify(const T& o)
     return oss.str();
 }
 
-// ##############
-// # is_ordered #
-// ##############
-
-template<typename T, typename U, typename ENABLER = void>
-constexpr bool is_ordered_impl = false;
-
-template<typename T, typename U>
-constexpr bool is_ordered_impl<
-    T, U,
-    std::void_t<
-        decltype(std::declval<const T&>() <  std::declval<const U&>()),
-        decltype(std::declval<const T&>() >  std::declval<const U&>()),
-        decltype(std::declval<const T&>() <= std::declval<const U&>()),
-        decltype(std::declval<const T&>() >= std::declval<const U&>()),
-
-        decltype(std::declval<const U&>() <  std::declval<const T&>()),
-        decltype(std::declval<const U&>() >  std::declval<const T&>()),
-        decltype(std::declval<const U&>() <= std::declval<const T&>()),
-        decltype(std::declval<const U&>() >= std::declval<const T&>())>>
-= true;
-
-template<typename T, typename U = T>
-constexpr bool is_ordered = is_ordered_impl<T, U>;
-
-// ##############
-// # is_addable #
-// ##############
-
-template<typename T, typename U, typename ENABLER = void>
-constexpr bool is_addable_impl = false;
-
-template<typename T, typename U>
-constexpr bool is_addable_impl<
-    T,
-    U,
-    std::void_t<
-        decltype(std::declval<T&>()      += std::declval<const U&>()),
-        decltype(std::declval<T&>()      -= std::declval<const U&>()),
-        decltype(std::declval<const T&>() + std::declval<const U&>()),
-        decltype(std::declval<const T&>() - std::declval<const U&>()),
-
-        decltype(std::declval<U&>()      += std::declval<const T&>()),
-        decltype(std::declval<U&>()      -= std::declval<const T&>()),
-        decltype(std::declval<const U&>() + std::declval<const T&>()),
-        decltype(std::declval<const U&>() - std::declval<const T&>())
-    >
->
-= true;
-
-template<typename T, typename U = T>
-constexpr bool is_addable = is_addable_impl<T, U>;
-
-// #################
-// # is_streamable #
-// #################
-
-template<typename T, typename ENABLER = void>
-constexpr bool is_streamable = false;
+// ###########
+// # Addable #
+// ###########
 
 template<typename T>
-constexpr bool is_streamable<
-    T,
-    std::void_t<
-        decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>
-= true;
+concept ValueAddable = requires(const T& x) {
+    { x + x } -> std::same_as<T>;
+    { x - x } -> std::same_as<T>;
+};
+
+template<typename T>
+concept AddAssignable = requires(T& lhs, const T& rhs) {
+    { lhs += rhs } -> std::same_as<T&>;
+    { lhs -= rhs } -> std::same_as<T&>;
+};
+
+template<typename T>
+concept Addable = requires {
+    requires ValueAddable<T>;
+    requires AddAssignable<T>;
+};
+
+// ##############
+// # Streamable #
+// ##############
+
+template<typename T>
+concept Streamable = requires(std::ostream& os, const T& rhs) {
+    { os << rhs } -> std::convertible_to<std::ostream&>;
+};
 
 // ###############
 // # is_hashable #
