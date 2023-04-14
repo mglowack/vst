@@ -417,12 +417,12 @@ TYPED_TEST(test_vst, addable)
 
 TEST(test_vst, streaming)
 {
-    EXPECT_THAT(stringify(simple<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
-    EXPECT_THAT(stringify(simple_just_ptrs<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
-    EXPECT_THAT(stringify(simple_self_described<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
-    EXPECT_THAT(stringify(custom_from_func<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
-    EXPECT_THAT(stringify(custom_from_var<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
-    EXPECT_THAT(stringify(composite<>{1, 1.f}), Eq("[ field1=1 field2=[ field1=1 ] ]"));
+    EXPECT_THAT(dev::stringify(simple<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
+    EXPECT_THAT(dev::stringify(simple_just_ptrs<>{1, 1.f}), Eq("[ field1=1 field2=1 ]"));
+    EXPECT_THAT(dev::stringify(simple_self_described<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(dev::stringify(custom_from_func<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(dev::stringify(custom_from_var<>{1, 1.f}), Eq("[ x=1 y=1 ]"));
+    EXPECT_THAT(dev::stringify(composite<>{1, 1.f}), Eq("[ field1=1 field2=[ field1=1 ] ]"));
 }
 
 // TODO MG:

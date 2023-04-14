@@ -4,6 +4,8 @@
 #include <iosfwd>
 #include <sstream>
 
+namespace dev {
+
 // #############
 // # stringify #
 // #############
@@ -15,3 +17,5 @@ std::string stringify(const T& o)
     oss << o;
     return oss.str();
 }
+
+} // namespace dev

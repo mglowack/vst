@@ -158,10 +158,10 @@ TEST(test_vst, wrapped_value)
     using WF = vst::wrapped_value_of<fake_vst, string_int>;
     using WS = vst::wrapped_value_of<specific_data, string_int>;
 
-    EXPECT_THAT(stringify(   string_int{"10"}),  Eq("10"));
-    EXPECT_THAT(stringify(W{ string_int{"10"}}), Eq("int:\"10\""));
-    EXPECT_THAT(stringify(WF{string_int{"10"}}), Eq("int:\"10\""));
-    EXPECT_THAT(stringify(WS{string_int{"10"}}), Eq("specific:\"10\""));
+    EXPECT_THAT(dev::stringify(   string_int{"10"}),  Eq("10"));
+    EXPECT_THAT(dev::stringify(W{ string_int{"10"}}), Eq("int:\"10\""));
+    EXPECT_THAT(dev::stringify(WF{string_int{"10"}}), Eq("int:\"10\""));
+    EXPECT_THAT(dev::stringify(WS{string_int{"10"}}), Eq("specific:\"10\""));
 
     EXPECT_THAT(   string_int{"10"},  Lt(   string_int{"4"}));  // because of string compare, not actual int value
     EXPECT_THAT(W{ string_int{"10"}}, Gt(W{ string_int{"4"}})); // because now we compare the actual int value
@@ -179,21 +179,21 @@ TEST(test_vst, custom_operators_for_string_int)
     using data = vst::type<pod, vst::op::ordered>;
 
     // check standard operators work as if it's string
-    ASSERT_THAT(stringify(string_int{"10"}), Eq("10"));
+    ASSERT_THAT(dev::stringify(string_int{"10"}), Eq("10"));
     ASSERT_THAT(string_int{"10"}, Lt(string_int{"4"}));
 
     // check wrapped values
     using WD = vst::wrapped_value_of<data, string_int>;
-    ASSERT_THAT(stringify(WD{string_int{"10"}}), Eq("int:\"10\""));
+    ASSERT_THAT(dev::stringify(WD{string_int{"10"}}), Eq("int:\"10\""));
     ASSERT_THAT(WD{string_int{"10"}}, Gt(WD{string_int{"4"}}));
 
     // stream operator override for all VSTs
-    EXPECT_THAT(stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
-    EXPECT_THAT(stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
+    EXPECT_THAT(dev::stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
+    EXPECT_THAT(dev::stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
 
     // stream operator override for specific VST
-    EXPECT_THAT(stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
-    EXPECT_THAT(stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
+    EXPECT_THAT(dev::stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
+    EXPECT_THAT(dev::stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
 
     // compare operators override for all VSTs (defined to be int comparison)
     EXPECT_THAT((data{"10"}), Gt(data{"4"}));
