@@ -41,12 +41,20 @@ template<
 struct named_type_trait<vst::type<named_type_pod<underlying_t, tag_t, op_categories_t, conversion_categories_t>, ops...>>
 : named_type_trait<named_type_pod<underlying_t, tag_t, op_categories_t, conversion_categories_t>> {};
 
+// #############
+// # NamedType #
+// #############
+
 template<typename T>
 concept NamedType = requires {
     typename named_type_trait<T>::underlying_type;
     typename named_type_trait<T>::op_categories;
     typename named_type_trait<T>::conversion_categories;
 };
+
+// ###################
+// # TransparentWith #
+// ###################
 
 template<typename U, typename T>
 concept TransparentWith =
@@ -55,12 +63,20 @@ concept TransparentWith =
         typename named_type_trait<T>::op_categories,
         transparent_ops_with<U>>;
 
+// ###########################
+// # ImplicitlyConvertibleTo #
+// ###########################
+
 template<typename U, typename T>
 concept ImplicitlyConvertibleTo =
     NamedType<T>
     && type_list_contains_v<
         typename named_type_trait<T>::conversion_categories,
         implicit_conversions_to<U>>;
+
+// #############################
+// # ImplicitlyConvertibleFrom #
+// #############################
 
 template<typename U, typename T>
 concept ImplicitlyConvertibleFrom =

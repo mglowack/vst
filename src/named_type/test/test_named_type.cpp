@@ -141,7 +141,7 @@ TEST(test_named_type, basic)
 
 TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_not_enabled)
 {
-    static_assert(!is_comparable<price, int>);
+    static_assert(!is_comparable_with<price, int>);
     static_assert(!is_ordered<price, int>);
     static_assert(!is_hashable<price, int>);
     static_assert(!is_addable<price, int>);
@@ -149,7 +149,8 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
 
 TEST(test_named_type, to_and_from_underlying_transparent_equality)
 {
-    static_assert( is_comparable<price_transparent, int>);
+    static_assert( is_comparable_with<price_transparent, int>);
+    static_assert( is_comparable_with<int, price_transparent>);
 
     constexpr auto eq = std::equal_to<price_transparent>{};
 
@@ -177,7 +178,7 @@ TEST(test_named_type, to_and_from_underlying_transparent_equality)
 TEST(test_named_type, to_and_from_T_transparent_equality)
 {
     using value = named_type<int, struct to_and_from_T_transparent_equality_test, transparent_ops_with<float>>;
-    static_assert( is_comparable<value, float>);
+    static_assert( is_comparable_with<value, float>);
 
     constexpr auto eq = std::equal_to<value>{};
 
@@ -209,8 +210,8 @@ TEST(test_named_type, to_and_from_multiple_T_transparent_equality)
         struct to_and_from_multiple_T_transparent_equality_test,
         transparent_ops_with<float>,
         transparent_ops_with<int>>;
-    static_assert( is_comparable<value, int>);
-    static_assert( is_comparable<value, float>);
+    static_assert( is_comparable_with<value, int>);
+    static_assert( is_comparable_with<value, float>);
 
     constexpr auto eq = std::equal_to<value>{};
 
@@ -222,7 +223,7 @@ TEST(test_named_type, to_and_from_multiple_T_transparent_equality)
 
 TEST(test_named_type, to_and_from_underlying_transparent_ordered)
 {
-    static_assert( is_comparable<price_transparent, int>);
+    static_assert( is_comparable_with<price_transparent, int>);
     static_assert( is_ordered<price_transparent, int>);
 
     constexpr auto eq = std::equal_to<price_transparent>{};
@@ -306,7 +307,7 @@ TEST(test_named_type, to_and_from_T_transparent_ordered)
         transparent_ops_with<float>,
         vst::op::ordered>;
 
-    static_assert( is_comparable<value, float>);
+    static_assert( is_comparable_with<value, float>);
     static_assert( is_ordered<value, float>);
 
     constexpr auto eq = std::equal_to<value>{};

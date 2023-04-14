@@ -23,9 +23,9 @@ struct named_field_ptr
 
 #define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
-// ######################
+// #############
 // # Described #
-// ######################
+// #############
 
 template<typename T>
 struct is_pointer_to_member_of

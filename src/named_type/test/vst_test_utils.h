@@ -10,10 +10,10 @@
 // #################
 
 template<typename T, typename U, typename ENABLER = void>
-constexpr bool is_comparable_impl = false;
+constexpr bool is_comparable_with = false;
 
 template<typename T, typename U>
-constexpr bool is_comparable_impl<
+constexpr bool is_comparable_with<
     T, U,
     std::void_t<
         decltype(std::declval<const T&>() == std::declval<const U&>()),
@@ -25,8 +25,8 @@ constexpr bool is_comparable_impl<
 >
 = true;
 
-template<typename T, typename U = T>
-constexpr bool is_comparable = is_comparable_impl<T, U>;
+template<typename T>
+constexpr bool is_comparable = is_comparable_with<T, T>;
 
 // ##############
 // # is_ordered #

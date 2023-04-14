@@ -2,6 +2,7 @@
 
 #include <vst.hpp>
 
+#include <concepts>
 #include <utility>
 #include <iosfwd>
 
@@ -30,29 +31,6 @@ std::string stringify(const T& o)
     return oss.str();
 }
 
-// #################
-// # is_comparable #
-// #################
-
-template<typename T, typename U, typename ENABLER = void>
-constexpr bool is_comparable_impl = false;
-
-template<typename T, typename U>
-constexpr bool is_comparable_impl<
-    T, U,
-    std::void_t<
-        decltype(std::declval<const T&>() == std::declval<const U&>()),
-        decltype(std::declval<const T&>() != std::declval<const U&>()),
-
-        decltype(std::declval<const U&>() == std::declval<const T&>()),
-        decltype(std::declval<const U&>() != std::declval<const T&>())
-    >
->
-= true;
-
-template<typename T, typename U = T>
-constexpr bool is_comparable = is_comparable_impl<T, U>;
-
 // ##############
 // # is_ordered #
 // ##############
@@ -73,7 +51,7 @@ constexpr bool is_ordered_impl<
         decltype(std::declval<const U&>() >  std::declval<const T&>()),
         decltype(std::declval<const U&>() <= std::declval<const T&>()),
         decltype(std::declval<const U&>() >= std::declval<const T&>())>>
-= is_comparable<T>;
+= true;
 
 template<typename T, typename U = T>
 constexpr bool is_ordered = is_ordered_impl<T, U>;

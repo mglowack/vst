@@ -137,6 +137,11 @@ using all_types = ::testing::Types<
 
 TYPED_TEST_SUITE(test_vst, all_types);
 
+TYPED_TEST(test_vst, regular)
+{
+    static_assert(std::regular<TypeParam>);
+}
+
 TYPED_TEST(test_vst, comparable)
 {
     using VST = TypeParam;
@@ -163,7 +168,7 @@ TYPED_TEST(test_vst, ordered)
     using VST = typename append_template_args<TypeParam, vst::op::ordered>::type;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_comparable<VST>);
+    static_assert(std::equality_comparable<VST>);
     static_assert(is_ordered<VST>);
     static_assert(!is_hashable<VST>);
     static_assert(!is_addable<VST>);
@@ -267,7 +272,7 @@ TYPED_TEST(test_vst, hashable)
     using VST = typename append_template_args<TypeParam, vst::op::hashable>::type;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_comparable<VST>);
+    static_assert(std::equality_comparable<VST>);
     static_assert(!is_ordered<VST>);
     static_assert(is_hashable<VST>);
     static_assert(!is_addable<VST>);
@@ -364,7 +369,7 @@ TYPED_TEST(test_vst, addable)
     using VST = typename append_template_args<TypeParam, vst::op::addable>::type;
 
     static_assert(is_streamable<VST>);
-    static_assert(is_comparable<VST>);
+    static_assert(std::equality_comparable<VST>);
     static_assert(!is_ordered<VST>);
     static_assert(!is_hashable<VST>);
     static_assert(is_addable<VST>);
