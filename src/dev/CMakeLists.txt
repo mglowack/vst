@@ -7,6 +7,7 @@ add_library (
     dev OBJECT
     dev_concepts.cpp
     dev_stringify.cpp
+    dev_tuple.cpp
     dev_type_list.cpp
     dev_type_traits.cpp
     dev_functional.cpp

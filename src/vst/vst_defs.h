@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dev_type_list.h>
+#include <dev_type_traits.h>
 
 #include <tuple>
 #include <vector>
@@ -57,20 +58,9 @@ struct disjunction
 
 
 
-template<template<typename...> typename template_t, typename T>
-struct is_template : std::false_type {};
-
-template<template<typename...> typename template_t, typename T>
-constexpr bool is_template_v =  is_template<template_t, T>::value;
-
-template<template<typename...> typename template_t, typename... args_t>
-struct is_template<template_t, template_t<args_t...>> : std::true_type {};
-
-
-
 template<typename spec_t, typename T>
 concept FieldSpecOf =
-    is_template_v<std::tuple, spec_t>
+    dev::is_template_v<std::tuple, spec_t>
     && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
       || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 

@@ -3,7 +3,6 @@
 #include <vst_defs.h>
 
 #include <dev_functional.h>
-
 #include <dev_tuple.h>
 
 #include <functional>
