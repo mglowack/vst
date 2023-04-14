@@ -1,7 +1,6 @@
-#ifndef VST_DEFS_H
-#define VST_DEFS_H
+#pragma once
 
-#include "type_list.h"
+#include <type_list.h>
 
 #include <tuple>
 #include <vector>
@@ -227,5 +226,3 @@ static_assert(!FieldSpecOf<std::tuple<decltype(&simple::i), named_field_ptr<decl
 }
 
 } // close vst namespace
-
-#endif

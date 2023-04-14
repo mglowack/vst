@@ -22,4 +22,4 @@ set_target_properties(vst PROPERTIES LINKER_LANGUAGE CXX)
 # target_include_directories(vst
     # INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> ${Boost_INCLUDE_DIRS})
 target_include_directories(vst PUBLIC . ${Boost_INCLUDE_DIRS})
-target_link_libraries(vst PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(vst PUBLIC dev ${Boost_LIBRARIES})

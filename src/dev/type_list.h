@@ -1,5 +1,4 @@
-#ifndef TYPE_LIST_H
-#define TYPE_LIST_H
+#pragma once
 
 #include <tuple>
 #include <variant>
@@ -293,5 +292,3 @@ static_assert(std::is_same_v<type_list_cast_t<std::tuple<>>, type_list<>>);
 static_assert(std::is_same_v<type_list_cast_t<std::tuple<int, float>>, type_list<int, float>>);
 static_assert(std::is_same_v<type_list_cast_t<std::variant<>>, type_list<>>);
 static_assert(std::is_same_v<type_list_cast_t<std::variant<int, float>>, type_list<int, float>>);
-
-#endif
