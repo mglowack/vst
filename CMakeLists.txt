@@ -8,6 +8,7 @@ add_subdirectory(../deps/googletest-1.13.0 gtest)
 
 add_compile_options(-Wall -Werror -fuse-ld=mold)
 
+add_subdirectory(src/dev)
 add_subdirectory(src/vst)
 add_subdirectory(src/vst/test)
 add_subdirectory(src/named_type)

@@ -1,5 +1,7 @@
 #include <vst.hpp>
-#include "vst_test_utils.h"
+
+#include <stringify.h>
+#include <concepts.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -109,6 +111,26 @@ using custom_from_var       = vst::type<simple_pod,
 
 template<typename... ops>
 using composite = vst::type<composite_pod, ops...>;
+
+// ########################
+// # append_template_args #
+// ########################
+
+template<typename T, typename... extra_args_t>
+struct append_template_args;
+
+template<typename T, typename... args_t, typename... extra_args_t>
+struct append_template_args<vst::type<T, args_t...>, extra_args_t...>
+{
+    using type = vst::type<T, args_t..., extra_args_t...>;
+};
+
+template<typename T>
+concept Hashable = requires(const T& x) {
+    { vst::hash<T>{}(x) } -> std::same_as<size_t>;
+    requires HashableX<T>;
+    { boost::hash<T>{}(x) } -> std::same_as<size_t>;
+};
 
 } // close anon namespace
 

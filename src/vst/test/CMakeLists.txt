@@ -15,6 +15,7 @@ target_link_libraries(
     gmock_main
     ${Boost_LIBRARIES}
     vst
+    dev
 )
 gtest_discover_tests(test_vst)
 # add_test(NAME test_vst COMMAND test_vst)
