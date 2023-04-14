@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vst_wrapped_value.h>
-#include <vst_utils.h>
+
+#include <tuple.h>
 
 #include <tuple>
 
@@ -51,7 +52,7 @@ struct indexed_var_util
     template<typename... Ts>
     static constexpr auto index(std::tuple<Ts&...> fields)
     {
-        return apply_with_index(
+        return dev::apply_with_index(
             [](const auto&... elem) {
                 return std::tuple(make_indexed_var<elem.index + 1>(elem.value)...); // convert to 1-based
             },

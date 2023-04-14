@@ -7,7 +7,6 @@ add_library (
     vst OBJECT
     vst.hpp
     vst_trait.cpp
-    vst_utils.cpp
     vst_functional.cpp
     vst_wrapped_value.cpp
     vst_named_var.cpp

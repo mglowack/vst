@@ -8,6 +8,8 @@
 // # apply_with_index #
 // ####################
 
+namespace dev {
+
 template <std::size_t I, typename T>
 struct value_with_index
 {
@@ -80,3 +82,5 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
             std::forward<decltype(a)>(a)...);
     }, std::forward<Tuple>(tuple));
 }
+
+} // namespace dev

@@ -3,6 +3,8 @@
 #include <vst_defs.h>
 #include <vst_functional.h>
 
+#include <tuple.h>
+
 #include <functional>
 #include <type_traits>
 
@@ -12,7 +14,7 @@ namespace vst::impl
 template <typename op_t, typename vst_t>
 constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
 {
-    apply_with_index([rhs_tie = vst::trait<vst_t>::tie(rhs)](const auto... a) {
+    dev::apply_with_index([rhs_tie = vst::trait<vst_t>::tie(rhs)](const auto... a) {
         (op_t{}(
             a.value,
             std::get<a.index>(rhs_tie)), ...);
@@ -23,7 +25,7 @@ constexpr vst_t& binary_assign_op(vst_t& lhs, const vst_t& rhs)
 template <typename op_t, typename vst_t>
 constexpr vst_t binary_op(const vst_t& lhs, const vst_t& rhs)
 {
-    return apply_with_index(
+    return dev::apply_with_index(
         [rhs_tie = vst::trait<vst_t>::tie(rhs)](const auto... a) {
         return vst_t{op_t{}(
             a.value,

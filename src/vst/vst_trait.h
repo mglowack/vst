@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vst_defs.h>
-#include <vst_utils.h>
 #include <vst_named_var.h>
 #include <vst_indexed_var.h>
 
