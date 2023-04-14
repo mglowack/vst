@@ -8,6 +8,7 @@ add_library (
     concepts.cpp
     stringify.cpp
     type_list.cpp
+    type_traits.cpp
 )
 set_target_properties(dev PROPERTIES LINKER_LANGUAGE CXX)
 # target_include_directories(vst

@@ -6,6 +6,7 @@
 #include <vst_indexed_var.h>
 
 #include <type_list.h>
+#include <type_traits.h>
 
 #include <boost/pfr.hpp>
 
@@ -60,7 +61,7 @@ struct trait<type<T, with_fields::from_aggregate, ops...>>
     template<typename U>
     static constexpr auto tie(U& obj)
     {
-        return boost::pfr::structure_tie(static_cast<propagate_const_t<U, T>&>(obj));
+        return boost::pfr::structure_tie(static_cast<dev::propagate_const_t<U, T>&>(obj));
     }
 
     template<typename U>
