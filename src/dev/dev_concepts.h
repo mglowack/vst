@@ -8,22 +8,30 @@
 // # Addable #
 // ###########
 
-template<typename T>
-concept ValueAddable = requires(const T& x) {
-    { x + x } -> std::same_as<T>;
-    { x - x } -> std::same_as<T>;
+template<typename R, typename T, typename U>
+concept ValueAddable = requires(const T& lhs, const U& rhs) {
+    { lhs + rhs } -> std::same_as<R>;
+    { lhs - rhs } -> std::same_as<R>;
 };
 
-template<typename T>
-concept AddAssignable = requires(T& lhs, const T& rhs) {
-    { lhs += rhs } -> std::same_as<T&>;
-    { lhs -= rhs } -> std::same_as<T&>;
+template<typename R, typename T, typename U>
+concept AddAssignable = requires(T& lhs, const U& rhs) {
+    { lhs += rhs } -> std::same_as<R&>;
+    { lhs -= rhs } -> std::same_as<R&>;
 };
 
 template<typename T>
 concept Addable = requires {
-    requires ValueAddable<T>;
-    requires AddAssignable<T>;
+    requires ValueAddable<T, T, T>;
+    requires AddAssignable<T, T, T>;
+};
+
+template<typename T, typename U>
+concept AddableWith = requires {
+    requires ValueAddable<T, T, U>;
+    requires ValueAddable<T, U, T>;
+    requires AddAssignable<T, T, U>;
+    requires AddAssignable<U, U, T>;
 };
 
 // ##############
