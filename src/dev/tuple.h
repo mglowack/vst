@@ -4,11 +4,11 @@
 #include <type_traits>
 #include <ostream>
 
-// ####################
-// # apply_with_index #
-// ####################
-
 namespace dev {
+
+// ####################
+// # value_with_index #
+// ####################
 
 template <std::size_t I, typename T>
 struct value_with_index
@@ -42,6 +42,9 @@ std::ostream& operator<<(std::ostream& os, const value_with_index<I, T>& rhs)
     return os << "[ index = " << rhs.index << ", value=" << rhs.value << " ]";
 }
 
+// ####################
+// # apply_with_index #
+// ####################
 
 // template<typename F, typename Tuple, std::size_t... I>
 // constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)

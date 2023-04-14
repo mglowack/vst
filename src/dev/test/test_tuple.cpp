@@ -5,7 +5,7 @@
 
 using namespace ::testing;
 
-TEST(test_vst, apply_with_index_return)
+TEST(test_tuple, apply_with_index_return)
 {
     auto add_values = [](const auto&... elem) { return (elem.value + ...); };
     auto add_indices_and_values = [](const auto&... elem) { return (elem.index + ...) + (elem.value + ...); };
@@ -22,7 +22,7 @@ TEST(test_vst, apply_with_index_return)
     EXPECT_THAT(dev::apply_with_index(add_values, t_non_const),         Eq(3+4+5));
 }
 
-TEST(test_vst, apply_with_index)
+TEST(test_tuple, apply_with_index)
 {
     MockFunction<void(dev::value_with_index<0, const int>, dev::value_with_index<1, const float>)> mock;
     const std::tuple<int, float> a{1, 2.f};
@@ -34,7 +34,7 @@ TEST(test_vst, apply_with_index)
     dev::apply_with_index(mock.AsStdFunction(), a);
 }
 
-TEST(test_vst, apply_with_index_non_const)
+TEST(test_tuple, apply_with_index_non_const)
 {
     MockFunction<void(dev::value_with_index<0, int>, dev::value_with_index<1, float>)> mock;
     std::tuple<int, float> a{1, 2.f};
