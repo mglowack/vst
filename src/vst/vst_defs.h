@@ -1,9 +1,12 @@
 #pragma once
 
 #include <vst_defs_ops.h>
+#include <vst_defs_fields.h>
+#include <vst_defs_with_fields.h>
 
 #include <dev_type_list.h>
-#include <dev_type_traits.h>
+
+#include <type_traits>
 
 namespace vst::impl {
 
@@ -22,8 +25,8 @@ struct type<T, properties_t>
 
 namespace vst {
 
-template <typename T, typename... ops>
-using type = impl::type<T, dev::type_list<ops...>>;
+template <typename T, typename... params>
+using type = impl::type<T, dev::type_list<params...>>;
 
 template<typename T>
 struct trait;
@@ -38,4 +41,4 @@ concept Type = requires {
 template <typename T, typename OP>
 concept OpEnabled = Type<T> && dev::type_list_contains_v<typename trait<T>::properties, OP>;
 
-}
+} // namespace vst
