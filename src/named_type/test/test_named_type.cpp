@@ -126,7 +126,7 @@ TEST(test_named_type, basic)
     EXPECT_TRUE((price{4} <= price{4}));
     EXPECT_TRUE((price{4} >= price{4}));
 
-    static_assert(Addable<price>);
+    static_assert(dev::Addable<price>);
 
     static_assert(price{4} + price{1} == price{5});
     static_assert(price{4} - price{1} == price{3});
@@ -146,7 +146,7 @@ TEST(test_named_type, to_and_from_underlying_no_operators_when_transparent_ops_n
     static_assert(!is_comparable_with<price, int>);
     static_assert(!is_ordered<price, int>);
     static_assert(!is_hashable<price, int>);
-    static_assert(!AddableWith<price, int>);
+    static_assert(!dev::AddableWith<price, int>);
 }
 
 TEST(test_named_type, to_and_from_underlying_transparent_equality)
@@ -463,8 +463,8 @@ TEST(test_named_type, to_and_T_transparent_hashable_heterogeneous_lookup)
 
 TEST(test_named_type, to_and_from_underlying_transparent_addable)
 {
-    static_assert( Addable<price_transparent>);      // has explcit addable, price to price
-    static_assert(!AddableWith<price_transparent, int>); // but no implcit addable to underlying
+    static_assert( dev::Addable<price_transparent>);      // has explcit addable, price to price
+    static_assert(!dev::AddableWith<price_transparent, int>); // but no implcit addable to underlying
 }
 
 TEST(test_named_type, heterogeneous_lookup_std_set)

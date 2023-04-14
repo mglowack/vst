@@ -4,6 +4,8 @@
 #include <functional>
 #include <iosfwd>
 
+namespace dev {
+
 // ###########
 // # Addable #
 // ###########
@@ -48,7 +50,9 @@ concept Streamable = requires(std::ostream& os, const T& rhs) {
 // ############
 
 template<typename T>
-concept HashableX = requires(const T& x) {
+concept Hashable = requires(const T& x) {
     { std::hash<T>{}(x) } -> std::same_as<size_t>;
     // { boost::hash<T>{}(x) } -> std::same_as<size_t>;
 };
+
+} // namespace dev
