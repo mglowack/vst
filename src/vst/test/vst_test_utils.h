@@ -62,23 +62,13 @@ concept Streamable = requires(std::ostream& os, const T& rhs) {
     { os << rhs } -> std::convertible_to<std::ostream&>;
 };
 
-// ###############
-// # is_hashable #
-// ###############
+// ############
+// # Hashable #
+// ############
 
-template<typename T, typename U, typename ENABLER = void>
-constexpr bool is_hashable_impl = false;
-
-template<typename T, typename U>
-constexpr bool is_hashable_impl<
-    T, U,
-    std::void_t<
-        decltype(std::declval<vst::hash<T>>()(std::declval<U>()))
-      , decltype(std::declval<std::hash<T>>()(std::declval<U>()))
-      , decltype(std::declval<boost::hash<T>>()(std::declval<U>()))
-    >
->
-= true;
-
-template<typename T, typename U = T>
-constexpr bool is_hashable = is_hashable_impl<T, U>;
+template<typename T>
+concept Hashable = requires(const T& x) {
+    { vst::hash<T>{}(x) } -> std::same_as<size_t>;
+    { std::hash<T>{}(x) } -> std::same_as<size_t>;
+    { boost::hash<T>{}(x) } -> std::same_as<size_t>;
+};

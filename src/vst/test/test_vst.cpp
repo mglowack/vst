@@ -149,7 +149,7 @@ TYPED_TEST(test_vst, comparable)
     static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
     static_assert(!std::totally_ordered<VST>);
-    static_assert(!is_hashable<VST>);
+    static_assert(!Hashable<VST>);
     static_assert(!Addable<VST>);
 
     static_assert(VST{1, 2.f} == VST{1, 2.f});
@@ -170,7 +170,7 @@ TYPED_TEST(test_vst, ordered)
     static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
     static_assert(std::totally_ordered<VST>);
-    static_assert(!is_hashable<VST>);
+    static_assert(!Hashable<VST>);
     static_assert(!Addable<VST>);
 
     static_assert(VST{1, 2.f} <= VST{1, 2.f});
@@ -274,7 +274,7 @@ TYPED_TEST(test_vst, hashable)
     static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
     static_assert(!std::totally_ordered<VST>);
-    static_assert(is_hashable<VST>);
+    static_assert(Hashable<VST>);
     static_assert(!Addable<VST>);
 
     auto vh = [](const VST& o) { return vst::hash<VST>{}(o); };
@@ -371,7 +371,7 @@ TYPED_TEST(test_vst, addable)
     static_assert(Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
     static_assert(!std::totally_ordered<VST>);
-    static_assert(!is_hashable<VST>);
+    static_assert(!Hashable<VST>);
     static_assert(Addable<VST>);
 
     static_assert(VST{1, 2.f} + VST{2, 2.f} == VST{3, 4.f});
