@@ -15,6 +15,7 @@ add_library (
     vst_operators_addable.cpp
     vst_operators_ordered.cpp
     vst_operators_comparable.cpp
+    vst_named_field_ptr.cpp
 )
 set_target_properties(vst PROPERTIES LINKER_LANGUAGE CXX)
 # target_include_directories(vst

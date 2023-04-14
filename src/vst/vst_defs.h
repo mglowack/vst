@@ -1,27 +1,13 @@
 #pragma once
 
+#include <vst_named_field_ptr.h>
+
 #include <dev_type_list.h>
 #include <dev_type_traits.h>
 
 #include <tuple>
 #include <vector>
 #include <utility>
-
-// ###################
-// # named_field_ptr #
-// ###################
-
-template<typename field_ptr_t>
-struct named_field_ptr
-{
-    const char* name;
-    field_ptr_t field_ptr;
-
-    constexpr explicit named_field_ptr(const char* name, field_ptr_t field_ptr)
-    : name(name), field_ptr(field_ptr) {}
-};
-
-#define MEMBER(obj, x) named_field_ptr{#x, &obj::x}
 
 // #############
 // # Described #
@@ -44,16 +30,7 @@ struct is_named_field_ptr_of
     struct pred : std::false_type {};
 
     template<typename X>
-    struct pred<named_field_ptr<X (T::*)>> : std::true_type {};
-};
-
-
-
-template<template<typename> typename... preds_t>
-struct disjunction
-{
-    template<typename T>
-    using pred = std::disjunction<preds_t<T>...>;
+    struct pred<vst::named_field_ptr<X (T::*)>> : std::true_type {};
 };
 
 

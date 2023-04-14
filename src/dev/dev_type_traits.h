@@ -30,4 +30,15 @@ constexpr bool is_template_v =  is_template<template_t, T>::value;
 template<template<typename...> typename template_t, typename... args_t>
 struct is_template<template_t, template_t<args_t...>> : std::true_type {};
 
+// // ###############
+// // # disjunction #
+// // ###############
+
+// template<template<typename> typename... preds_t>
+// struct disjunction
+// {
+//     template<typename T>
+//     using pred = std::disjunction<preds_t<T>...>;
+// };
+
 } // namespace dev
