@@ -17,10 +17,10 @@ using named_type = vst::impl::type<
     named_type_pod<
         underlying_t,
         tag_t,
-        extract_op_categories_t<type_list<ops...>, underlying_t>,
-        extract_conversion_categories_t<type_list<ops...>, underlying_t>
+        extract_op_categories_t<dev::type_list<ops...>, underlying_t>,
+        extract_conversion_categories_t<dev::type_list<ops...>, underlying_t>
     >,
-    filter_op_categories_t<type_list<ops...>>>;
+    filter_op_categories_t<dev::type_list<ops...>>>;
 
 // #############
 // # operators #

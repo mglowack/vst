@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tuple>
-#include <variant>
 #include <type_traits>
+
+namespace dev {
 
 // #############
 // # type_list #
@@ -263,32 +263,4 @@ static_assert(std::is_same_v<type_list_transform_t<type_list<>, std::add_const_t
 static_assert(std::is_same_v<type_list_transform_t<type_list<int>, std::add_const_t>, type_list<const int>>);
 static_assert(std::is_same_v<type_list_transform_t<type_list<int, double>, std::add_const_t>, type_list<const int, const double>>);
 
-// ##################
-// # type_list_cast #
-// ##################
-
-template<template<typename...> typename template_to_t, typename T>
-struct template_cast;
-
-template<
-    template<typename...> typename template_to_t,
-    template<typename...> typename template_from_t,
-    typename... Ts>
-struct template_cast<template_to_t, template_from_t<Ts...>>
-: std::type_identity<template_to_t<Ts...>> {};
-
-template<template<typename...> typename template_to_t, typename T>
-using template_cast_t = typename template_cast<template_to_t, T>::type;
-
-
-
-template<typename T>
-using type_list_cast = template_cast<type_list, T>;
-
-template<typename T>
-using type_list_cast_t = typename type_list_cast<T>::type;
-
-static_assert(std::is_same_v<type_list_cast_t<std::tuple<>>, type_list<>>);
-static_assert(std::is_same_v<type_list_cast_t<std::tuple<int, float>>, type_list<int, float>>);
-static_assert(std::is_same_v<type_list_cast_t<std::variant<>>, type_list<>>);
-static_assert(std::is_same_v<type_list_cast_t<std::variant<int, float>>, type_list<int, float>>);
+} // namespace dev

@@ -59,7 +59,7 @@ concept NamedType = requires {
 template<typename U, typename T>
 concept TransparentWith =
     NamedType<T>
-    && type_list_contains_v<
+    && dev::type_list_contains_v<
         typename named_type_trait<T>::op_categories,
         transparent_ops_with<U>>;
 
@@ -70,7 +70,7 @@ concept TransparentWith =
 template<typename U, typename T>
 concept ImplicitlyConvertibleTo =
     NamedType<T>
-    && type_list_contains_v<
+    && dev::type_list_contains_v<
         typename named_type_trait<T>::conversion_categories,
         implicit_conversions_to<U>>;
 
@@ -81,6 +81,6 @@ concept ImplicitlyConvertibleTo =
 template<typename U, typename T>
 concept ImplicitlyConvertibleFrom =
     NamedType<T>
-    && type_list_contains_v<
+    && dev::type_list_contains_v<
         typename named_type_trait<T>::conversion_categories,
         implicit_conversions_from<U>>;

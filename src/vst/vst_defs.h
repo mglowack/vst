@@ -8,6 +8,7 @@
 #include <tuple>
 #include <vector>
 #include <utility>
+#include <variant>
 
 // #############
 // # Described #
@@ -38,8 +39,8 @@ struct is_named_field_ptr_of
 template<typename spec_t, typename T>
 concept FieldSpecOf =
     dev::is_template_v<std::tuple, spec_t>
-    && (type_list_all_v<template_cast_t<type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
-      || type_list_all_v<template_cast_t<type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
+    && (dev::type_list_all_v<dev::template_cast_t<dev::type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
+      || dev::type_list_all_v<dev::template_cast_t<dev::type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
 
 template<typename T, typename U>
 concept DescribesThe = requires {
@@ -58,7 +59,7 @@ namespace op {
 }
 
 template<typename T>
-struct is_op : type_list_contains<type_list<op::ordered, op::hashable, op::addable>, T> {};
+struct is_op : dev::type_list_contains<dev::type_list<op::ordered, op::hashable, op::addable>, T> {};
 
 template<typename T>
 constexpr bool is_op_v = is_op<T>::value;
@@ -88,7 +89,7 @@ struct type<T, properties_t>
 } // close impl namespace
 
 template <typename T, typename... ops>
-using type = impl::type<T, type_list<ops...>>;
+using type = impl::type<T, dev::type_list<ops...>>;
 
 template<typename T>
 struct trait;
@@ -101,7 +102,7 @@ concept Type = requires {
 };
 
 template <typename T, typename OP>
-concept OpEnabled = Type<T> && type_list_contains_v<typename trait<T>::properties, OP>;
+concept OpEnabled = Type<T> && dev::type_list_contains_v<typename trait<T>::properties, OP>;
 
 namespace with_fields {
 
@@ -178,6 +179,7 @@ struct other {
     int i;
     float f;
 };
+
 static_assert(!FieldSpecOf<std::pair<int, float>,                                                                    simple>);
 static_assert(!FieldSpecOf<std::vector<int>,                                                                         simple>);
 static_assert(!FieldSpecOf<std::variant<int, float>,                                                                 simple>);

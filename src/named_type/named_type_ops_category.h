@@ -79,7 +79,7 @@ struct transparent_ops_with;
 // ###################
 
 template<typename T>
-struct is_ops_category : type_list_contains<type_list<default_ops, strict_ops, transparent_ops>, T> {};
+struct is_ops_category : dev::type_list_contains<dev::type_list<default_ops, strict_ops, transparent_ops>, T> {};
 
 template<typename T>
 struct is_ops_category<transparent_ops_with<T>> : std::true_type {};
@@ -174,30 +174,30 @@ static_assert(std::is_same_v<transparent_ops_with<float>, transform_op_category<
 template<typename params_list, typename underlying_t>
 struct extract_op_categories
 {
-    using raw_op_categories_list = type_list_filter_t<params_list, is_ops_category>;
+    using raw_op_categories_list = dev::type_list_filter_t<params_list, is_ops_category>;
     using op_categories_list = std::conditional_t<
-        std::is_same_v<type_list<>, raw_op_categories_list>,
-        type_list<default_ops>, // insert 'default_ops' no other op categories are specified
+        std::is_same_v<dev::type_list<>, raw_op_categories_list>,
+        dev::type_list<default_ops>, // insert 'default_ops' no other op categories are specified
         raw_op_categories_list>;
-    using type = type_list_transform_t<op_categories_list, transform_op_category<underlying_t>::template func_t>;
+    using type = dev::type_list_transform_t<op_categories_list, transform_op_category<underlying_t>::template func_t>;
 };
 
 template<typename params_list, typename underlying_t>
 using extract_op_categories_t = typename extract_op_categories<params_list, underlying_t>::type;
 
-static_assert(std::is_same_v<type_list<strict_ops>, extract_op_categories_t<type_list<>, int>>);
-static_assert(std::is_same_v<type_list<strict_ops>, extract_op_categories_t<type_list<vst::op::ordered, vst::op::hashable>, int>>);
-static_assert(std::is_same_v<type_list<strict_ops>, extract_op_categories_t<type_list<strict_ops>, int>>);
-static_assert(std::is_same_v<type_list<strict_ops>, extract_op_categories_t<type_list<default_ops>, int>>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, extract_op_categories_t<dev::type_list<>, int>>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, extract_op_categories_t<dev::type_list<vst::op::ordered, vst::op::hashable>, int>>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, extract_op_categories_t<dev::type_list<strict_ops>, int>>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, extract_op_categories_t<dev::type_list<default_ops>, int>>);
 static_assert(std::is_same_v<
-    type_list<transparent_ops_with<int>>,
-    extract_op_categories_t<type_list<transparent_ops>, int>>);
+    dev::type_list<transparent_ops_with<int>>,
+    extract_op_categories_t<dev::type_list<transparent_ops>, int>>);
 static_assert(std::is_same_v<
-    type_list<transparent_ops_with<int>>,
-    extract_op_categories_t<type_list<transparent_ops, vst::op::ordered, vst::op::hashable>, int>>);
+    dev::type_list<transparent_ops_with<int>>,
+    extract_op_categories_t<dev::type_list<transparent_ops, vst::op::ordered, vst::op::hashable>, int>>);
 static_assert(std::is_same_v<
-    type_list<transparent_ops_with<int>, transparent_ops_with<float>>,
-    extract_op_categories_t<type_list<transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::hashable>, int>>);
+    dev::type_list<transparent_ops_with<int>, transparent_ops_with<float>>,
+    extract_op_categories_t<dev::type_list<transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::hashable>, int>>);
 
 // ########################
 // # filter_op_categories #
@@ -205,11 +205,11 @@ static_assert(std::is_same_v<
 
 template<typename params_list>
 struct filter_op_categories
-: type_list_filter<params_list, vst::is_op> {};
+: dev::type_list_filter<params_list, vst::is_op> {};
 
 template<typename params_list>
 using filter_op_categories_t = typename filter_op_categories<params_list>::type;
 
 static_assert(std::is_same_v<
-    type_list<vst::op::ordered, vst::op::hashable>,
-    filter_op_categories_t<type_list<transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::hashable>>>);
+    dev::type_list<vst::op::ordered, vst::op::hashable>,
+    filter_op_categories_t<dev::type_list<transparent_ops, transparent_ops_with<float>, vst::op::ordered, vst::op::hashable>>>);

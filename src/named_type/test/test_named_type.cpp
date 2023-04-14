@@ -50,13 +50,13 @@ static_assert( TransparentWith<int,   named_type<int, struct transparent_test, t
 static_assert(!TransparentWith<float, named_type<int, struct transparent_test, transparent_ops_with<int>>>);
 static_assert( TransparentWith<float, named_type<int, struct transparent_test, transparent_ops_with<float>>>);
 
-static_assert(std::is_same_v<type_list<strict_ops>, named_type_trait<named_type<int, struct default_test                          >>::op_categories>);
-static_assert(std::is_same_v<type_list<strict_ops>, named_type_trait<named_type<int, struct explicit_default_test, default_ops    >>::op_categories>);
-static_assert(std::is_same_v<type_list<strict_ops>, named_type_trait<named_type<int, struct strict_test,           strict_ops     >>::op_categories>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, named_type_trait<named_type<int, struct default_test                          >>::op_categories>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, named_type_trait<named_type<int, struct explicit_default_test, default_ops    >>::op_categories>);
+static_assert(std::is_same_v<dev::type_list<strict_ops>, named_type_trait<named_type<int, struct strict_test,           strict_ops     >>::op_categories>);
 
-static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type_trait<named_type<int, struct transparent_test, transparent_ops>>::op_categories>);
-static_assert(std::is_same_v<type_list<transparent_ops_with<int>>,   named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<int>>>::op_categories>);
-static_assert(std::is_same_v<type_list<transparent_ops_with<float>>, named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<float>>>::op_categories>);
+static_assert(std::is_same_v<dev::type_list<transparent_ops_with<int>>,   named_type_trait<named_type<int, struct transparent_test, transparent_ops>>::op_categories>);
+static_assert(std::is_same_v<dev::type_list<transparent_ops_with<int>>,   named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<int>>>::op_categories>);
+static_assert(std::is_same_v<dev::type_list<transparent_ops_with<float>>, named_type_trait<named_type<int, struct transparent_test, transparent_ops_with<float>>>::op_categories>);
 // clang-format on
 
 TEST(test_named_type, implicitly_convertible_to)

@@ -22,7 +22,7 @@ struct trait
 {
     using pod_t = T;
     using fields_def = fields_def_t;
-    using properties = type_list<ops...>;
+    using properties = dev::type_list<ops...>;
 };
 
 } // namespace impl
