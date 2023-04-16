@@ -24,12 +24,11 @@ struct from_var
     }
 };
 
-template<typename T>
+template<SelfDescribed T>
 struct from
 {
     static constexpr auto get_fields()
     {
-        static_assert(SelfDescribed<T>, "T must be an aggregate or have 'get_fields' defined.");
         return T::get_fields();
     }
 };

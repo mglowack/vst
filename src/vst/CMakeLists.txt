@@ -8,6 +8,7 @@ add_library (
     vst.hpp
     vst_defs_ops.cpp
     vst_defs_with_fields.cpp
+    vst_defs_fields.cpp
     vst_trait.cpp
     vst_wrapped_value.cpp
     vst_named_var.cpp
