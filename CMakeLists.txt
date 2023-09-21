@@ -4,15 +4,17 @@ project(vst)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_subdirectory(../deps/googletest-1.13.0 gtest)
-
 add_compile_options(-Wall -Werror -fuse-ld=mold)
 
 add_subdirectory(src/dev)
-add_subdirectory(src/dev/test)
 add_subdirectory(src/vst)
-add_subdirectory(src/vst/test)
 add_subdirectory(src/named_type)
-add_subdirectory(src/named_type/test)
+
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    add_subdirectory(../deps/googletest-1.13.0 gtest)
+    add_subdirectory(src/dev/test)
+    add_subdirectory(src/vst/test)
+    add_subdirectory(src/named_type/test)
+endif()
 
 enable_testing()
