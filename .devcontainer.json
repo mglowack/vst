@@ -1,0 +1,20 @@
+{
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"cmake.buildDirectory": "/workspaces/build"
+			},
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"twxs.cmake",
+				"ms-vscode.cmake-tools",
+				"brobeson.ctest-lab",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	}
+}
