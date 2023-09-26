@@ -1,4 +1,3 @@
-#if 0
 #include <vst.hpp>
 
 #include <dev_stringify.h>
@@ -143,6 +142,13 @@ TEST(test_vst, empty)
     static_assert(empty{} == empty{});
 
     EXPECT_THAT(empty{}, Eq(empty{}));
+
+    using VST = simple<>;
+    assert((VST{1, 2.f} == VST{1, 2.f}));
+    EXPECT_THAT((VST{1, 2.f}), Eq(VST{1, 2.f}));
+
+    // const auto lhs = VST{1, 2.f};
+    // const auto rhs = VST{1, 2.f};
 }
 
 template <typename T>
@@ -165,9 +171,10 @@ TYPED_TEST(test_vst, regular)
     static_assert(std::regular<TypeParam>);
 }
 
+#if 0
 TYPED_TEST(test_vst, comparable)
 {
-    using VST = TypeParam;
+    using VST = TypePram;
 
     static_assert(dev::Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
