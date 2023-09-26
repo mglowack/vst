@@ -142,15 +142,6 @@ TEST(test_vst, empty)
     static_assert(empty{} == empty{});
 
     EXPECT_THAT(empty{}, Eq(empty{}));
-
-    using VST = simple<>;
-    const auto lhs = VST{1, 2.f};
-    const auto rhs = VST{1, 2.f};
-    assert(lhs == rhs);
-    std::stringstream ss;
-    ss << lhs;
-    // EXPECT_THAT(lhs, Eq(rhs));
-
 }
 
 template <typename T>
@@ -173,10 +164,9 @@ TYPED_TEST(test_vst, regular)
     static_assert(std::regular<TypeParam>);
 }
 
-#if 0
 TYPED_TEST(test_vst, comparable)
 {
-    using VST = TypePram;
+    using VST = TypeParam;
 
     static_assert(dev::Streamable<VST>);
     static_assert(std::equality_comparable<VST>);
@@ -443,4 +433,3 @@ TEST(test_vst, streaming)
 //
 // TODO MG cleanup:
 //  * use wrapped version on modyfying operators to allow customizing (maybe not possible)
-#endif

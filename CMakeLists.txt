@@ -17,7 +17,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
-add_compile_options(-ftemplate-backtrace-limit=0)
 
 include(FetchContent)
 FetchContent_Declare(
