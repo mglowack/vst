@@ -6,5 +6,4 @@ RUN apt-get -y update && apt-get install -y \
   libc++-dev libc++abi-dev \
   cmake ninja-build \
   git \
-  vim 
-
+  vim
