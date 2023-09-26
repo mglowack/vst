@@ -15,13 +15,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cmake-deps)
 
-include(deps.cmake)
+include(deps/project.cmake)
 add_subdirectory(src/dev)
 add_subdirectory(src/vst)
 add_subdirectory(src/named_type)
 
 if(${project}_BUILD_TESTS)
-    include(test-deps.cmake)
+    include(deps/tests.cmake)
     add_subdirectory(src/dev/test)
     add_subdirectory(src/vst/test)
     add_subdirectory(src/named_type/test)
