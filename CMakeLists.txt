@@ -17,6 +17,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
+add_compile_options(-ftemplate-backtrace-limit=0)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -35,6 +36,5 @@ if(${project}_BUILD_TESTS)
     add_subdirectory(src/dev/test)
     add_subdirectory(src/vst/test)
     add_subdirectory(src/named_type/test)
+    enable_testing()
 endif()
-
-enable_testing()
