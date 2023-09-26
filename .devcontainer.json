@@ -5,7 +5,7 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"cmake.buildDirectory": "/workspaces/build"
+				"cmake.buildDirectory": "/workspaces/build/${buildKit}/${buildType}"
 			},
 			"extensions": [
 				"ms-vscode.cpptools",

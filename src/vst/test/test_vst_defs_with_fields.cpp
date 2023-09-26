@@ -15,7 +15,7 @@ struct simple_pod {
     }
 };
 
-template class with_fields::from<simple_pod>;
+template struct with_fields::from<simple_pod>;
 
 // constexpr auto get_simple_pod_fields() {
 //     return std::tuple{

@@ -134,7 +134,7 @@ using apply_all_t = typename apply_all<T, funcs...>::type;
 template<typename T, template<typename> typename func, template<typename> typename... other_funcs>
 struct apply_all<T, func, other_funcs...>
 {
-    using type = apply_all<func<T>, other_funcs...>::type;
+    using type = typename apply_all<func<T>, other_funcs...>::type;
 };
 
 static_assert(std::is_same_v<void, apply_all_t<void>>);

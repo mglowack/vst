@@ -45,23 +45,25 @@ std::ostream& operator<<(std::ostream& os, const value_with_index<I, T>& rhs)
 // ####################
 // # apply_with_index #
 // ####################
+#if 0
 
-// template<typename F, typename Tuple, std::size_t... I>
-// constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
-// {
-//     return std::forward<F>(f)(
-//         value_with_index<I, std::remove_reference_t<decltype(std::get<I>(tuple))>>{std::get<I>(tuple)}...);
-// }
+template<typename F, typename Tuple, std::size_t... I>
+constexpr decltype(auto) apply_with_index_impl(F&& f, Tuple&& tuple, std::index_sequence<I...>)
+{
+    return std::forward<F>(f)(
+        value_with_index<I, std::remove_reference_t<decltype(std::get<I>(tuple))>>{std::get<I>(tuple)}...);
+}
 
-// template<typename F, typename Tuple>
-// constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
-// {
-//     return apply_with_index_impl(
-//         std::forward<F>(f),
-//         std::forward<Tuple>(tuple),
-//         std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
-// }
+template<typename F, typename Tuple>
+constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
+{
+    return apply_with_index_impl(
+        std::forward<F>(f),
+        std::forward<Tuple>(tuple),
+        std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
+}
 
+#else
 // TODO MG: figure out if better and why does not work in constexpr even though: https://godbolt.org/z/rfrs5bnjf
 // EDIT: seems to be working on clang 14 arm-64bit, probably didn't work on some different compiler
 
@@ -85,5 +87,5 @@ constexpr decltype(auto) apply_with_index(F&& f, Tuple&& tuple)
             std::forward<decltype(a)>(a)...);
     }, std::forward<Tuple>(tuple));
 }
-
+#endif
 } // namespace dev

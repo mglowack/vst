@@ -52,9 +52,12 @@ struct indexed_var_util
     template<typename... Ts>
     static constexpr auto index(std::tuple<Ts&...> fields)
     {
+        // clang-15 had issues with commented code: https://godbolt.org/z/h9roY7j7b
         return dev::apply_with_index(
-            [](const auto&... elem) {
-                return std::tuple(make_indexed_var<elem.index + 1>(elem.value)...); // convert to 1-based
+            // [](const auto&... elem) {
+            //     return std::tuple(make_indexed_var<elem.index + 1>(elem.value)...); // convert to 1-based
+            []<size_t... Is, typename... Us>(const dev::value_with_index<Is, Us>&... elem) {
+                return std::tuple(indexed_var<std::remove_const_t<Us>, Is + 1u>{elem.value}...); // convert to 1-based
             },
             fields);
     }
