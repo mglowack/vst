@@ -6,7 +6,17 @@ endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-add_compile_options(-Wall -Werror -fuse-ld=mold)
+add_compile_options(-Wall -Werror)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+    add_compile_options(-fuse-ld=mold)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # using Clang
+    add_compile_options(-Wno-unused-but-set-variable -Wno-missing-braces)
+else()
+    message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
+endif()
 
 include(FetchContent)
 FetchContent_Declare(

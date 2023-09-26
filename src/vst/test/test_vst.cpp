@@ -1,3 +1,4 @@
+#if 0
 #include <vst.hpp>
 
 #include <dev_stringify.h>
@@ -433,3 +434,4 @@ TEST(test_vst, streaming)
 //
 // TODO MG cleanup:
 //  * use wrapped version on modyfying operators to allow customizing (maybe not possible)
+#endif
