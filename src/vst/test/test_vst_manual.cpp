@@ -30,32 +30,32 @@ TEST(test_vst, custom_ctor)
 // # manual overloading of operators #
 // ###################################
 
-// namespace
-// {
+namespace manual
+{
 
-struct manual_override_pod {
+struct override_pod {
     int x, y;
 };
-using manual_override = vst::type<manual_override_pod, vst::op::hashable>;
+using override = vst::type<override_pod, vst::op::hashable>;
 
-struct nested_manual_override_pod {
-    manual_override f;
+struct nested_override_pod {
+    override f;
 };
-using nested_manual_override = vst::type<nested_manual_override_pod, vst::op::hashable>;
+using nested_override = vst::type<nested_override_pod, vst::op::hashable>;
 
-constexpr bool operator==(const manual_override&, const manual_override&) {
+constexpr bool operator==(const override&, const override&) {
     return true;
 }
 
-// } // close anon namespace
+} // close manual namespace
 
 namespace vst
 {
 
 template <>
-struct hash<manual_override>
+struct hash<manual::override>
 {
-    size_t operator()(const manual_override&) const noexcept
+    size_t operator()(const manual::override&) const noexcept
     {
         return 42;
     }
@@ -65,22 +65,22 @@ struct hash<manual_override>
 
 TEST(test_vst, manual_override)
 {
-    EXPECT_THAT((manual_override{1, 2}), Eq(manual_override{1, 1}));
-    EXPECT_THAT((manual_override{1, 2}), Eq(manual_override{1, 1})); // because 'operator==' always returns true
-    EXPECT_THAT((vst::hash_value(manual_override{1, 2})), Eq(42));
+    EXPECT_THAT((manual::override{1, 2}), Eq(manual::override{1, 1}));
+    EXPECT_THAT((manual::override{1, 2}), Eq(manual::override{1, 1})); // because 'operator==' always returns true
+    EXPECT_THAT((vst::hash_value(manual::override{1, 2})), Eq(42));
 
-    EXPECT_THAT((nested_manual_override{manual_override{1, 2}}), Eq(nested_manual_override{manual_override{1, 1}}));
-    EXPECT_THAT((nested_manual_override{manual_override{1, 2}}), Eq(nested_manual_override{manual_override{1, 1}})); // because 'operator==' always returns true
+    EXPECT_THAT((manual::nested_override{manual::override{1, 2}}), Eq(manual::nested_override{manual::override{1, 1}}));
+    EXPECT_THAT((manual::nested_override{manual::override{1, 2}}), Eq(manual::nested_override{manual::override{1, 1}})); // because 'operator==' always returns true
     // TODO: how do I test for this?
-    // EXPECT_THAT((vst::hash_value(nested_manual_override{manual_override{1, 2}})), Eq(42));
+    // EXPECT_THAT((vst::hash_value(manual::nested_override{manual::override{1, 2}})), Eq(42));
 }
 
 // #######################################################
 // # manual overloading of operators on a per type basis #
 // #######################################################
 
-// namespace
-// {
+namespace manual
+{
     struct string_int {
         std::string number;
         friend constexpr auto operator<=>(const string_int&, const string_int&) = default;
@@ -150,59 +150,59 @@ TEST(test_vst, manual_override)
         // fall back to the original operator
         return lhs.value < rhs.value;
     }
-// }
+}
 
 TEST(test_vst, wrapped_value)
 {
     struct fake_vst {};
-    using W = vst::wrapped_value<string_int>;
-    using WF = vst::wrapped_value_of<fake_vst, string_int>;
-    using WS = vst::wrapped_value_of<specific_data, string_int>;
+    using W = vst::wrapped_value<manual::string_int>;
+    using WF = vst::wrapped_value_of<fake_vst, manual::string_int>;
+    using WS = vst::wrapped_value_of<manual::specific_data, manual::string_int>;
 
-    EXPECT_THAT(dev::stringify(   string_int{"10"}),  Eq("10"));
-    EXPECT_THAT(dev::stringify(W{ string_int{"10"}}), Eq("int:\"10\""));
-    EXPECT_THAT(dev::stringify(WF{string_int{"10"}}), Eq("int:\"10\""));
-    EXPECT_THAT(dev::stringify(WS{string_int{"10"}}), Eq("specific:\"10\""));
+    EXPECT_THAT(dev::stringify(   manual::string_int{"10"}),  Eq("10"));
+    EXPECT_THAT(dev::stringify(W{ manual::string_int{"10"}}), Eq("int:\"10\""));
+    EXPECT_THAT(dev::stringify(WF{manual::string_int{"10"}}), Eq("int:\"10\""));
+    EXPECT_THAT(dev::stringify(WS{manual::string_int{"10"}}), Eq("specific:\"10\""));
 
-    EXPECT_THAT(   string_int{"10"},  Lt(   string_int{"4"}));  // because of string compare, not actual int value
-    EXPECT_THAT(W{ string_int{"10"}}, Gt(W{ string_int{"4"}})); // because now we compare the actual int value
-    EXPECT_THAT(WF{string_int{"10"}}, Gt(WF{string_int{"4"}})); // because now we compare the actual int value
-    EXPECT_THAT(WS{string_int{"10"}}, Lt(WS{string_int{"4"}})); // because now we compare the string again
+    EXPECT_THAT(   manual::string_int{"10"},  Lt(   manual::string_int{"4"}));  // because of string compare, not actual int value
+    EXPECT_THAT(W{ manual::string_int{"10"}}, Gt(W{ manual::string_int{"4"}})); // because now we compare the actual int value
+    EXPECT_THAT(WF{manual::string_int{"10"}}, Gt(WF{manual::string_int{"4"}})); // because now we compare the actual int value
+    EXPECT_THAT(WS{manual::string_int{"10"}}, Lt(WS{manual::string_int{"4"}})); // because now we compare the string again
 }
 
 TEST(test_vst, custom_operators_for_string_int)
 {
     struct pod {
-        string_int s;
+        manual::string_int s;
     };
     static constexpr auto pod_fields = std::tuple{MEMBER(pod, s)};
     using data_named = vst::type<pod, vst::with_fields::from_var<&pod_fields>, vst::op::ordered>;
     using data = vst::type<pod, vst::op::ordered>;
 
     // check standard operators work as if it's string
-    ASSERT_THAT(dev::stringify(string_int{"10"}), Eq("10"));
-    ASSERT_THAT(string_int{"10"}, Lt(string_int{"4"}));
+    ASSERT_THAT(dev::stringify(manual::string_int{"10"}), Eq("10"));
+    ASSERT_THAT(manual::string_int{"10"}, Lt(manual::string_int{"4"}));
 
     // check wrapped values
-    using WD = vst::wrapped_value_of<data, string_int>;
-    ASSERT_THAT(dev::stringify(WD{string_int{"10"}}), Eq("int:\"10\""));
-    ASSERT_THAT(WD{string_int{"10"}}, Gt(WD{string_int{"4"}}));
+    using WD = vst::wrapped_value_of<data, manual::string_int>;
+    ASSERT_THAT(dev::stringify(WD{manual::string_int{"10"}}), Eq("int:\"10\""));
+    ASSERT_THAT(WD{manual::string_int{"10"}}, Gt(WD{manual::string_int{"4"}}));
 
     // stream operator override for all VSTs
     EXPECT_THAT(dev::stringify(data{"10"}), Eq("[ field1=int:\"10\" ]"));
     EXPECT_THAT(dev::stringify(data_named{"10"}), Eq("[ s=int:\"10\" ]"));
 
     // stream operator override for specific VST
-    EXPECT_THAT(dev::stringify(specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
-    EXPECT_THAT(dev::stringify(specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
+    EXPECT_THAT(dev::stringify(manual::specific_data{"10"}), Eq("[ field1=specific:\"10\" ]"));
+    EXPECT_THAT(dev::stringify(manual::specific_data_named{"10"}), Eq("[ s=specific_named:\"10\" ]"));
 
     // compare operators override for all VSTs (defined to be int comparison)
     EXPECT_THAT((data{"10"}), Gt(data{"4"}));
     EXPECT_THAT((data_named{"10"}), Gt(data_named{"4"}));
 
     // compare operators override for specific VSTs (defined to be using string comparison)
-    EXPECT_THAT((specific_data{"10"}), Lt(specific_data{"4"}));
-    EXPECT_THAT((specific_data_named{"10"}), Lt(specific_data_named{"4"}));
+    EXPECT_THAT((manual::specific_data{"10"}), Lt(manual::specific_data{"4"}));
+    EXPECT_THAT((manual::specific_data_named{"10"}), Lt(manual::specific_data_named{"4"}));
 }
 
 TEST(test_vst, built_in_comparison_for_const_char)
