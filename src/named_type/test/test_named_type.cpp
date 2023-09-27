@@ -17,26 +17,23 @@
 
 using namespace ::testing;
 
-namespace
-{
-    using price = named_type<
-        int,
-        struct price_tag,
-        vst::op::ordered,
-        vst::op::hashable,
-        vst::op::addable>;
+using price = named_type<
+    int,
+    struct price_tag,
+    vst::op::ordered,
+    vst::op::hashable,
+    vst::op::addable>;
 
-    using price_transparent = named_type<
-        int,
-        struct price_transparent_tag,
-        transparent_ops,
-        vst::op::ordered,
-        vst::op::hashable,
-        vst::op::addable>;
+using price_transparent = named_type<
+    int,
+    struct price_transparent_tag,
+    transparent_ops,
+    vst::op::ordered,
+    vst::op::hashable,
+    vst::op::addable>;
 
-    static_assert(!TransparentWith<int, price>);
-    static_assert( TransparentWith<int, price_transparent>);
-}
+static_assert(!TransparentWith<int, price>);
+static_assert( TransparentWith<int, price_transparent>);
 
 // clang-format off
 static_assert(!TransparentWith<int, named_type<int, struct default_test                          >>);
