@@ -59,23 +59,3 @@ using template_cast_t = typename template_cast<template_to_t, T>::type;
 // };
 
 } // namespace dev
-
-
-// ##################
-// # type_list_cast #
-// ##################
-
-#include <dev_type_list.h>
-#include <tuple>
-#include <variant>
-
-template<typename T>
-using type_list_cast = dev::template_cast<dev::type_list, T>;
-
-template<typename T>
-using type_list_cast_t = typename type_list_cast<T>::type;
-
-static_assert(std::is_same_v<type_list_cast_t<std::tuple<>>, dev::type_list<>>);
-static_assert(std::is_same_v<type_list_cast_t<std::tuple<int, float>>, dev::type_list<int, float>>);
-static_assert(std::is_same_v<type_list_cast_t<std::variant<>>, dev::type_list<>>);
-static_assert(std::is_same_v<type_list_cast_t<std::variant<int, float>>, dev::type_list<int, float>>);

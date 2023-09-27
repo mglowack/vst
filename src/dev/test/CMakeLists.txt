@@ -4,7 +4,8 @@ include(GoogleTest)
 
 add_executable(
     test_dev
-    test_tuple.cpp
+    test_dev_type_list.cpp
+    test_dev_tuple.cpp
 )
 target_link_libraries(
     test_dev PRIVATE
