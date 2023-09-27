@@ -6,6 +6,7 @@
 #include <named_type_conversions_category.h>
 
 #include "vst.hpp"
+
 #include <dev_type_list.h>
 
 // ##############
@@ -13,14 +14,14 @@
 // ##############
 
 template<typename underlying_t, typename tag_t, typename... ops>
-using named_type = vst::impl::type<
+using named_type = typename vst::make_type<
     named_type_pod<
         underlying_t,
         tag_t,
-        extract_op_categories_t<dev::type_list<ops...>, underlying_t>,
+        extract_op_categories_t<        dev::type_list<ops...>, underlying_t>,
         extract_conversion_categories_t<dev::type_list<ops...>, underlying_t>
     >,
-    filter_op_categories_t<dev::type_list<ops...>>>;
+    filter_op_categories_t<dev::type_list<ops...>>>::type;
 
 // #############
 // # operators #

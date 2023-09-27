@@ -30,7 +30,8 @@ TEST(test_vst, custom_ctor)
 // # manual overloading of operators #
 // ###################################
 
-namespace {
+// namespace
+// {
 
 struct manual_override_pod {
     int x, y;
@@ -46,7 +47,7 @@ constexpr bool operator==(const manual_override&, const manual_override&) {
     return true;
 }
 
-} // close anon namespace
+// } // close anon namespace
 
 namespace vst
 {
@@ -78,8 +79,8 @@ TEST(test_vst, manual_override)
 // # manual overloading of operators on a per type basis #
 // #######################################################
 
-namespace
-{
+// namespace
+// {
     struct string_int {
         std::string number;
         friend constexpr auto operator<=>(const string_int&, const string_int&) = default;
@@ -149,7 +150,7 @@ namespace
         // fall back to the original operator
         return lhs.value < rhs.value;
     }
-}
+// }
 
 TEST(test_vst, wrapped_value)
 {

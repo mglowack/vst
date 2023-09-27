@@ -32,6 +32,9 @@ struct is_conversion_category<implicit_conversions_to<T>> : std::true_type {};
 template<typename T>
 constexpr bool is_conversion_category_v = is_conversion_category<T>::value;
 
+template<typename T>
+concept ConversionCategory = is_conversion_category_v<T>;
+
 static_assert(!is_conversion_category_v<int>);
 static_assert(!is_conversion_category_v<float>);
 static_assert( is_conversion_category_v<implicit_conversions_from<int>>);

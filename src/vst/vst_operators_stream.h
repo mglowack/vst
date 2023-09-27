@@ -6,7 +6,7 @@
 #include <type_traits>
 #include <ostream>
 
-namespace vst::impl {
+namespace vst {
 
 // stream
 template<Type T>
@@ -21,4 +21,4 @@ std::ostream& operator<<(std::ostream& os, const T& rhs)
     return os;
 }
 
-} // namespace vst::impl
+} // namespace vst

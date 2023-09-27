@@ -5,7 +5,7 @@
 
 #include <type_traits>
 
-namespace vst::impl
+namespace vst
 {
 
 // comparable
@@ -15,4 +15,4 @@ constexpr bool operator==(const T& lhs, const T& rhs)
     return vst::wrap<T>(vst::trait<T>::tie(lhs)) == vst::wrap<T>(vst::trait<T>::tie(rhs));
 }
 
-} // namespace vst::impl
+} // namespace vst

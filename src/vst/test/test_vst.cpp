@@ -20,8 +20,6 @@
 
 using namespace ::testing;
 
-namespace {
-
 // ##############
 // # simple_pod #
 // ##############
@@ -131,8 +129,6 @@ concept Hashable = requires(const T& x) {
     requires dev::Hashable<T>;
     { boost::hash<T>{}(x) } -> std::same_as<size_t>;
 };
-
-} // close anon namespace
 
 TEST(test_vst, empty)
 {

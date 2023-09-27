@@ -87,6 +87,9 @@ struct is_ops_category<transparent_ops_with<T>> : std::true_type {};
 template<typename T>
 constexpr bool is_ops_category_v = is_ops_category<T>::value;
 
+template<typename T>
+concept OpCategory = is_ops_category_v<T>;
+
 static_assert(!is_ops_category_v<int>);
 static_assert(!is_ops_category_v<float>);
 static_assert( is_ops_category_v<default_ops>);

@@ -8,7 +8,7 @@
 #include <functional>
 #include <type_traits>
 
-namespace vst::impl
+namespace vst
 {
 
 template <typename op_t, typename vst_t>
@@ -57,4 +57,4 @@ constexpr T& operator-=(T& lhs, const T& rhs)
     return binary_assign_op<dev::minus_assign<>>(lhs, rhs);
 }
 
-} // namespace vst::impl
+} // namespace vst

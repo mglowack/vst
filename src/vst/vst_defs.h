@@ -8,25 +8,18 @@
 
 #include <type_traits>
 
-namespace vst::impl {
+namespace vst {
 
-template <typename T, typename properties_t>
+template <typename T, typename... params>
 struct type
 : public T
 {
     using T::T;
 };
 
-template <typename T, typename properties_t> requires std::is_aggregate_v<T>
-struct type<T, properties_t>
+template <typename T, typename... params> requires std::is_aggregate_v<T>
+struct type<T, params...>
 : public T {};
-
-} // close vst::impl namespace
-
-namespace vst {
-
-template <typename T, typename... params>
-using type = impl::type<T, dev::type_list<params...>>;
 
 template<typename T>
 struct trait;
