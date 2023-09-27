@@ -39,16 +39,20 @@ struct trait<type<T, ops...>>
 // * translate to 'with_fields::from_aggregate' otherwise
 #if 1
 // NOTE: workaround for https://stackoverflow.com/questions/77187649/c20-partial-class-specialization-with-concepts-and-variadic-template-args
-template<SelfDescribed T, Operator o1, Operator... ops>
-struct trait<type<T, with_fields::use_default, o1, ops...>>
-: trait<type<T, with_fields::from<T>, o1, ops...>>
+template <typename... Ts>
+concept all_ops = (Operator<Ts> && ...);
+
+template<SelfDescribed T, typename... ops> requires all_ops<ops...>
+struct trait<type<T, with_fields::use_default, ops...>>
+: trait<type<T, with_fields::from<T>, ops...>>
 {
 };
 
-template<SelfDescribed T>
-struct trait<type<T, with_fields::use_default>>
-: trait<type<T, with_fields::from<T>>>
+template<typename T, typename... ops> requires all_ops<ops...>
+struct trait<type<T, with_fields::use_default, ops...>>
+: trait<type<T, with_fields::from_aggregate, ops...>>
 {
+    static_assert(SelfDescribed<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
 #else
 template<SelfDescribed T, Operator... ops>
@@ -56,7 +60,6 @@ struct trait<type<T, with_fields::use_default, ops...>>
 : trait<type<T, with_fields::from<T>, ops...>>
 {
 };
-#endif
 
 template<typename T, Operator... ops>
 struct trait<type<T, with_fields::use_default, ops...>>
@@ -64,6 +67,7 @@ struct trait<type<T, with_fields::use_default, ops...>>
 {
     static_assert(SelfDescribed<T> or std::is_aggregate_v<T>, "T must be an aggregate or have 'get_fields' defined.");
 };
+#endif
 
 // 'with_fields::from_aggregate'
 template<typename T, Operator... ops>
