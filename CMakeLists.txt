@@ -21,7 +21,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(
     cmake-deps
-    GIT_REPOSITORY https://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@github.com/mglowack/cmake-deps.git
+    GIT_REPOSITORY https://github.com/mglowack/cmake-deps.git
 )
 FetchContent_MakeAvailable(cmake-deps)
 
