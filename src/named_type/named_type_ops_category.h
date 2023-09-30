@@ -106,69 +106,22 @@ static_assert( is_ops_category_v<transparent_ops_with<float>>);
 // * 'default_ops' into 'strict_ops'
 // * 'transparent_ops' into 'transparent_ops_with<underlying_t>
 
-// ################
-// # type_convert #
-// ################
-
-template<typename from_t, typename into_t>
-struct type_convert
-{
-    template<typename T>
-    using func = std::conditional<std::is_same_v<T, from_t>, into_t, T>;
-
-    template<typename T>
-    using func_t = typename func<T>::type;
-};
-
-static_assert(std::is_same_v<void,  type_convert<int, float>::func<void>::type>);
-static_assert(std::is_same_v<float, type_convert<int, float>::func<float>::type>);
-static_assert(std::is_same_v<float, type_convert<int, float>::func<int>::type>);
-
-// #############
-// # apply_all #
-// #############
-
-template<typename T, template<typename> typename... funcs>
-struct apply_all : std::type_identity<T> {};
-
-template<typename T, template<typename> typename... funcs>
-using apply_all_t = typename apply_all<T, funcs...>::type;
-
-template<typename T, template<typename> typename func, template<typename> typename... other_funcs>
-struct apply_all<T, func, other_funcs...>
-{
-    using type = typename apply_all<func<T>, other_funcs...>::type;
-};
-
-static_assert(std::is_same_v<void, apply_all_t<void>>);
-static_assert(std::is_same_v<const int, apply_all_t<int, std::add_const_t>>);
-static_assert(std::is_same_v<const int&, apply_all_t<int, std::add_const_t, std::add_lvalue_reference_t>>);
-static_assert(std::is_same_v<void, apply_all_t<void, type_convert<int, void>::func_t>>);
-static_assert(std::is_same_v<void, apply_all_t<int,  type_convert<int, void>::func_t>>);
-static_assert(std::is_same_v<float, apply_all_t<int, type_convert<int, void>::func_t,
-                                                     type_convert<void, float>::func_t>>);
-
 // #########################
 // # transform_op_category #
 // ########################
 
-template<typename underlying_t>
-struct transform_op_category
-{
-    template<typename op_category_t>
-    using func = apply_all<op_category_t,
-                           type_convert<default_ops, strict_ops>::func_t,
-                           type_convert<transparent_ops, transparent_ops_with<underlying_t>>::template func_t>;
+template<typename underlying_t, OpCategory op_category_t>
+struct transform_op_category : dev::apply_all<
+        op_category_t,
+        dev::type_convert_f<default_ops, strict_ops>::func,
+        dev::type_convert_f<transparent_ops, transparent_ops_with<underlying_t>>::template func>
+{};
 
-    template<typename op_category_t>
-    using func_t = typename func<op_category_t>::type;
-};
-
-static_assert(std::is_same_v<strict_ops, transform_op_category<int>::func_t<default_ops>>);
-static_assert(std::is_same_v<strict_ops, transform_op_category<int>::func_t<strict_ops>>);
-static_assert(std::is_same_v<transparent_ops_with<int>, transform_op_category<int>::func_t<transparent_ops>>);
-static_assert(std::is_same_v<transparent_ops_with<int>, transform_op_category<int>::func_t<transparent_ops_with<int>>>);
-static_assert(std::is_same_v<transparent_ops_with<float>, transform_op_category<int>::func_t<transparent_ops_with<float>>>);
+static_assert(std::is_same_v<strict_ops,                  dev::make_func_single<transform_op_category, int>::func_t<default_ops>>);
+static_assert(std::is_same_v<strict_ops,                  dev::make_func_single<transform_op_category, int>::func_t<strict_ops>>);
+static_assert(std::is_same_v<transparent_ops_with<int>,   dev::make_func_single<transform_op_category, int>::func_t<transparent_ops>>);
+static_assert(std::is_same_v<transparent_ops_with<int>,   dev::make_func_single<transform_op_category, int>::func_t<transparent_ops_with<int>>>);
+static_assert(std::is_same_v<transparent_ops_with<float>, dev::make_func_single<transform_op_category, int>::func_t<transparent_ops_with<float>>>);
 
 // #########################
 // # extract_op_categories #
@@ -182,7 +135,9 @@ struct extract_op_categories
         std::is_same_v<dev::type_list<>, raw_op_categories_list>,
         dev::type_list<default_ops>, // insert 'default_ops' no other op categories are specified
         raw_op_categories_list>;
-    using type = dev::type_list_transform_t<op_categories_list, transform_op_category<underlying_t>::template func_t>;
+    using type = dev::type_list_transform_t<
+        op_categories_list,
+        dev::make_func_single<transform_op_category, underlying_t>::template func_t>;
 };
 
 template<typename params_list, typename underlying_t>
