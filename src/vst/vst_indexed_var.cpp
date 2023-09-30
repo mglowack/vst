@@ -1,1 +1,0 @@
-#include <vst_indexed_var.h>

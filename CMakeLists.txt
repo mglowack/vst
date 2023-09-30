@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 project(vst)
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    option(${project}_BUILD_TESTS "whether or not tests should be built" ON)
-endif()
+
+##################
+# compiler setup #
+##################
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -18,6 +19,10 @@ else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
+###################
+# cmake functions #
+###################
+
 include(FetchContent)
 FetchContent_Declare(
     cmake-deps
@@ -25,11 +30,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cmake-deps)
 
+###########
+# targets #
+###########
+
 include(deps/project.cmake)
 add_subdirectory(src/dev)
 add_subdirectory(src/vst)
 add_subdirectory(src/named_type)
 
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    option(${project}_BUILD_TESTS "whether or not tests should be built" ON)
+endif()
 if(${project}_BUILD_TESTS)
     include(deps/tests.cmake)
     add_subdirectory(src/dev/test)
