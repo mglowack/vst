@@ -4,8 +4,9 @@ include(GoogleTest)
 
 add_executable(
     test_dev
-    test_dev_type_list.cpp
     test_dev_tuple.cpp
+    test_dev_type_list.cpp
+    test_dev_type_traits.cpp
 )
 target_link_libraries(
     test_dev PRIVATE
@@ -13,4 +14,3 @@ target_link_libraries(
     dev
 )
 gtest_discover_tests(test_dev)
-# add_test(NAME test_dev COMMAND test_dev)
