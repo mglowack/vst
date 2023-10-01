@@ -11,4 +11,7 @@ on:
 
 jobs:
   call-reusable:
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/cpp-build-in-container.yml
