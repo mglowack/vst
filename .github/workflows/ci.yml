@@ -15,3 +15,6 @@ jobs:
       contents: read
       packages: write
     uses: ./.github/workflows/cpp-build-in-container.yml
+    with:
+      build_types: "['Debug', 'Release']"
+      compilers: "['g++-13', 'clang++-15']"

@@ -1,6 +1,12 @@
 on:
   workflow_call:
-
+    inputs:
+      build_types:
+        required: true
+        type: string
+      compilers:
+        required: true
+        type: string
 env:
   REGISTRY: ghcr.io
   IMAGE_TAG: ghcr.io/${{ github.repository }}
@@ -49,8 +55,8 @@ jobs:
       fail-fast: false
 
       matrix:
-        build_type: [Debug]
-        compiler: [g++-13, clang++-15]
+        build_type: ${{ fromJson(inputs.build_types) }}
+        compiler: ${{ fromJson(inputs.compilers) }}
 
     steps:
     - run: pwd
