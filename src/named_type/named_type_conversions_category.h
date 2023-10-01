@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dev_type_list.h>
+#include <dev_type_traits.h>
 
 #include <functional>
 
@@ -46,10 +47,10 @@ static_assert( is_conversion_category_v<implicit_conversions_to<float>>);
 // # extract_conversion_categories #
 // #################################
 
-template<typename params_list, typename underlying_t>
+template<dev::any_type_list params_list, typename underlying_t>
 struct extract_conversion_categories
 {
-    using raw_categories_list = dev::type_list_filter_t<params_list, is_conversion_category>;
+    using raw_categories_list = typename params_list::template erase_if<dev::combine<is_conversion_category, std::negation>::result>;
     using categories_list = raw_categories_list;
     // using op_categories_list = std::conditional_t<
         // std::is_same_v<dev::type_list<>, raw_op_categories_list>,
@@ -59,7 +60,7 @@ struct extract_conversion_categories
     using type = categories_list;
 };
 
-template<typename params_list, typename underlying_t>
+template<dev::any_type_list params_list, typename underlying_t>
 using extract_conversion_categories_t = typename extract_conversion_categories<params_list, underlying_t>::type;
 
 static_assert(std::is_same_v<

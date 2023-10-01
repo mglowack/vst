@@ -7,6 +7,7 @@ add_library_checked_headers (
     vst_defs_ops.h
     vst_defs_with_fields.h
     vst_indexed_var.h
+    vst_make_type.h
     vst_named_field_ptr.h
     vst_named_var.h
     vst_operators_addable.h

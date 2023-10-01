@@ -10,3 +10,4 @@ add_library_checked_headers (
     dev_type_traits.h
 )
 target_include_directories(dev INTERFACE .)
+target_link_libraries(dev INTERFACE type_list)

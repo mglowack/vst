@@ -43,8 +43,8 @@ struct is_named_field_ptr_of
 template<typename spec_t, typename T>
 concept FieldSpecOf =
     dev::is_template_v<std::tuple, spec_t>
-    && (dev::type_list_all_v<dev::template_cast_t<dev::type_list, spec_t>, is_pointer_to_member_of<T>::template pred>
-      || dev::type_list_all_v<dev::template_cast_t<dev::type_list, spec_t>, is_named_field_ptr_of<T>::template pred>);
+    && (dev::template_cast_t<dev::type_list, spec_t>::template all_of<is_pointer_to_member_of<T>::template pred>
+      || dev::template_cast_t<dev::type_list, spec_t>::template all_of<is_named_field_ptr_of<T>::template pred>);
 
 
 // ################

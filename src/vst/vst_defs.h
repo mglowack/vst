@@ -31,7 +31,7 @@ concept Type = requires {
     typename trait<T>::properties;
 };
 
-template <typename T, typename OP>
-concept OpEnabled = Type<T> && dev::type_list_contains_v<typename trait<T>::properties, OP>;
+template <typename T, typename OP> // why not Operator OP?
+concept OpEnabled = Type<T> && trait<T>::properties::template contains<OP>;
 
 } // namespace vst
