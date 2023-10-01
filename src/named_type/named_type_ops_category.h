@@ -79,7 +79,7 @@ struct transparent_ops_with;
 // ###################
 
 template<typename T>
-struct is_ops_category : dev::type_list_contains<dev::type_list<default_ops, strict_ops, transparent_ops>, T> {};
+struct is_ops_category : std::bool_constant<dev::type_list<default_ops, strict_ops, transparent_ops>::contains<T>> {};
 
 template<typename T>
 struct is_ops_category<transparent_ops_with<T>> : std::true_type {};
@@ -117,6 +117,9 @@ struct transform_op_category : dev::apply_all<
         dev::type_convert_f<transparent_ops, transparent_ops_with<underlying_t>>::template func>
 {};
 
+template<typename underlying_t>
+using transform_op_category_f = dev::make_func_single<transform_op_category, underlying_t>;
+
 static_assert(std::is_same_v<strict_ops,                  dev::make_func_single<transform_op_category, int>::func_t<default_ops>>);
 static_assert(std::is_same_v<strict_ops,                  dev::make_func_single<transform_op_category, int>::func_t<strict_ops>>);
 static_assert(std::is_same_v<transparent_ops_with<int>,   dev::make_func_single<transform_op_category, int>::func_t<transparent_ops>>);
@@ -127,20 +130,18 @@ static_assert(std::is_same_v<transparent_ops_with<float>, dev::make_func_single<
 // # extract_op_categories #
 // #########################
 
-template<typename params_list, typename underlying_t>
+template<dev::any_type_list params_list, typename underlying_t>
 struct extract_op_categories
 {
-    using raw_op_categories_list = dev::type_list_filter_t<params_list, is_ops_category>;
+    using raw_op_categories_list = typename params_list::template erase_if<dev::combine<is_ops_category, std::negation>::result>;
     using op_categories_list = std::conditional_t<
-        std::is_same_v<dev::type_list<>, raw_op_categories_list>,
+        raw_op_categories_list::is_empty,
         dev::type_list<default_ops>, // insert 'default_ops' no other op categories are specified
         raw_op_categories_list>;
-    using type = dev::type_list_transform_t<
-        op_categories_list,
-        dev::make_func_single<transform_op_category, underlying_t>::template func_t>;
+    using type = typename op_categories_list::template transform<transform_op_category_f<underlying_t>::template func_t>;
 };
 
-template<typename params_list, typename underlying_t>
+template<dev::any_type_list params_list, typename underlying_t>
 using extract_op_categories_t = typename extract_op_categories<params_list, underlying_t>::type;
 
 static_assert(std::is_same_v<dev::type_list<strict_ops>, extract_op_categories_t<dev::type_list<>, int>>);
@@ -161,12 +162,8 @@ static_assert(std::is_same_v<
 // # filter_op_categories #
 // ########################
 
-template<typename params_list>
-struct filter_op_categories
-: dev::type_list_filter<params_list, vst::is_op> {};
-
-template<typename params_list>
-using filter_op_categories_t = typename filter_op_categories<params_list>::type;
+template<dev::any_type_list params_list>
+using filter_op_categories_t = typename params_list::template erase_if<is_ops_category>;
 
 static_assert(std::is_same_v<
     dev::type_list<vst::op::ordered, vst::op::hashable>,

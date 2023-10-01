@@ -14,7 +14,7 @@ namespace vst {
 using all_ops_list = dev::type_list<op::ordered, op::hashable, op::addable>;
 
 template<typename T>
-struct is_op : dev::type_list_contains<all_ops_list, T> {};
+struct is_op : std::bool_constant<all_ops_list::template contains<T>> {};
 
 template<typename T>
 constexpr bool is_op_v = is_op<T>::value;
