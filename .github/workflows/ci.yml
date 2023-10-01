@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: mglowack/workflows/.github/actions/cpp-build-in-container.yml@master
+    uses: mglowack/workflows/.github/workflows/cpp-build-in-container.yml@master
     with:
       build_types: "['Debug', 'Release']"
       compilers: "['g++-13', 'clang++-15']"
