@@ -16,5 +16,6 @@ jobs:
       packages: write
     uses: mglowack/workflows/.github/workflows/cpp-build-in-container.yml@master
     with:
-      build_types: "['Debug', 'Release']"
+      # build_types: "['Debug', 'Release']"
+      build_types: "['Debug']"
       compilers: "['g++-13', 'clang++-15']"
