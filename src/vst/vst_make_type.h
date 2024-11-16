@@ -2,7 +2,7 @@
 
 #include "vst_defs.h"
 
-#include <type_list/type_list.hh>
+#include <tn/type_list>
 #include <dev_type_traits.h>
 
 namespace vst {
