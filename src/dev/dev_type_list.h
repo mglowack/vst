@@ -1,5 +1,5 @@
 #pragma once
-#include <type_list/type_list.hh>
+#include <tn/type_list>
 
 namespace dev {
 
